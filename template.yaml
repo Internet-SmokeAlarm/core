@@ -1,0 +1,21 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: FMLaaS Core
+
+Globals:
+  Function:
+    Timeout: 3
+
+Resources:
+  CreateGroupFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: create_group/
+      Handler: app.lambda_handler
+      Runtime: python3.7
+      Events:
+        TestFuncEvent:
+          Type: Api
+          Properties:
+            Path: /api/v1/create_group
+            Method: post
