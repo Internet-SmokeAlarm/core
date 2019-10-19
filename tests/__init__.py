@@ -1,2 +1,2 @@
-from .test_create_group import test_create_group_function
+from .create_group import *
 from .test_submit_model_update import test_submit_model_update_function
