@@ -5,17 +5,55 @@ Description: FMLaaS Core
 Globals:
   Function:
     Timeout: 3
+    Runtime: python3.7
+    MemorySize: 128
+    Environment:
+      Variables:
+        MODELS_BUCKET: fmlaas-models
 
 Resources:
+  ModelBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: fmlaas-models
+
+  S3PutObjectPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: S3PutObjectPolicy
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - s3:PutObject
+            Resource: !Sub "${ModelBucket.Arn}/*"
+
   CreateGroupFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: create_group/
       Handler: app.lambda_handler
-      Runtime: python3.7
+      FunctionName: CreateGroup
       Events:
-        TestFuncEvent:
+        CreateGroupApiEvent:
           Type: Api
           Properties:
             Path: /api/v1/create_group
+            Method: post
+
+  SubmitModelUpdateFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: submit_model_update/
+      Handler: app.lambda_handler
+      FunctionName: SubmitModelUpdate
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - !Ref S3PutObjectPolicy
+      Events:
+        SubmitModelUpdateApiEvent:
+          Type: Api
+          Properties:
+            Path: /api/v1/submit_model_update
             Method: post
