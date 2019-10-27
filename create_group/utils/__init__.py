@@ -1,1 +1,1 @@
-from .group_key import generate_group_key
+from .group_id import generate_group_id

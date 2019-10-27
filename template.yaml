@@ -11,8 +11,39 @@ Globals:
       Variables:
         MODELS_BUCKET: fmlaas-models
         DEVICE_TABLE_NAME: fml_devices
+        LEARNING_ROUND_TABLE_NAME: fml_rounds
+        GROUPS_TABLE_NAME: fml_groups
 
 Resources:
+  # ------------ DynamoDB ------------
+  GroupsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        -
+          AttributeName: "ID"
+          AttributeType: "N"
+      KeySchema:
+        -
+          AttributeName: "ID"
+          KeyType: "HASH"
+      TableName: "fml_groups"
+
+  LearningRoundTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        -
+          AttributeName: "ID"
+          AttributeType: "N"
+      KeySchema:
+        -
+          AttributeName: "ID"
+          KeyType: "HASH"
+      TableName: "fml_rounds"
+
   DevicesTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -33,11 +64,15 @@ Resources:
           KeyType: "RANGE"
       TableName: "fml_devices"
 
+
+  # ------------ S3 ------------
   ModelBucket:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: fmlaas-models
 
+
+  # ------------ IAM ------------
   S3PutObjectPolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
@@ -50,6 +85,8 @@ Resources:
               - s3:PutObject
             Resource: !Sub "${ModelBucket.Arn}/*"
 
+
+  # ------------ Lambda ------------
   RegisterDeviceFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -57,6 +94,7 @@ Resources:
       Handler: app.lambda_handler
       FunctionName: RegisterDevice
       Policies:
+        - AWSLambdaBasicExecutionRole
         - DynamoDBCrudPolicy:
             TableName: !Ref DevicesTable
       Events:
@@ -66,12 +104,35 @@ Resources:
             Path: /api/v1/device/register
             Method: post
 
+  StartRoundFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: start_round/
+      Handler: app.lambda_handler
+      FunctionName: StartRound
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref LearningRoundTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref GroupsTable
+      Events:
+        StartRoundApiEvent:
+          Type: Api
+          Properties:
+            Path: /api/v1/round/start
+            Method: post
+
   CreateGroupFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: create_group/
       Handler: app.lambda_handler
       FunctionName: CreateGroup
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref GroupsTable
       Events:
         CreateGroupApiEvent:
           Type: Api
@@ -86,6 +147,8 @@ Resources:
       Handler: app.lambda_handler
       FunctionName: SubmitModelUpdate
       Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref LearningRoundTable
         - AWSLambdaBasicExecutionRole
         - !Ref S3PutObjectPolicy
       Events:

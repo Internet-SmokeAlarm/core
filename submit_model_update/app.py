@@ -26,43 +26,54 @@ def create_presigned_post(bucket_name, object_name,
 
     return response
 
-def generate_object_name(group_key, device_id, round_number):
+def generate_object_name(device_id, round_number):
     """
     Generates appropriate S3 object name given state information.
 
-    :param group_key: string
-    :param device_id: string
-    :param round_number: integer
+    :param device_id: int
+    :param round_number: int
     """
-    return group_key + "_" + device_id + "_" + str(round_number)
+    return str(device_id) + "_" + str(round_number)
+
+def add_model_to_db(round_id, device_id, object_name):
+    """
+    :param round_id: int
+    :param device_id: int
+    :param object_name: string
+    """
+    TABLE_NAME = os.environ["LEARNING_ROUND_TABLE_NAME"]
+
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table(TABLE_NAME)
+
+    round_item = table.get_item(Key={"ID" : round_id})["Item"]
+
+    round_item["model_updates"].append({
+        "device_id" : device_id,
+        "model" : object_name})
+
+    table.put_item(Item=round_item)
 
 def lambda_handler(event, context):
     BUCKET_NAME = os.environ["MODELS_BUCKET"]
 
     req_json = json.loads(event.get('body'))
-    group_key = req_json["group_key"]
+    round_id = req_json["round_id"]
+    device_id = req_json["device_id"]
 
     # TODO : Authenticate user
-    # TODO : Validate input
 
-    # TODO : Get device ID from DB
-    device_id = "100ace"
-
-    # TODO : Get current round number for group
-    round_number = 0
-
-    object_name = generate_object_name(group_key, device_id, round_number)
+    object_name = generate_object_name(device_id, round_id)
+    add_model_to_db(round_id, device_id, object_name)
 
     fields = {}
     conditions = []
-    expiration_sec = 60 * 60
+    expiration_sec = 60 * 30
 
     presigned_url = create_presigned_post(BUCKET_NAME, object_name,
                                           fields, conditions, expiration=expiration_sec)
 
-    return_data = {"model_url" : presigned_url}
-
     return {
         "statusCode" : 200,
-        "body" : json.dumps(return_data)
+        "body" : json.dumps({"model_url" : presigned_url})
     }
