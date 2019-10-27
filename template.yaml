@@ -10,8 +10,29 @@ Globals:
     Environment:
       Variables:
         MODELS_BUCKET: fmlaas-models
+        DEVICE_TABLE_NAME: fml_devices
 
 Resources:
+  DevicesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        -
+          AttributeName: "ID"
+          AttributeType: "N"
+        -
+          AttributeName: "APIKey"
+          AttributeType: "S"
+      KeySchema:
+        -
+          AttributeName: "ID"
+          KeyType: "HASH"
+        -
+          AttributeName: "APIKey"
+          KeyType: "RANGE"
+      TableName: "fml_devices"
+
   ModelBucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -28,6 +49,22 @@ Resources:
             Action:
               - s3:PutObject
             Resource: !Sub "${ModelBucket.Arn}/*"
+
+  RegisterDeviceFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: register_device/
+      Handler: app.lambda_handler
+      FunctionName: RegisterDevice
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref DevicesTable
+      Events:
+        RegisterDeviceApiEvent:
+          Type: Api
+          Properties:
+            Path: /api/v1/device/register
+            Method: post
 
   CreateGroupFunction:
     Type: AWS::Serverless::Function
