@@ -4,9 +4,9 @@ Description: FMLaaS Core
 
 Globals:
   Function:
-    Timeout: 3
+    Timeout: 60
     Runtime: python3.7
-    MemorySize: 128
+    MemorySize: 256
     Environment:
       Variables:
         MODELS_BUCKET: fmlaas-models
@@ -85,6 +85,18 @@ Resources:
               - s3:PutObject
             Resource: !Sub "${ModelBucket.Arn}/*"
 
+  S3GetObjectPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: S3GetObjectPolicy
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - s3:GetObject
+            Resource: !Sub "${ModelBucket.Arn}/*"
+
 
   # ------------ Lambda ------------
   RegisterDeviceFunction:
@@ -156,4 +168,23 @@ Resources:
           Type: Api
           Properties:
             Path: /api/v1/submit_model_update
+            Method: post
+
+  AggregateModelsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: aggregate_models/
+      Handler: app.lambda_handler
+      FunctionName: AggregateModels
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref LearningRoundTable
+        - !Ref S3GetObjectPolicy
+        - !Ref S3PutObjectPolicy
+      Events:
+        AggregateModelsApiEvent:
+          Type: Api
+          Properties:
+            Path: /api/v1/round/aggregate
             Method: post
