@@ -1,4 +1,4 @@
 import os
 
 def get_group_table_name_from_env():
-    return os.environ["DEVICE_TABLE_NAME"]
+    return os.environ["GROUPS_TABLE_NAME"]

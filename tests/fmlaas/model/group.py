@@ -2,6 +2,7 @@ import unittest
 
 from dependencies.python.fmlaas import FLGroup
 from dependencies.python.fmlaas import generate_device_key_pair
+from dependencies.python.fmlaas import generate_unique_id
 from dependencies.python.fmlaas import InMemoryDBInterface
 
 class FLGroupTestCase(unittest.TestCase):
@@ -39,7 +40,7 @@ class FLGroupTestCase(unittest.TestCase):
         self.assertEqual(group.get_rounds(), [])
         self.assertEqual(group.get_devices(), [{'id': 7640150571427383, 'api_key': '7e590298-a239-47e6-951a-e8558c3ef91b'}])
 
-    def test_save_to_db(self):
+    def test_save_to_load_from_db_1(self):
         json_data = {'name': 'a_different_name', 'ID': 1234556645443, 'devices': [{'id': 7640150571427383, 'api_key': '7e590298-a239-47e6-951a-e8558c3ef91b'}], 'rounds': []}
         group = FLGroup.from_json(json_data)
 
@@ -47,3 +48,57 @@ class FLGroupTestCase(unittest.TestCase):
 
         self.assertTrue(FLGroup.save_to_db(group, db_))
         self.assertEqual(FLGroup.load_from_db(1234556645443, db_).to_json(), json_data)
+
+    def test_save_to_load_from_db_2(self):
+        json_data = {'name': 'a_different_name', 'ID': 1234556645443, 'devices': [{'id': 7640150571427383, 'api_key': '7e590298-a239-47e6-951a-e8558c3ef91b'}], 'rounds': [{'id': 7420988340570048, 'models': ['test_model_1']}]}
+        group = FLGroup.from_json(json_data)
+
+        db_ = InMemoryDBInterface()
+
+        self.assertTrue(FLGroup.save_to_db(group, db_))
+        self.assertEqual(FLGroup.load_from_db(1234556645443, db_).to_json(), json_data)
+
+    def test_create_round(self):
+        group = FLGroup("a_different_name", devices=[], rounds=[])
+
+        round_id = generate_unique_id()
+
+        group.create_round(round_id)
+
+        json_data = group.to_json()
+
+        self.assertTrue("ID" in json_data)
+        self.assertTrue("devices" in json_data)
+        self.assertEqual(len(json_data["devices"]), 0)
+        self.assertTrue("rounds" in json_data)
+        self.assertEqual(len(json_data["rounds"]), 1)
+
+    def test_add_model_to_round_1(self):
+        group = FLGroup("a_different_name", devices=[], rounds=[])
+
+        round_id = generate_unique_id()
+
+        group.create_round(round_id)
+        group.add_model_to_round(round_id, "test_model_1")
+
+        json_data = group.to_json()
+
+        self.assertEqual(json_data["rounds"][0]["id"], round_id)
+        self.assertTrue("test_model_1" in json_data["rounds"][0]["models"])
+
+    def test_add_model_to_round_2(self):
+        group = FLGroup("a_different_name", devices=[], rounds=[])
+
+        round_id = generate_unique_id()
+        round_id_2 = generate_unique_id()
+
+        group.create_round(round_id)
+        group.create_round(round_id_2)
+        group.add_model_to_round(round_id, "test_model_1")
+
+        json_data = group.to_json()
+
+        self.assertEqual(len(json_data["rounds"]), 2)
+        self.assertEqual(json_data["rounds"][0]["id"], round_id)
+        self.assertEqual(json_data["rounds"][1]["id"], round_id_2)
+        self.assertTrue("test_model_1" in json_data["rounds"][0]["models"])

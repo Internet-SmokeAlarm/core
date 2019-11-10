@@ -16,11 +16,21 @@ class FLGroup:
             "api_key" : device_api_key
         })
 
-    def create_round(self):
-        pass
+    def create_round(self, round_id):
+        """
+        :param round_id: int
+        """
+        self.rounds.append({
+            "id" : round_id,
+            "models" : []
+        })
 
-    def add_model_to_round(self):
-        pass
+    def add_model_to_round(self, round_id, model):
+        for round in self.rounds:
+            if round["id"] == round_id:
+                round["models"].append(model)
+
+                return
 
     def get_id(self):
         return self.id
