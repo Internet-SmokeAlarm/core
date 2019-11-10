@@ -1,37 +1,9 @@
 import json
-import boto3
-import os
 
-from utils import generate_round_key
-
-def add_round(round_id):
-    """
-    :param round_id: int
-    """
-    TABLE_NAME = os.environ["LEARNING_ROUND_TABLE_NAME"]
-
-    dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table(TABLE_NAME)
-
-    table.put_item(Item={
-        "ID" : round_id,
-        "model_updates" : []
-    })
-
-def add_round_id_to_group(group_id, round_id):
-    """
-    :param group_id: int
-    :param round_id: int
-    """
-    TABLE_NAME = os.environ["GROUPS_TABLE_NAME"]
-
-    dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table(TABLE_NAME)
-
-    group_item = table.get_item(Key={"ID" : group_id})["Item"]
-    group_item["Learning Round IDs"].append(round_id)
-
-    table.put_item(Item=group_item)
+from fmlaas import generate_unique_id
+from fmlaas import get_group_table_name_from_env
+from fmlaas import DynamoDBInterface
+from fmlaas import FLGroup
 
 def lambda_handler(event, context):
     req_json = json.loads(event.get('body'))
@@ -39,9 +11,13 @@ def lambda_handler(event, context):
 
     # TODO : Authenticate user
 
-    round_id = generate_round_key()
-    add_round(round_id)
-    add_round_id_to_group(group_id, round_id)
+    dynamodb_ = DynamoDBInterface(get_group_table_name_from_env())
+    group = FLGroup.load_from_db(group_id, dynamodb_)
+
+    round_id = generate_unique_id()
+    group.create_round(round_id)
+
+    FLGroup.save_to_db(group, dynamodb_)
 
     return {
         "statusCode" : 200,
