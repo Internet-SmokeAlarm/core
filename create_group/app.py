@@ -1,23 +1,9 @@
 import json
-import boto3
-import os
-from utils import generate_group_id
 
-def add_group(group_id, group_name):
-    """
-    :param group_id: int
-    :param group_name: string
-    """
-    TABLE_NAME = os.environ["GROUPS_TABLE_NAME"]
-
-    dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table(TABLE_NAME)
-
-    table.put_item(Item={
-        "ID" : group_id,
-        "Group Name" : group_name,
-        "Learning Round IDs" : []
-    })
+from fmlaas import generate_unique_id
+from fmlaas import get_group_table_name_from_env
+from fmlaas import DynamoDBInterface
+from fmlaas import FLGroup
 
 def lambda_handler(event, context):
     req_json = json.loads(event.get('body'))
@@ -26,8 +12,12 @@ def lambda_handler(event, context):
 
     # TODO : Authenticate user
 
-    group_id = generate_group_id()
-    add_group(group_id, group_name)
+    dynamodb_ = DynamoDBInterface(get_group_table_name_from_env())
+
+    group_id = generate_unique_id()
+    group = FLGroup(group_name, id=group_id, devices=[], rounds=[])
+
+    FLGroup.save_to_db(group, dynamodb_)
 
     return {
         "statusCode" : 200,
