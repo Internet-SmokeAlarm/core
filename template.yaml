@@ -4,15 +4,11 @@ Description: FMLaaS Core
 
 Globals:
   Function:
-    Timeout: 60
     Runtime: python3.7
-    MemorySize: 256
     Environment:
       Variables:
         MODELS_BUCKET: fmlaas-models
-        DEVICE_TABLE_NAME: fml_devices
-        LEARNING_ROUND_TABLE_NAME: fml_rounds
-        GROUPS_TABLE_NAME: fml_groups
+        GROUPS_TABLE_NAME: fl_groups
 
 Resources:
   # ------------ DynamoDB ------------
@@ -28,41 +24,7 @@ Resources:
         -
           AttributeName: "ID"
           KeyType: "HASH"
-      TableName: "fml_groups"
-
-  LearningRoundTable:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      BillingMode: PAY_PER_REQUEST
-      AttributeDefinitions:
-        -
-          AttributeName: "ID"
-          AttributeType: "N"
-      KeySchema:
-        -
-          AttributeName: "ID"
-          KeyType: "HASH"
-      TableName: "fml_rounds"
-
-  DevicesTable:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      BillingMode: PAY_PER_REQUEST
-      AttributeDefinitions:
-        -
-          AttributeName: "ID"
-          AttributeType: "N"
-        -
-          AttributeName: "APIKey"
-          AttributeType: "S"
-      KeySchema:
-        -
-          AttributeName: "ID"
-          KeyType: "HASH"
-        -
-          AttributeName: "APIKey"
-          KeyType: "RANGE"
-      TableName: "fml_devices"
+      TableName: "fl_groups"
 
 
   # ------------ S3 ------------
@@ -98,17 +60,32 @@ Resources:
             Resource: !Sub "${ModelBucket.Arn}/*"
 
 
+  # ------------ Layers ------------
+  FMLaaSCoreDependencyLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: core-sam-dependencies
+      ContentUri: dependencies/
+      CompatibleRuntimes:
+        - python3.7
+      RetentionPolicy: Delete
+
+
   # ------------ Lambda ------------
   RegisterDeviceFunction:
     Type: AWS::Serverless::Function
+    Timeout: 3
+    MemorySize: 128
     Properties:
       CodeUri: register_device/
       Handler: app.lambda_handler
       FunctionName: RegisterDevice
+      Layers:
+        - !Ref FMLaaSCoreDependencyLayer
       Policies:
         - AWSLambdaBasicExecutionRole
         - DynamoDBCrudPolicy:
-            TableName: !Ref DevicesTable
+            TableName: !Ref GroupsTable
       Events:
         RegisterDeviceApiEvent:
           Type: Api
@@ -118,14 +95,16 @@ Resources:
 
   StartRoundFunction:
     Type: AWS::Serverless::Function
+    Timeout: 3
+    MemorySize: 128
     Properties:
       CodeUri: start_round/
       Handler: app.lambda_handler
       FunctionName: StartRound
+      Layers:
+        - !Ref FMLaaSCoreDependencyLayer
       Policies:
         - AWSLambdaBasicExecutionRole
-        - DynamoDBCrudPolicy:
-            TableName: !Ref LearningRoundTable
         - DynamoDBCrudPolicy:
             TableName: !Ref GroupsTable
       Events:
@@ -137,10 +116,14 @@ Resources:
 
   CreateGroupFunction:
     Type: AWS::Serverless::Function
+    Timeout: 3
+    MemorySize: 128
     Properties:
       CodeUri: create_group/
       Handler: app.lambda_handler
       FunctionName: CreateGroup
+      Layers:
+        - !Ref FMLaaSCoreDependencyLayer
       Policies:
         - AWSLambdaBasicExecutionRole
         - DynamoDBCrudPolicy:
@@ -154,13 +137,17 @@ Resources:
 
   SubmitModelUpdateFunction:
     Type: AWS::Serverless::Function
+    Timeout: 3
+    MemorySize: 128
     Properties:
       CodeUri: submit_model_update/
       Handler: app.lambda_handler
       FunctionName: SubmitModelUpdate
+      Layers:
+        - !Ref FMLaaSCoreDependencyLayer
       Policies:
         - DynamoDBCrudPolicy:
-            TableName: !Ref LearningRoundTable
+            TableName: !Ref GroupsTable
         - AWSLambdaBasicExecutionRole
         - !Ref S3PutObjectPolicy
       Events:
@@ -172,14 +159,18 @@ Resources:
 
   AggregateModelsFunction:
     Type: AWS::Serverless::Function
+    Timeout: 60
+    MemorySize: 256
     Properties:
       CodeUri: aggregate_models/
       Handler: app.lambda_handler
       FunctionName: AggregateModels
+      Layers:
+        - !Ref FMLaaSCoreDependencyLayer
       Policies:
         - AWSLambdaBasicExecutionRole
         - DynamoDBCrudPolicy:
-            TableName: !Ref LearningRoundTable
+            TableName: !Ref GroupsTable
         - !Ref S3GetObjectPolicy
         - !Ref S3PutObjectPolicy
       Events:
