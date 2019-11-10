@@ -1,28 +1,24 @@
 import json
-import boto3
-import os
 
-from utils import generate_device_key_pair
-
-def add_device(device_id, device_api_key):
-    TABLE_NAME = os.environ["DEVICE_TABLE_NAME"]
-
-    dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table(TABLE_NAME)
-
-    table.put_item(Item={
-        "ID" : device_id,
-        "APIKey" : device_api_key
-    })
+from fmlaas import generate_device_key_pair
+from fmlaas import get_group_table_name_from_env
+from fmlaas import DynamoDBInterface
+from fmlaas import FLGroup
 
 def lambda_handler(event, context):
     req_json = json.loads(event.get('body'))
 
     # TODO : Authenticate user
 
-    device_id, device_api_key = generate_device_key_pair()
+    group_id = req_json["group_id"]
 
-    add_device(device_id, device_api_key)
+    dynamodb_ = DynamoDBInterface(get_group_table_name_from_env())
+    group = FLGroup.load_from_db(group_id, dynamodb_)
+
+    device_id, device_api_key = generate_device_key_pair()
+    group.add_device(device_id, device_api_key)
+
+    FLGroup.save_to_db(group, dynamodb_)
 
     return {
         "statusCode" : 200,
