@@ -26,6 +26,10 @@ class FLGroup:
         })
 
     def add_model_to_round(self, round_id, model):
+        """
+        :param round_id: int
+        :param model: string
+        """
         for round in self.rounds:
             if round["id"] == round_id:
                 round["models"].append(model)

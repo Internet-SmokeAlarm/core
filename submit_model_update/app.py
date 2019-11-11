@@ -1,77 +1,34 @@
-import boto3
 import json
-import os
 
-def create_presigned_post(bucket_name, object_name,
-                          fields=None, conditions=None, expiration=3600):
-    """Generate a presigned URL S3 POST request to upload a file
+from fmlaas import get_group_table_name_from_env
+from fmlaas import DynamoDBInterface
+from fmlaas import FLGroup
+from fmlaas import create_presigned_post
+from fmlaas import generate_model_object_name
+from fmlaas import get_models_bucket_name
 
-    :param bucket_name: string
-    :param object_name: string
-    :param fields: Dictionary of prefilled form fields
-    :param conditions: List of conditions to include in the policy
-    :param expiration: Time in seconds for the presigned URL to remain valid
-    :return: Dictionary with the following keys:
-        url: URL to post to
-        fields: Dictionary of form fields and values to submit with the POST
-    :return: None if error.
-    """
-    # Generate a presigned S3 POST URL
-    s3_client = boto3.client('s3')
-    response = s3_client.generate_presigned_post(Bucket=bucket_name,
-                                                 Key=object_name,
-                                                 Fields=fields,
-                                                 Conditions=conditions,
-                                                 ExpiresIn=expiration)
-
-    return response
-
-def generate_object_name(device_id, round_number):
-    """
-    Generates appropriate S3 object name given state information.
-
-    :param device_id: int
-    :param round_number: int
-    """
-    return str(device_id) + "_" + str(round_number)
-
-def add_model_to_db(round_id, device_id, object_name):
-    """
-    :param round_id: int
-    :param device_id: int
-    :param object_name: string
-    """
-    TABLE_NAME = os.environ["LEARNING_ROUND_TABLE_NAME"]
-
-    dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table(TABLE_NAME)
-
-    round_item = table.get_item(Key={"ID" : round_id})["Item"]
-
-    round_item["model_updates"].append({
-        "device_id" : device_id,
-        "model" : object_name})
-
-    table.put_item(Item=round_item)
+EXPIRATION_SEC = 60 * 30
+FIELDS = {}
+CONDITIONS = []
 
 def lambda_handler(event, context):
-    BUCKET_NAME = os.environ["MODELS_BUCKET"]
-
     req_json = json.loads(event.get('body'))
+    group_id = req_json["group_id"]
     round_id = req_json["round_id"]
     device_id = req_json["device_id"]
 
     # TODO : Authenticate user
 
-    object_name = generate_object_name(device_id, round_id)
-    add_model_to_db(round_id, device_id, object_name)
+    model_object_name = generate_model_object_name(device_id, round_id)
+    presigned_url = create_presigned_post(get_models_bucket_name(), model_object_name,
+                                          FIELDS, CONDITIONS, expiration=EXPIRATION_SEC)
 
-    fields = {}
-    conditions = []
-    expiration_sec = 60 * 30
+    dynamodb_ = DynamoDBInterface(get_group_table_name_from_env())
+    group = FLGroup.load_from_db(group_id, dynamodb_)
 
-    presigned_url = create_presigned_post(BUCKET_NAME, object_name,
-                                          fields, conditions, expiration=expiration_sec)
+    group.add_model_to_round(round_id, model_object_name)
+
+    FLGroup.save_to_db(group, dynamodb_)
 
     return {
         "statusCode" : 200,
