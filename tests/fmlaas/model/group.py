@@ -102,3 +102,56 @@ class FLGroupTestCase(unittest.TestCase):
         self.assertEqual(json_data["rounds"][0]["id"], round_id)
         self.assertEqual(json_data["rounds"][1]["id"], round_id_2)
         self.assertTrue("test_model_1" in json_data["rounds"][0]["models"])
+
+    def test_get_round(self):
+        group = FLGroup("a_different_name", devices=[], rounds=[])
+
+        round_id = generate_unique_id()
+        round_id_2 = generate_unique_id()
+
+        group.create_round(round_id)
+        group.create_round(round_id_2)
+        group.add_model_to_round(round_id, "test_model_1")
+
+        round_json = group.get_round(round_id)
+        round_2_json = group.get_round(round_id_2)
+
+        self.assertEqual(round_json["id"], round_id)
+        self.assertEqual(round_2_json["id"], round_id_2)
+        self.assertEqual(len(round_json["models"]), 1)
+        self.assertEqual(len(round_2_json["models"]), 0)
+
+    def test_get_models(self):
+        group = FLGroup("a_different_name", devices=[], rounds=[])
+
+        round_id = generate_unique_id()
+        round_id_2 = generate_unique_id()
+
+        group.create_round(round_id)
+        group.create_round(round_id_2)
+        group.add_model_to_round(round_id, "test_model_1")
+
+        round_models = group.get_models(round_id)
+        round_models_2 = group.get_models(round_id_2)
+
+        self.assertEqual(len(round_models), 1)
+        self.assertEqual(len(round_models_2), 0)
+        self.assertEqual(round_models[0], "test_model_1")
+
+    def test_set_round_global_model(self):
+        group = FLGroup("a_different_name", devices=[], rounds=[])
+
+        round_id = generate_unique_id()
+        round_id_2 = generate_unique_id()
+
+        group.create_round(round_id)
+        group.create_round(round_id_2)
+        group.set_round_global_model(round_id, "test_model_1")
+
+        round_json = group.get_round(round_id)
+        round_2_json = group.get_round(round_id_2)
+
+        self.assertEqual(round_json["id"], round_id)
+        self.assertEqual(round_2_json["id"], round_id_2)
+        self.assertEqual(round_2_json["combined_model"], "")
+        self.assertEqual(round_json["combined_model"], "test_model_1")

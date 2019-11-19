@@ -22,7 +22,8 @@ class FLGroup:
         """
         self.rounds.append({
             "id" : round_id,
-            "models" : []
+            "models" : [],
+            "combined_model" : ""
         })
 
     def add_model_to_round(self, round_id, model):
@@ -35,6 +36,30 @@ class FLGroup:
                 round["models"].append(model)
 
                 return
+
+    def get_round(self, round_id):
+        """
+        :param round_id: int
+        """
+        for round in self.rounds:
+            if round["id"] == round_id:
+                return round
+
+    def get_models(self, round_id):
+        """
+        :param round_id: int
+        """
+        round = self.get_round(round_id)
+
+        return round["models"]
+
+    def set_round_global_model(self, round_id, global_model):
+        """
+        :param round_id: int
+        :param global_model: string
+        """
+        round = self.get_round(round_id)
+        round["combined_model"] = global_model
 
     def get_id(self):
         return self.id

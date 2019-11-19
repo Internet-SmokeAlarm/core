@@ -28,5 +28,25 @@ def create_presigned_post(bucket_name, object_name,
 
     return response
 
+def download_s3_object(object_name, file_obj):
+    """
+    :param object_name: string
+    :param file_obj: open file object
+    """
+    BUCKET_NAME = get_models_bucket_name()
+
+    s3 = boto3.client('s3')
+    s3.download_fileobj(BUCKET_NAME, object_name, file_obj)
+
+def upload_s3_object(object_name, file_obj):
+    """
+    :param object_name: string
+    :param file_obj: open ('rb') file object
+    """
+    BUCKET_NAME = get_models_bucket_name()
+
+    s3 = boto3.client('s3')
+    s3.upload_fileobj(file_obj, BUCKET_NAME, object_name)
+
 def get_models_bucket_name():
     return os.environ["MODELS_BUCKET"]
