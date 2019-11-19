@@ -4,18 +4,188 @@ Description: FMLaaS Core
 
 Globals:
   Function:
-    Timeout: 3
+    Runtime: python3.7
+    Environment:
+      Variables:
+        MODELS_BUCKET: fmlaas-models
+        GROUPS_TABLE_NAME: fl_groups
 
 Resources:
+  # ------------ DynamoDB ------------
+  GroupsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        -
+          AttributeName: "ID"
+          AttributeType: "N"
+      KeySchema:
+        -
+          AttributeName: "ID"
+          KeyType: "HASH"
+      TableName: "fl_groups"
+
+
+  # ------------ S3 ------------
+  ModelBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: fmlaas-models
+
+
+  # ------------ IAM ------------
+  S3PutObjectPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: S3PutObjectPolicy
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - s3:PutObject
+            Resource: !Sub "${ModelBucket.Arn}/*"
+
+  S3GetObjectPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: S3GetObjectPolicy
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - s3:GetObject
+            Resource: !Sub "${ModelBucket.Arn}/*"
+
+
+  # ------------ Layers ------------
+  FMLaaSCoreDependencyLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: core-sam-dependencies
+      ContentUri: dependencies/
+      CompatibleRuntimes:
+        - python3.7
+      RetentionPolicy: Delete
+
+  FMLaaSPyTorchDependencyLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: pytorch-bindings
+      ContentUri: bindings/pytorch/
+      CompatibleRuntimes:
+        - python3.7
+      RetentionPolicy: Delete
+
+
+  # ------------ Lambda ------------
+  RegisterDeviceFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 3
+      MemorySize: 128
+      CodeUri: register_device/
+      Handler: app.lambda_handler
+      FunctionName: RegisterDevice
+      Layers:
+        - !Ref FMLaaSCoreDependencyLayer
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref GroupsTable
+      Events:
+        RegisterDeviceApiEvent:
+          Type: Api
+          Properties:
+            Path: /api/v1/device/register
+            Method: post
+
+  StartRoundFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 3
+      MemorySize: 128
+      CodeUri: start_round/
+      Handler: app.lambda_handler
+      FunctionName: StartRound
+      Layers:
+        - !Ref FMLaaSCoreDependencyLayer
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref GroupsTable
+      Events:
+        StartRoundApiEvent:
+          Type: Api
+          Properties:
+            Path: /api/v1/round/start
+            Method: post
+
   CreateGroupFunction:
     Type: AWS::Serverless::Function
     Properties:
+      Timeout: 3
+      MemorySize: 128
       CodeUri: create_group/
       Handler: app.lambda_handler
-      Runtime: python3.7
+      FunctionName: CreateGroup
+      Layers:
+        - !Ref FMLaaSCoreDependencyLayer
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref GroupsTable
       Events:
-        TestFuncEvent:
+        CreateGroupApiEvent:
           Type: Api
           Properties:
             Path: /api/v1/create_group
+            Method: post
+
+  SubmitModelUpdateFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 3
+      MemorySize: 128
+      CodeUri: submit_model_update/
+      Handler: app.lambda_handler
+      FunctionName: SubmitModelUpdate
+      Layers:
+        - !Ref FMLaaSCoreDependencyLayer
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref GroupsTable
+        - AWSLambdaBasicExecutionRole
+        - !Ref S3PutObjectPolicy
+      Events:
+        SubmitModelUpdateApiEvent:
+          Type: Api
+          Properties:
+            Path: /api/v1/submit_model_update
+            Method: post
+
+  AggregateModelsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 60
+      MemorySize: 256
+      CodeUri: aggregate_models/
+      Handler: app.lambda_handler
+      FunctionName: AggregateModels
+      Layers:
+        - !Ref FMLaaSCoreDependencyLayer
+        - !Ref FMLaaSPyTorchDependencyLayer
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref GroupsTable
+        - !Ref S3GetObjectPolicy
+        - !Ref S3PutObjectPolicy
+      Events:
+        AggregateModelsApiEvent:
+          Type: Api
+          Properties:
+            Path: /api/v1/round/aggregate/pytorch
             Method: post

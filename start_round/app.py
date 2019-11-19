@@ -7,19 +7,19 @@ from fmlaas import FLGroup
 
 def lambda_handler(event, context):
     req_json = json.loads(event.get('body'))
-
-    group_name = req_json["group_name"]
+    group_id = req_json["group_id"]
 
     # TODO : Authenticate user
 
     dynamodb_ = DynamoDBInterface(get_group_table_name_from_env())
+    group = FLGroup.load_from_db(group_id, dynamodb_)
 
-    group_id = generate_unique_id()
-    group = FLGroup(group_name, id=group_id, devices=[], rounds=[])
+    round_id = generate_unique_id()
+    group.create_round(round_id)
 
     FLGroup.save_to_db(group, dynamodb_)
 
     return {
         "statusCode" : 200,
-        "body" : json.dumps({"group_id" : group_id})
+        "body" : json.dumps({"round_id" : round_id})
     }
