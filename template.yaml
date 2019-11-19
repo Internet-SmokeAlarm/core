@@ -70,13 +70,22 @@ Resources:
         - python3.7
       RetentionPolicy: Delete
 
+  FMLaaSPyTorchDependencyLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: pytorch-bindings
+      ContentUri: bindings/pytorch/
+      CompatibleRuntimes:
+        - python3.7
+      RetentionPolicy: Delete
+
 
   # ------------ Lambda ------------
   RegisterDeviceFunction:
     Type: AWS::Serverless::Function
-    Timeout: 3
-    MemorySize: 128
     Properties:
+      Timeout: 3
+      MemorySize: 128
       CodeUri: register_device/
       Handler: app.lambda_handler
       FunctionName: RegisterDevice
@@ -95,9 +104,9 @@ Resources:
 
   StartRoundFunction:
     Type: AWS::Serverless::Function
-    Timeout: 3
-    MemorySize: 128
     Properties:
+      Timeout: 3
+      MemorySize: 128
       CodeUri: start_round/
       Handler: app.lambda_handler
       FunctionName: StartRound
@@ -116,9 +125,9 @@ Resources:
 
   CreateGroupFunction:
     Type: AWS::Serverless::Function
-    Timeout: 3
-    MemorySize: 128
     Properties:
+      Timeout: 3
+      MemorySize: 128
       CodeUri: create_group/
       Handler: app.lambda_handler
       FunctionName: CreateGroup
@@ -137,9 +146,9 @@ Resources:
 
   SubmitModelUpdateFunction:
     Type: AWS::Serverless::Function
-    Timeout: 3
-    MemorySize: 128
     Properties:
+      Timeout: 3
+      MemorySize: 128
       CodeUri: submit_model_update/
       Handler: app.lambda_handler
       FunctionName: SubmitModelUpdate
@@ -159,14 +168,15 @@ Resources:
 
   AggregateModelsFunction:
     Type: AWS::Serverless::Function
-    Timeout: 60
-    MemorySize: 256
     Properties:
+      Timeout: 60
+      MemorySize: 256
       CodeUri: aggregate_models/
       Handler: app.lambda_handler
       FunctionName: AggregateModels
       Layers:
         - !Ref FMLaaSCoreDependencyLayer
+        - !Ref FMLaaSPyTorchDependencyLayer
       Policies:
         - AWSLambdaBasicExecutionRole
         - DynamoDBCrudPolicy:
@@ -177,5 +187,5 @@ Resources:
         AggregateModelsApiEvent:
           Type: Api
           Properties:
-            Path: /api/v1/round/aggregate
+            Path: /api/v1/round/aggregate/pytorch
             Method: post
