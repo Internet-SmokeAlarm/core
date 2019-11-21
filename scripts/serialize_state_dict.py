@@ -4,8 +4,8 @@ import sys
 sys.path.append(".")
 from bindings.pytorch.python.fmlaas_pytorch.storage import DiskModelStorage
 
-STATE_DICTS_TO_SERIALIZE = ["tests/fmlaas_pytorch/data/mnist_cnn_2.pt", "tests/fmlaas_pytorch/data/mnist_cnn.pt"]
-OUTPUT_JSON = ["tests/fmlaas_pytorch/data/mnist_cnn_2.json", "tests/fmlaas_pytorch/data/mnist_cnn.json"]
+STATE_DICTS_TO_SERIALIZE = ["tests/fmlaas/data/mnist_cnn_2.pt", "tests/fmlaas/data/mnist_cnn.pt"]
+OUTPUT_JSON = ["tests/fmlaas/data/mnist_cnn_2.json", "tests/fmlaas/data/mnist_cnn.json"]
 
 def serialize_state_dict(path):
     return {key : item.numpy().tolist() for key, item in torch.load(path).items()}

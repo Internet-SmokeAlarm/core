@@ -3,11 +3,10 @@ from tempfile import NamedTemporaryFile
 
 from fmlaas import download_s3_object
 from fmlaas import upload_s3_object
-from fmlaas_pytorch import combine_models
-from fmlaas_pytorch import scale_model
-from fmlaas_pytorch.serde import deserialize_state_dict
-from fmlaas_pytorch.serde import serialize_numpy
-from fmlaas_pytorch.storage import DiskModelStorage
+from fmlaas import FederatedAveraging
+from fmlaas import deserialize_state_dict
+from fmlaas import serialize_numpy
+from fmlaas import DiskModelStorage
 from fmlaas import get_group_table_name_from_env
 from fmlaas import DynamoDBInterface
 from fmlaas import FLGroup
@@ -51,7 +50,7 @@ def generate_global_model(models):
             global_model = load_model_from_s3(model)
         else:
             new_model = load_model_from_s3(model)
-            global_model = combine_models(global_model, new_model)
+            global_model = FederatedAveraging().combine_models(global_model, new_model)
 
     return global_model
 
@@ -69,7 +68,7 @@ def lambda_handler(event, context):
     num_models = len(models)
 
     global_model = generate_global_model(models)
-    scaled_global_model = scale_model(global_model, num_models)
+    scaled_global_model = FederatedAveraging().scale_model(global_model, num_models)
 
     save_model_to_s3(str(round_id), scaled_global_model)
     group.set_round_global_model(round_id, str(round_id))

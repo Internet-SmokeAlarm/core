@@ -2,7 +2,7 @@ import torch
 from loguru import logger
 import json
 
-TEST_STATE_DICT = "tests/fmlaas_pytorch/data/mnist_cnn_2.pt"
+TEST_STATE_DICT = "tests/fmlaas/data/mnist_cnn_2.pt"
 
 def load_state_dict(file_path):
     logger.info("Loading state dict: {}", file_path)

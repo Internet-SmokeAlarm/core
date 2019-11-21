@@ -70,15 +70,6 @@ Resources:
         - python3.7
       RetentionPolicy: Delete
 
-  FMLaaSPyTorchDependencyLayer:
-    Type: AWS::Serverless::LayerVersion
-    Properties:
-      LayerName: pytorch-bindings
-      ContentUri: bindings/pytorch/
-      CompatibleRuntimes:
-        - python3.7
-      RetentionPolicy: Delete
-
 
   # ------------ Lambda ------------
   RegisterDeviceFunction:
@@ -176,7 +167,6 @@ Resources:
       FunctionName: AggregateModels
       Layers:
         - !Ref FMLaaSCoreDependencyLayer
-        - !Ref FMLaaSPyTorchDependencyLayer
       Policies:
         - AWSLambdaBasicExecutionRole
         - DynamoDBCrudPolicy:
