@@ -67,6 +67,9 @@ class FLGroup:
         """
         return self.get_round(round_id)["combined_model"]
 
+    def get_initial_model(self):
+        return str(self.id)
+
     def get_id(self):
         return self.id
 

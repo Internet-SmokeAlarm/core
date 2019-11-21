@@ -129,7 +129,7 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref GroupsTable
       Events:
-        StartRoundApiEvent:
+        GetRoundAggregateModelApiEvent:
           Type: Api
           Properties:
             Path: /api/v1/round/get/aggregate_model
@@ -176,6 +176,28 @@ Resources:
           Type: Api
           Properties:
             Path: /api/v1/submit_model_update
+            Method: post
+
+  SubmitInitialModelFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 3
+      MemorySize: 128
+      CodeUri: submit_initial_group_model/
+      Handler: app.lambda_handler
+      FunctionName: SubmitInitialModel
+      Layers:
+        - !Ref FMLaaSCoreDependencyLayer
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref GroupsTable
+        - AWSLambdaBasicExecutionRole
+        - !Ref S3PutObjectPolicy
+      Events:
+        SubmitInitialModelApiEvent:
+          Type: Api
+          Properties:
+            Path: /api/v1/group/post/initial_model
             Method: post
 
   AggregateModelsFunction:
