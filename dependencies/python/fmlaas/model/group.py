@@ -61,6 +61,12 @@ class FLGroup:
         round = self.get_round(round_id)
         round["combined_model"] = global_model
 
+    def get_round_aggregate_model(self, round_id):
+        """
+        :param round_id: int
+        """
+        return self.get_round(round_id)["combined_model"]
+
     def get_id(self):
         return self.id
 

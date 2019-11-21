@@ -114,6 +114,27 @@ Resources:
             Path: /api/v1/round/start
             Method: post
 
+  GetRoundAggregateModelFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 3
+      MemorySize: 128
+      CodeUri: get_round_aggregate_model/
+      Handler: app.lambda_handler
+      FunctionName: GetRoundAggregateModel
+      Layers:
+        - !Ref FMLaaSCoreDependencyLayer
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref GroupsTable
+      Events:
+        StartRoundApiEvent:
+          Type: Api
+          Properties:
+            Path: /api/v1/round/get/aggregate_model
+            Method: get
+
   CreateGroupFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -177,5 +198,5 @@ Resources:
         AggregateModelsApiEvent:
           Type: Api
           Properties:
-            Path: /api/v1/round/aggregate/pytorch
+            Path: /api/v1/round/aggregate
             Method: post
