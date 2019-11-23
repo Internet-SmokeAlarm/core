@@ -114,6 +114,27 @@ Resources:
             Path: /api/v1/round/start
             Method: post
 
+  AddModelUpdateToRoundFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 3
+      MemorySize: 128
+      CodeUri: add_model_update_to_round/
+      Handler: app.lambda_handler
+      FunctionName: AddModelUpdateToRound
+      Layers:
+        - !Ref FMLaaSCoreDependencyLayer
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref GroupsTable
+      Events:
+        AddModelUpdateToRoundEvent:
+          Type: S3
+          Properties:
+            Bucket: !Ref ModelBucket
+            Events: s3:ObjectCreated:*
+
   GetRoundAggregateModelFunction:
     Type: AWS::Serverless::Function
     Properties:
