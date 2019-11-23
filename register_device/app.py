@@ -2,8 +2,8 @@ import json
 
 from fmlaas import generate_device_key_pair
 from fmlaas import get_group_table_name_from_env
-from fmlaas import DynamoDBInterface
-from fmlaas import FLGroup
+from fmlaas.database import DynamoDBInterface
+from fmlaas.model import FLGroup
 
 def lambda_handler(event, context):
     req_json = json.loads(event.get('body'))

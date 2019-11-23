@@ -5,9 +5,9 @@ from torch import tensor
 import json
 import numpy
 
-from dependencies.python.fmlaas import FederatedAveraging
-from dependencies.python.fmlaas import deserialize_state_dict
-from dependencies.python.fmlaas import DiskModelStorage
+from dependencies.python.fmlaas.aggregation import FederatedAveraging
+from dependencies.python.fmlaas.serde import deserialize_state_dict
+from dependencies.python.fmlaas.storage import DiskModelStorage
 
 class FederatedAveragingTestCase(unittest.TestCase):
 

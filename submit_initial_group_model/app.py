@@ -2,10 +2,10 @@ import json
 
 from fmlaas import generate_device_key_pair
 from fmlaas import get_group_table_name_from_env
-from fmlaas import DynamoDBInterface
-from fmlaas import FLGroup
-from fmlaas import create_presigned_post
-from fmlaas import get_models_bucket_name
+from fmlaas.database import DynamoDBInterface
+from fmlaas.model import FLGroup
+from fmlaas.aws import create_presigned_post
+from fmlaas.aws import get_models_bucket_name
 
 EXPIRATION_SEC = 60 * 30
 FIELDS = {}

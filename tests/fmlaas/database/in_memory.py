@@ -1,6 +1,6 @@
 import unittest
 
-from dependencies.python.fmlaas import InMemoryDBInterface
+from dependencies.python.fmlaas.database import InMemoryDBInterface
 
 class InMemoryDBInterfaceTestCase(unittest.TestCase):
 

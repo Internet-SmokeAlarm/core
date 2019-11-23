@@ -1,7 +1,7 @@
 import unittest
 import numpy
 
-from dependencies.python.fmlaas import serialize_numpy
+from dependencies.python.fmlaas.serde import serialize_numpy
 
 class SerializeNumpyTestCase(unittest.TestCase):
 

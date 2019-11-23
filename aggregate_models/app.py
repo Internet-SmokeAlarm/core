@@ -1,15 +1,15 @@
 import json
 from tempfile import NamedTemporaryFile
 
-from fmlaas import download_s3_object
-from fmlaas import upload_s3_object
-from fmlaas import FederatedAveraging
-from fmlaas import deserialize_state_dict
-from fmlaas import serialize_numpy
-from fmlaas import DiskModelStorage
+from fmlaas.aws import download_s3_object
+from fmlaas.aws import upload_s3_object
+from fmlaas.aggregation import FederatedAveraging
+from fmlaas.serde import deserialize_state_dict
+from fmlaas.serde import serialize_numpy
+from fmlaas.storage import DiskModelStorage
 from fmlaas import get_group_table_name_from_env
-from fmlaas import DynamoDBInterface
-from fmlaas import FLGroup
+from fmlaas.database import DynamoDBInterface
+from fmlaas.model import FLGroup
 
 def load_model_from_s3(object_name):
     model_file = NamedTemporaryFile(delete=True)

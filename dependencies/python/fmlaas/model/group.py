@@ -23,7 +23,7 @@ class FLGroup:
         self.rounds.append({
             "id" : round_id,
             "models" : [],
-            "combined_model" : ""
+            "combined_model" : "N/A"
         })
 
     def add_model_to_round(self, round_id, model):

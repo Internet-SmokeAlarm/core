@@ -1,8 +1,8 @@
 import unittest
 import torch
 from torch import tensor
-from dependencies.python.fmlaas import deserialize_state_dict
-from dependencies.python.fmlaas import DiskModelStorage
+from dependencies.python.fmlaas.serde import deserialize_state_dict
+from dependencies.python.fmlaas.storage import DiskModelStorage
 
 class DeserializeStateDictTestCase(unittest.TestCase):
 

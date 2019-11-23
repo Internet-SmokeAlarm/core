@@ -1,6 +1,6 @@
 from .device_key import DeviceKeyTestCase
 from .group_id import GenerateUniqueIdTestCase
-from .model_name import GenerateModelObjectNameTestCase
+from .hierarchical_model_naming import HierarchicalModelNameStructureTestCase
 
 from .database import *
 
