@@ -1,7 +1,7 @@
 import requests
 import json
 
-MODEL_FILE_PATH = "tests/fmlaas_pytorch/data/mnist_cnn.json"
+MODEL_FILE_PATH = "tests/fmlaas/data/mnist_cnn.json"
 
 if __name__ == '__main__':
     data = {} # URL FROM AMAZON

@@ -1,9 +1,9 @@
 import unittest
 
-from dependencies.python.fmlaas import FLGroup
+from dependencies.python.fmlaas.model import FLGroup
 from dependencies.python.fmlaas import generate_device_key_pair
 from dependencies.python.fmlaas import generate_unique_id
-from dependencies.python.fmlaas import InMemoryDBInterface
+from dependencies.python.fmlaas.database import InMemoryDBInterface
 
 class FLGroupTestCase(unittest.TestCase):
 
@@ -153,5 +153,5 @@ class FLGroupTestCase(unittest.TestCase):
 
         self.assertEqual(round_json["id"], round_id)
         self.assertEqual(round_2_json["id"], round_id_2)
-        self.assertEqual(round_2_json["combined_model"], "")
+        self.assertEqual(round_2_json["combined_model"], "N/A")
         self.assertEqual(round_json["combined_model"], "test_model_1")

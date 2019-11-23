@@ -70,15 +70,6 @@ Resources:
         - python3.7
       RetentionPolicy: Delete
 
-  FMLaaSPyTorchDependencyLayer:
-    Type: AWS::Serverless::LayerVersion
-    Properties:
-      LayerName: pytorch-bindings
-      ContentUri: bindings/pytorch/
-      CompatibleRuntimes:
-        - python3.7
-      RetentionPolicy: Delete
-
 
   # ------------ Lambda ------------
   RegisterDeviceFunction:
@@ -123,6 +114,48 @@ Resources:
             Path: /api/v1/round/start
             Method: post
 
+  AddModelUpdateToRoundFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 3
+      MemorySize: 128
+      CodeUri: add_model_update_to_round/
+      Handler: app.lambda_handler
+      FunctionName: AddModelUpdateToRound
+      Layers:
+        - !Ref FMLaaSCoreDependencyLayer
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref GroupsTable
+      Events:
+        AddModelUpdateToRoundEvent:
+          Type: S3
+          Properties:
+            Bucket: !Ref ModelBucket
+            Events: s3:ObjectCreated:*
+
+  GetRoundAggregateModelFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 3
+      MemorySize: 128
+      CodeUri: get_round_aggregate_model/
+      Handler: app.lambda_handler
+      FunctionName: GetRoundAggregateModel
+      Layers:
+        - !Ref FMLaaSCoreDependencyLayer
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref GroupsTable
+      Events:
+        GetRoundAggregateModelApiEvent:
+          Type: Api
+          Properties:
+            Path: /api/v1/round/get/aggregate_model
+            Method: get
+
   CreateGroupFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -166,6 +199,28 @@ Resources:
             Path: /api/v1/submit_model_update
             Method: post
 
+  SubmitInitialModelFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 3
+      MemorySize: 128
+      CodeUri: submit_initial_group_model/
+      Handler: app.lambda_handler
+      FunctionName: SubmitInitialModel
+      Layers:
+        - !Ref FMLaaSCoreDependencyLayer
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref GroupsTable
+        - AWSLambdaBasicExecutionRole
+        - !Ref S3PutObjectPolicy
+      Events:
+        SubmitInitialModelApiEvent:
+          Type: Api
+          Properties:
+            Path: /api/v1/group/post/initial_model
+            Method: post
+
   AggregateModelsFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -176,7 +231,6 @@ Resources:
       FunctionName: AggregateModels
       Layers:
         - !Ref FMLaaSCoreDependencyLayer
-        - !Ref FMLaaSPyTorchDependencyLayer
       Policies:
         - AWSLambdaBasicExecutionRole
         - DynamoDBCrudPolicy:
@@ -187,5 +241,5 @@ Resources:
         AggregateModelsApiEvent:
           Type: Api
           Properties:
-            Path: /api/v1/round/aggregate/pytorch
+            Path: /api/v1/round/aggregate
             Method: post

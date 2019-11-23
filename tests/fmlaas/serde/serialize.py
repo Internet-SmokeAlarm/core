@@ -1,7 +1,7 @@
 import unittest
 import numpy
 
-from bindings.pytorch.python.fmlaas_pytorch.serde import serialize_numpy
+from dependencies.python.fmlaas.serde import serialize_numpy
 
 class SerializeNumpyTestCase(unittest.TestCase):
 

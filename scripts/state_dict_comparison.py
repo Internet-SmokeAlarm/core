@@ -8,7 +8,7 @@ from bindings.pytorch.python.fmlaas_pytorch import scale_model
 from bindings.pytorch.python.fmlaas_pytorch.serde import deserialize_state_dict
 from bindings.pytorch.python.fmlaas_pytorch.storage import DiskModelStorage
 
-STATE_DICTS_TO_COMBINE_PATH = ["tests/fmlaas_pytorch/data/mnist_cnn_2.json", "tests/fmlaas_pytorch/data/mnist_cnn.json"]
+STATE_DICTS_TO_COMBINE_PATH = ["tests/fmlaas/data/mnist_cnn_2.json", "tests/fmlaas/data/mnist_cnn.json"]
 STATE_DICT_COMBINED_PATH = "/Users/valetolpegin/Downloads/1320626241526138"
 
 def compare_state_dicts(model_1, model_2):
