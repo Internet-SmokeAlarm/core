@@ -14,13 +14,13 @@ class ModelNameStructure:
         self.name = object_name
         self.name_type = self._identify_name_type()
 
-    def generate_name(self, group_id, round_id, device_id):
+    def generate_name(self, group_id=None, round_id=None, device_id=None):
         """
         :param device_id: string
         :param round_id: string
         :param group_id: string
         """
-        self.name = self._generate_model_object_name(group_id, round_id, device_id)
+        self.name = self._generate_model_object_name(group_id=group_id, round_id=round_id, device_id=device_id)
         self.name_type = self._identify_name_type()
 
     @abstractmethod
@@ -70,7 +70,7 @@ class ModelNameStructure:
         raise NotImplementedError("get_device_id() not implemented")
 
     @abstractmethod
-    def _generate_model_object_name(self, group_id, round_id, device_id):
+    def _generate_model_object_name(self, group_id=None, round_id=None, device_id=None):
         """
         Generates appropriate S3 object name given information.
 

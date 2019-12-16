@@ -8,4 +8,4 @@ class GenerateUniqueIdTestCase(unittest.TestCase):
         unique_id = generate_unique_id()
 
         self.assertEqual(len(str(unique_id)), 16)
-        self.assertTrue(type(unique_id), type(1))
+        self.assertTrue(type(unique_id), type("1"))

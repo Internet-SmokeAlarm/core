@@ -79,7 +79,7 @@ class FLGroupTestCase(unittest.TestCase):
 
         round_id = generate_unique_id()
 
-        model_name_txt = "1234/" + str(round_id) + "/9999"
+        model_name_txt = "1234/" + round_id + "/9999"
 
         model_name = HierarchicalModelNameStructure()
         model_name.load_name(model_name_txt)
@@ -90,14 +90,14 @@ class FLGroupTestCase(unittest.TestCase):
         json_data = group.to_json()
 
         self.assertEqual(json_data["rounds"][0]["id"], round_id)
-        self.assertTrue(9999 in json_data["rounds"][0]["models"])
+        self.assertTrue("9999" in json_data["rounds"][0]["models"])
 
     def test_add_model_to_group_round_aggregate_model(self):
         group = FLGroup("a_different_name", devices=[], rounds=[])
 
         round_id = generate_unique_id()
 
-        model_name_txt = "1234/" + str(round_id) + "/" + str(round_id)
+        model_name_txt = "1234/" + round_id + "/" + round_id
 
         model_name = HierarchicalModelNameStructure()
         model_name.load_name(model_name_txt)
@@ -111,7 +111,7 @@ class FLGroupTestCase(unittest.TestCase):
         self.assertEqual(round_id, json_data["rounds"][0]["combined_model"])
 
     def test_add_model_to_group_initial_group_model(self):
-        group = FLGroup("a_different_name", id=1234, devices=[], rounds=[])
+        group = FLGroup("a_different_name", id="1234", devices=[], rounds=[])
 
         model_name_txt = "1234/1234"
 

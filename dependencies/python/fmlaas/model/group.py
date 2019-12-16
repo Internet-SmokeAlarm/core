@@ -8,7 +8,7 @@ class FLGroup:
 
     def add_device(self, device_id, device_api_key):
         """
-        :param device_id: int
+        :param device_id: string
         :param device_api_key: string
         """
         self.devices.append({
@@ -18,7 +18,7 @@ class FLGroup:
 
     def create_round(self, round_id):
         """
-        :param round_id: int
+        :param round_id: string
         """
         self.rounds.append({
             "id" : round_id,
@@ -37,7 +37,7 @@ class FLGroup:
 
     def add_model_to_round(self, round_id, model):
         """
-        :param round_id: int
+        :param round_id: string
         :param model: string
         """
         for round in self.rounds:
@@ -49,7 +49,7 @@ class FLGroup:
 
     def get_round(self, round_id):
         """
-        :param round_id: int
+        :param round_id: string
         """
         for round in self.rounds:
             if round["id"] == round_id:
@@ -57,7 +57,7 @@ class FLGroup:
 
     def get_models(self, round_id):
         """
-        :param round_id: int
+        :param round_id: string
         """
         round = self.get_round(round_id)
 
@@ -65,7 +65,7 @@ class FLGroup:
 
     def set_round_global_model(self, round_id, global_model):
         """
-        :param round_id: int
+        :param round_id: string
         :param global_model: string
         """
         round = self.get_round(round_id)
@@ -73,7 +73,7 @@ class FLGroup:
 
     def get_round_aggregate_model(self, round_id):
         """
-        :param round_id: int
+        :param round_id: string
         """
         return self.get_round(round_id)["combined_model"]
 

@@ -19,7 +19,7 @@ Resources:
       AttributeDefinitions:
         -
           AttributeName: "ID"
-          AttributeType: "N"
+          AttributeType: "S"
       KeySchema:
         -
           AttributeName: "ID"
