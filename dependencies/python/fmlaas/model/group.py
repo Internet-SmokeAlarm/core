@@ -26,6 +26,15 @@ class FLGroup:
             "combined_model" : "N/A"
         })
 
+    def add_model_to_group(self, model_name):
+        """
+        :param model_name: ModelNameStructure
+        """
+        if model_name.is_device_model_update():
+            self.add_model_to_round(model_name.get_round_id(), model_name.get_device_id())
+        elif model_name.is_round_aggregate_model():
+            self.set_round_global_model(model_name.get_round_id(), model_name.get_round_id())
+
     def add_model_to_round(self, round_id, model):
         """
         :param round_id: int
@@ -69,7 +78,7 @@ class FLGroup:
         return self.get_round(round_id)["combined_model"]
 
     def get_initial_model(self):
-        return str(self.id)
+        return self.id
 
     def get_id(self):
         return self.id

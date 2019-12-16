@@ -4,6 +4,7 @@ from dependencies.python.fmlaas.model import FLGroup
 from dependencies.python.fmlaas import generate_device_key_pair
 from dependencies.python.fmlaas import generate_unique_id
 from dependencies.python.fmlaas.database import InMemoryDBInterface
+from dependencies.python.fmlaas import HierarchicalModelNameStructure
 
 class FLGroupTestCase(unittest.TestCase):
 
@@ -72,6 +73,56 @@ class FLGroupTestCase(unittest.TestCase):
         self.assertEqual(len(json_data["devices"]), 0)
         self.assertTrue("rounds" in json_data)
         self.assertEqual(len(json_data["rounds"]), 1)
+
+    def test_add_model_to_group_device_update(self):
+        group = FLGroup("a_different_name", devices=[], rounds=[])
+
+        round_id = generate_unique_id()
+
+        model_name_txt = "1234/" + str(round_id) + "/9999"
+
+        model_name = HierarchicalModelNameStructure()
+        model_name.load_name(model_name_txt)
+
+        group.create_round(round_id)
+        group.add_model_to_group(model_name)
+
+        json_data = group.to_json()
+
+        self.assertEqual(json_data["rounds"][0]["id"], round_id)
+        self.assertTrue(9999 in json_data["rounds"][0]["models"])
+
+    def test_add_model_to_group_round_aggregate_model(self):
+        group = FLGroup("a_different_name", devices=[], rounds=[])
+
+        round_id = generate_unique_id()
+
+        model_name_txt = "1234/" + str(round_id) + "/" + str(round_id)
+
+        model_name = HierarchicalModelNameStructure()
+        model_name.load_name(model_name_txt)
+
+        group.create_round(round_id)
+        group.add_model_to_group(model_name)
+
+        json_data = group.to_json()
+
+        self.assertEqual(json_data["rounds"][0]["id"], round_id)
+        self.assertEqual(round_id, json_data["rounds"][0]["combined_model"])
+
+    def test_add_model_to_group_initial_group_model(self):
+        group = FLGroup("a_different_name", id=1234, devices=[], rounds=[])
+
+        model_name_txt = "1234/1234"
+
+        model_name = HierarchicalModelNameStructure()
+        model_name.load_name(model_name_txt)
+
+        group.add_model_to_group(model_name)
+
+        json_data = group.to_json()
+
+        self.assertEqual(group.get_initial_model(), json_data["ID"])
 
     def test_add_model_to_round_1(self):
         group = FLGroup("a_different_name", devices=[], rounds=[])
