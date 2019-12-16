@@ -24,7 +24,9 @@ class DynamoDBInterface(DB):
         :param id: object id to delete from db
         :returns: true/false if operation successful
         """
-        raise Exception("delete_object() not implemented")
+        return self.table.delete_item(Key={
+            DynamoDBInterface.ID_KEY_NAME : id
+        })
 
     def get_object(self, id):
         """

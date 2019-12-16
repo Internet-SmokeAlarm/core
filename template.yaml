@@ -174,7 +174,28 @@ Resources:
         CreateGroupApiEvent:
           Type: Api
           Properties:
-            Path: /api/v1/create_group
+            Path: /api/v1/group/create
+            Method: post
+
+  DeleteGroupFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 3
+      MemorySize: 128
+      CodeUri: delete_group/
+      Handler: app.lambda_handler
+      FunctionName: DeleteGroup
+      Layers:
+        - !Ref FMLaaSCoreDependencyLayer
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref GroupsTable
+      Events:
+        DeleteGroupApiEvent:
+          Type: Api
+          Properties:
+            Path: /api/v1/group/delete
             Method: post
 
   SubmitModelUpdateFunction:
