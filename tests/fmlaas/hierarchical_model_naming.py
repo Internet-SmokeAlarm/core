@@ -15,6 +15,23 @@ class HierarchicalModelNameStructureTestCase(unittest.TestCase):
 
         self.assertEqual("1234/44563/6665", name.get_name())
 
+    def test_generate_name_2(self):
+        group_id = "1234"
+
+        name = HierarchicalModelNameStructure()
+        name.generate_name(group_id=group_id)
+
+        self.assertEqual("1234/1234", name.get_name())
+
+    def test_generate_name_3(self):
+        group_id = "1234"
+        round_id = "4456"
+
+        name = HierarchicalModelNameStructure()
+        name.generate_name(group_id=group_id, round_id=round_id)
+
+        self.assertEqual("1234/4456/4456", name.get_name())
+
     def test_generate_device_model_update_name(self):
         group_id = "1234"
         round_id = "445634"
