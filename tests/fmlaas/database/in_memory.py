@@ -26,3 +26,13 @@ class InMemoryDBInterfaceTestCase(unittest.TestCase):
         resp = db_.get_object(id)
 
         self.assertEqual(resp, obj)
+
+    def test_delete_object_fail(self):
+        db_ = InMemoryDBInterface()
+
+        self.assertRaises(Exception, db_.delete_object, "test_id")
+
+    def test_get_object_fail(self):
+        db_ = InMemoryDBInterface()
+
+        self.assertRaises(Exception, db_.get_object, "test_id")
