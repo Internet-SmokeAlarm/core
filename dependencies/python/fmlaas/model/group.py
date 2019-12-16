@@ -33,7 +33,8 @@ class FLGroup:
         """
         for round in self.rounds:
             if round["id"] == round_id:
-                round["models"].append(model)
+                if model not in round["models"]:
+                    round["models"].append(model)
 
                 return
 

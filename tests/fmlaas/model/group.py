@@ -103,6 +103,21 @@ class FLGroupTestCase(unittest.TestCase):
         self.assertEqual(json_data["rounds"][1]["id"], round_id_2)
         self.assertTrue("test_model_1" in json_data["rounds"][0]["models"])
 
+    def test_add_duplicate_model_to_round(self):
+        group = FLGroup("a_different_name", devices=[], rounds=[])
+
+        round_id = generate_unique_id()
+        round_id_2 = generate_unique_id()
+
+        group.create_round(round_id)
+        group.add_model_to_round(round_id, "test_model_1")
+        group.add_model_to_round(round_id, "test_model_1")
+
+        json_data = group.to_json()
+
+        self.assertTrue("test_model_1" in json_data["rounds"][0]["models"])
+        self.assertEqual(1, len(json_data["rounds"][0]["models"]))
+
     def test_get_round(self):
         group = FLGroup("a_different_name", devices=[], rounds=[])
 
