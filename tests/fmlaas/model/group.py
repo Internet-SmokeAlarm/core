@@ -187,6 +187,25 @@ class FLGroupTestCase(unittest.TestCase):
         self.assertEqual(len(round_json["models"]), 1)
         self.assertEqual(len(round_2_json["models"]), 0)
 
+    def test_contains_round_pass(self):
+        group = FLGroup("a_different_name", devices=[], rounds=[])
+
+        round_id = generate_unique_id()
+
+        group.create_round(round_id)
+
+        self.assertTrue(group.contains_round(round_id))
+
+    def test_contains_round_fail(self):
+        group = FLGroup("a_different_name", devices=[], rounds=[])
+
+        round_id = generate_unique_id()
+        round_id_2 = generate_unique_id()
+
+        group.create_round(round_id)
+
+        self.assertFalse(group.contains_round(round_id_2))
+
     def test_get_models(self):
         group = FLGroup("a_different_name", devices=[], rounds=[])
 

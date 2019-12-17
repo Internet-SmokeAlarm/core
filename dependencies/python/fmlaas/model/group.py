@@ -55,6 +55,16 @@ class FLGroup:
             if round["id"] == round_id:
                 return round
 
+    def contains_round(self, round_id):
+        """
+        :param round_id: string
+        """
+        for round in self.rounds:
+            if round["id"] == round_id:
+                return True
+
+        return False
+
     def get_models(self, round_id):
         """
         :param round_id: string
