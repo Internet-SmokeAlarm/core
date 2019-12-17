@@ -14,8 +14,6 @@ def lambda_handler(event, context):
     round_id = str(req_json["round_id"])
     device_id = str(req_json["device_id"])
 
-    # TODO : Authenticate user
-
     object_name = HierarchicalModelNameStructure()
     object_name.generate_name(group_id, round_id, device_id)
     presigned_url = create_presigned_post(get_models_bucket_name(), object_name.get_name(),

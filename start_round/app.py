@@ -9,8 +9,6 @@ def lambda_handler(event, context):
     req_json = json.loads(event.get('body'))
     group_id = req_json["group_id"]
 
-    # TODO : Authenticate user
-
     dynamodb_ = DynamoDBInterface(get_group_table_name_from_env())
     group = FLGroup.load_from_db(group_id, dynamodb_)
 

@@ -8,8 +8,6 @@ def lambda_handler(event, context):
 
     group_id = req_json["group_id"]
 
-    # TODO : Authenticate user
-
     dynamodb_ = DynamoDBInterface(get_group_table_name_from_env())
     success = dynamodb_.delete_object(group_id)
 

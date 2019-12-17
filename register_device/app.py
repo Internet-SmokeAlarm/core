@@ -8,8 +8,6 @@ from fmlaas.model import FLGroup
 def lambda_handler(event, context):
     req_json = json.loads(event.get('body'))
 
-    # TODO : Authenticate user
-
     group_id = req_json["group_id"]
 
     dynamodb_ = DynamoDBInterface(get_group_table_name_from_env())
