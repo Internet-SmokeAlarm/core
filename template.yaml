@@ -8,7 +8,7 @@ Globals:
     Environment:
       Variables:
         MODELS_BUCKET: fmlaas-models
-        GROUPS_TABLE_NAME: fl_groups
+        GROUPS_TABLE_NAME: fl_groups_prod
 
 Resources:
   # ------------ DynamoDB ------------
@@ -24,7 +24,7 @@ Resources:
         -
           AttributeName: "ID"
           KeyType: "HASH"
-      TableName: "fl_groups"
+      TableName: "fl_groups_prod"
 
 
   # ------------ S3 ------------
