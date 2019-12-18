@@ -177,6 +177,27 @@ Resources:
             Path: /api/v1/round/get/aggregate_model
             Method: get
 
+  GetInitialGroupModelFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 3
+      MemorySize: 128
+      CodeUri: get_initial_group_model/
+      Handler: app.lambda_handler
+      FunctionName: GetInitialGroupModel
+      Layers:
+        - !Ref FMLaaSCoreDependencyLayer
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref GroupsTable
+      Events:
+        GetInitialGroupModelApiEvent:
+          Type: Api
+          Properties:
+            Path: /api/v1/group/get/initial_model
+            Method: get
+
   CreateGroupFunction:
     Type: AWS::Serverless::Function
     Properties:
