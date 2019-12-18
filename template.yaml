@@ -114,14 +114,14 @@ Resources:
             Path: /api/v1/round/start
             Method: post
 
-  GetRoundStatusFunction:
+  GetRoundStateFunction:
     Type: AWS::Serverless::Function
     Properties:
       Timeout: 3
       MemorySize: 128
-      CodeUri: get_round_status/
+      CodeUri: get_round_state/
       Handler: app.lambda_handler
-      FunctionName: GetRoundStatus
+      FunctionName: GetRoundState
       Layers:
         - !Ref FMLaaSCoreDependencyLayer
       Policies:
@@ -129,7 +129,7 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref GroupsTable
       Events:
-        GetRoundStatusApiEvent:
+        GetRoundStateApiEvent:
           Type: Api
           Properties:
             Path: /api/v1/round/get

@@ -27,7 +27,7 @@ def lambda_handler(event, context):
 
         return {
             "statusCode" : 200,
-            "body" : json.dumps({"learning_round" : round_json})
+            "body" : json.dumps({"round" : round_json})
         }
     else:
         return {
