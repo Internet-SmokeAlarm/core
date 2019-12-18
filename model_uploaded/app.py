@@ -14,7 +14,7 @@ def lambda_handler(event, context):
         object_name.load_name(object_key)
 
         group = FLGroup.load_from_db(object_name.get_group_id(), dynamodb_)
-        group.add_model_to_round(object_name.get_round_id(), object_name.get_name())
+        group.add_model_to_group(object_name)
 
         FLGroup.save_to_db(group, dynamodb_)
 
