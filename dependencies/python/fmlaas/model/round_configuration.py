@@ -1,6 +1,9 @@
 class RoundConfiguration:
 
     def __init__(self, num_devices):
+        """
+        :param num_devices: string
+        """
         self.num_devices = num_devices
 
     def get_num_devices(self):

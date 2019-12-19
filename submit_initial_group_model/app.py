@@ -1,9 +1,5 @@
 import json
 
-from fmlaas import generate_device_key_pair
-from fmlaas import get_group_table_name_from_env
-from fmlaas.database import DynamoDBInterface
-from fmlaas.model import FLGroup
 from fmlaas.aws import create_presigned_post
 from fmlaas.aws import get_models_bucket_name
 from fmlaas import HierarchicalModelNameStructure
@@ -24,9 +20,6 @@ def lambda_handler(event, context):
             "statusCode" : 400,
             "body" : str(error)
         }
-
-    dynamodb_ = DynamoDBInterface(get_group_table_name_from_env())
-    group = FLGroup.load_from_db(group_id, dynamodb_)
 
     model_name = HierarchicalModelNameStructure()
     model_name.generate_name(group_id=group_id)

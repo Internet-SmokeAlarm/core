@@ -21,7 +21,7 @@ def lambda_handler(event, context):
     dynamodb_ = DynamoDBInterface(get_group_table_name_from_env())
 
     group_id = generate_unique_id()
-    group = FLGroup(group_name, id=group_id, devices=[], rounds=[])
+    group = FLGroup(group_name, group_id, {}, {})
 
     group.save_to_db(dynamodb_)
 

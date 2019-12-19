@@ -94,6 +94,12 @@ class FLGroup:
         """
         return round_id in self.rounds
 
+    def is_round_complete(self, round_id):
+        """
+        :param round_id: string
+        """
+        return Round.from_json(self.rounds[round_id]).is_complete()
+
     def get_models(self, round_id):
         """
         :param round_id: string
@@ -113,7 +119,7 @@ class FLGroup:
     def get_round_aggregate_model(self, round_id):
         """
         :param round_id: string
-        :return: string
+        :return: Model
         """
         return Round(self.rounds[round_id]).get_aggregate_model()
 

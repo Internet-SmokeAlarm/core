@@ -23,7 +23,7 @@ def lambda_handler(event, context):
     group = FLGroup.load_from_db(group_id, dynamodb_)
 
     if group.contains_round(round_id):
-        round_json = group.get_round(round_id)
+        round_json = group.get_round(round_id).to_json()
 
         return {
             "statusCode" : 200,

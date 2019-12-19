@@ -62,6 +62,9 @@ class Round:
         """
         self.aggregate_model = aggregate_model.to_json()
 
+    def is_complete(self):
+        return self.status == RoundStatus.COMPLETED
+
     def to_json(self):
         return {
             "ID" : self.id,

@@ -74,3 +74,27 @@ class RoundTestCase(unittest.TestCase):
         self.assertEqual(len(models), 2)
         self.assertTrue("123235345" in models)
         self.assertTrue("1232353465" in models)
+
+    def test_is_complete_pass_1(self):
+        round = Round("my_id",
+            ["test1", "test2"],
+            RoundStatus.COMPLETED,
+            "previous_round_id",
+            {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : 2134235},
+            {"config info" : "here"},
+            {"123235345" : {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : 2134235}, "1232353465" : {"name" : "21313124/123123/1232353465", "entity_id" : "1232353465", "size" : 2134235}},
+            "December 19th, 2019")
+
+        self.assertTrue(round.is_complete())
+
+    def test_is_complete_pass_2(self):
+        round = Round("my_id",
+            ["test1", "test2"],
+            RoundStatus.IN_PROGRESS,
+            "previous_round_id",
+            {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : 2134235},
+            {"config info" : "here"},
+            {"123235345" : {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : 2134235}, "1232353465" : {"name" : "21313124/123123/1232353465", "entity_id" : "1232353465", "size" : 2134235}},
+            "December 19th, 2019")
+
+        self.assertFalse(round.is_complete())

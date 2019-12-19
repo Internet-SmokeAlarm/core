@@ -6,7 +6,7 @@ class Model:
         """
         :param entity_id: string. ID of the entity that produced this model
         :param name: string
-        :param size: int. Size of model in bytes
+        :param size: string. Size of model in bytes
         """
         self.entity_id = entity_id
         self.name = name
