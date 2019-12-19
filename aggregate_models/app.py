@@ -80,7 +80,7 @@ def lambda_handler(event, context):
     save_model_to_s3(str(round_id), scaled_global_model)
     group.set_round_global_model(round_id, str(round_id))
 
-    FLGroup.save_to_db(group, dynamodb_)
+    group.save_to_db(dynamodb_)
 
     return {
         "statusCode" : 200,

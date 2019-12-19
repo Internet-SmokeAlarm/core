@@ -22,9 +22,9 @@ def lambda_handler(event, context):
     group = FLGroup.load_from_db(group_id, dynamodb_)
 
     device_id, device_api_key = generate_device_key_pair()
-    group.add_device(device_id, device_api_key)
+    group.add_device(device_id)
 
-    FLGroup.save_to_db(group, dynamodb_)
+    group.save_to_db(dynamodb_)
 
     return {
         "statusCode" : 200,

@@ -23,7 +23,7 @@ def lambda_handler(event, context):
     group_id = generate_unique_id()
     group = FLGroup(group_name, id=group_id, devices=[], rounds=[])
 
-    FLGroup.save_to_db(group, dynamodb_)
+    group.save_to_db(dynamodb_)
 
     return {
         "statusCode" : 200,

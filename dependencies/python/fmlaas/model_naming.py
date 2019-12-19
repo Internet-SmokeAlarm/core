@@ -14,6 +14,8 @@ class ModelNameStructure:
         self.name = object_name
         self.name_type = self._identify_name_type()
 
+        return self
+
     def generate_name(self, group_id=None, round_id=None, device_id=None):
         """
         :param device_id: string

@@ -16,7 +16,7 @@ def lambda_handler(event, context):
         group = FLGroup.load_from_db(object_name.get_group_id(), dynamodb_)
         group.add_model_to_group(object_name)
 
-        FLGroup.save_to_db(group, dynamodb_)
+        group.save_to_db(dynamodb_)
 
     return {
         "statusCode" : 200,
