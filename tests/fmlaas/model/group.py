@@ -328,6 +328,20 @@ class FLGroupTestCase(unittest.TestCase):
         self.assertTrue(group.is_device_active("1822867963788927"))
         self.assertFalse(group.is_device_active("12345"))
 
+    def test_is_device_active_pass_3(self):
+        group = self.build_default_group()
+
+        round_config = RoundConfiguration("1", "RANDOM")
+        device_id, device_api_key = generate_device_key_pair()
+
+        self.assertFalse(group.is_device_active(device_id))
+
+        group.add_device(device_id)
+        round_id = group.create_round(round_config)
+
+        self.assertTrue(group.is_device_active(device_id))
+        self.assertFalse(group.is_device_active("12345"))
+
     def test_get_device_selector(self):
         group = self.build_default_group()
 
