@@ -6,3 +6,4 @@ from .round_builder import RoundBuilder
 from .device import Device
 from .device_builder import DeviceBuilder
 from .group import FLGroup
+from .group_builder import GroupBuilder

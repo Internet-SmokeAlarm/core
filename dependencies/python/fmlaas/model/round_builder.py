@@ -1,10 +1,11 @@
 from .round import Round
 from .round_status import RoundStatus
 from .round_configuration import RoundConfiguration
+from .builder import Builder
 
 from ..utils.time import get_epoch_time
 
-class RoundBuilder:
+class RoundBuilder(Builder):
 
     def __init__(self):
         self.id = None
@@ -17,21 +18,39 @@ class RoundBuilder:
         self.created_on = get_epoch_time()
 
     def set_id(self, id):
+        """
+        :param id: string
+        """
         self.id = id
 
     def set_devices(self, devices):
+        """
+        :param devices: list(string)
+        """
         self.devices = devices
 
     def set_previous_round_id(self, previous_round_id):
+        """
+        :param previous_round_id: string
+        """
         self.previous_round_id = previous_round_id
 
     def set_aggregate_model(self, aggregate_model):
+        """
+        :param aggregate_model: dict
+        """
         self.aggregate_model = aggregate_model
 
     def set_configuration(self, configuration):
+        """
+        :param configuration: dict
+        """
         self.configuration = configuration
 
     def set_models(self, models):
+        """
+        :param models: dict
+        """
         self.models = models
 
     def build(self):

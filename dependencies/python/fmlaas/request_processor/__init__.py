@@ -1,1 +1,2 @@
-from .request_json_processor import RequestJSONProcessor
+from .id_processor import IDProcessor
+from .round_config_processor import RoundConfigJSONProcessor

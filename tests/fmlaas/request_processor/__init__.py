@@ -1,1 +1,2 @@
-from .request_json_processor import RequestJSONProcessorTestCase
+from .id_processor import IDProcessorTestCase
+from .request_processor import RequestProcessorTestCase

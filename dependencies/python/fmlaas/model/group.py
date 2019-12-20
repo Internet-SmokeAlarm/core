@@ -2,21 +2,23 @@ from .device_builder import DeviceBuilder
 from .round_builder import RoundBuilder
 from .round import Round
 from ..generate_unique_id import generate_unique_id
+from ..device_selection import DeviceSelectorFactory
 
 class FLGroup:
 
-    def __init__(self, name, id, devices, rounds):
+    def __init__(self, name, id, devices, rounds, current_round_id):
         """
         :param name: string
         :param id: string
         :param devices: dict
         :param rounds: dict
+        :param current_round_id: string
         """
         self.id = id
         self.name = name
         self.devices = devices
         self.rounds = rounds
-        self.current_round_id = "N/A"
+        self.current_round_id = current_round_id
 
     def add_device(self, device_id):
         """
@@ -35,12 +37,14 @@ class FLGroup:
         """
         round_id = generate_unique_id()
 
-        # TODO : Handle configuration logic here
+        device_selector = self.get_device_selector(round_configuration)
+        devices = device_selector.select_devices(self.get_device_list(), round_configuration)
+
         round_builder = RoundBuilder()
         round_builder.set_id(round_id)
         round_builder.set_previous_round_id(self.current_round_id)
         round_builder.set_configuration(round_configuration.to_json())
-        round_builder.set_devices(self.get_device_list())
+        round_builder.set_devices(devices)
         round = round_builder.build()
 
         self.add_round(round)
@@ -54,6 +58,14 @@ class FLGroup:
         :param round: Round
         """
         self.rounds[round.get_id()] = round.to_json()
+
+    def get_device_selector(self, round_configuration):
+        """
+        :param round_configuration: RoundConfiguration
+        :return DeviceSelector
+        """
+        factory = DeviceSelectorFactory()
+        return factory.get_device_selector(round_configuration.get_device_selection_strategy())
 
     def add_model(self, model):
         """
@@ -123,6 +135,30 @@ class FLGroup:
         """
         return Round(self.rounds[round_id]).get_aggregate_model()
 
+    def is_device_active(self, device_id):
+        """
+        :param device_id: string
+        :return: boolean
+        """
+        if self.is_round_active(self.current_round_id):
+            round = Round.from_json(self.rounds[self.current_round_id])
+
+            return round.contains_device(device_id)
+
+        return False
+
+    def is_round_active(self, round_id):
+        """
+        :param round_id: string
+        :return: boolean
+        """
+        if round_id in self.rounds:
+            round = Round.from_json(self.rounds[round_id])
+
+            return round.is_active()
+
+        return False
+
     def get_initial_model(self):
         return self.id
 
@@ -141,12 +177,16 @@ class FLGroup:
     def get_rounds(self):
         return self.rounds
 
+    def get_current_round_id(self):
+        return self.current_round_id
+
     def to_json(self):
         return {
             "name" : self.name,
             "ID" : self.id,
             "devices" : self.devices,
-            "rounds" : self.rounds
+            "rounds" : self.rounds,
+            "current_round_id" : self.current_round_id
         }
 
     def save_to_db(self, db_):
@@ -170,6 +210,7 @@ class FLGroup:
     @staticmethod
     def from_json(json_data):
         return FLGroup(json_data["name"],
-            id=json_data["ID"],
-            devices=json_data["devices"],
-            rounds=json_data["rounds"])
+            json_data["ID"],
+            json_data["devices"],
+            json_data["rounds"],
+            json_data["current_round_id"])

@@ -2,6 +2,8 @@ from .device_key import DeviceKeyTestCase
 from .group_id import GenerateUniqueIdTestCase
 from .hierarchical_model_naming import HierarchicalModelNameStructureTestCase
 
+from .device_selector import *
+
 from .database import *
 
 from .model import *

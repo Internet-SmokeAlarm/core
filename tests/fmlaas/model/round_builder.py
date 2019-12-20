@@ -10,7 +10,7 @@ class RoundBuilderTestCase(unittest.TestCase):
         round_builder = RoundBuilder()
         round_builder.set_id("test_id")
 
-        configuration = RoundConfiguration("50")
+        configuration = RoundConfiguration("50", "RANDOM")
         round_builder.set_configuration(configuration.to_json())
 
         round = round_builder.build()
@@ -25,7 +25,7 @@ class RoundBuilderTestCase(unittest.TestCase):
     def test_build_fail(self):
         round_builder = RoundBuilder()
 
-        configuration = RoundConfiguration("50")
+        configuration = RoundConfiguration("50", "RANDOM")
         round_builder.set_configuration(configuration.to_json())
 
         self.assertRaises(ValueError, round_builder.build)
@@ -40,7 +40,7 @@ class RoundBuilderTestCase(unittest.TestCase):
         round_builder = RoundBuilder()
         round_builder.set_id("test_id")
 
-        configuration = RoundConfiguration("50")
+        configuration = RoundConfiguration("50", "RANDOM")
         round_builder.set_configuration(configuration.to_json())
 
         round_builder._validate_parameters()
@@ -48,7 +48,7 @@ class RoundBuilderTestCase(unittest.TestCase):
     def test_validate_parameters_fail(self):
         round_builder = RoundBuilder()
 
-        configuration = RoundConfiguration("50")
+        configuration = RoundConfiguration("50", "RANDOM")
         round_builder.set_configuration(configuration.to_json())
 
         self.assertRaises(ValueError, round_builder._validate_parameters)

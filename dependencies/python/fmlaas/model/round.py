@@ -65,6 +65,15 @@ class Round:
     def is_complete(self):
         return self.status == RoundStatus.COMPLETED
 
+    def is_active(self):
+        return self.status != RoundStatus.COMPLETED
+
+    def contains_device(self, device_id):
+        """
+        :param device_id: string
+        """
+        return device_id in self.devices
+
     def to_json(self):
         return {
             "ID" : self.id,

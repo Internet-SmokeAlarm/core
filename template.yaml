@@ -240,6 +240,27 @@ Resources:
             Path: /api/v1/group/delete
             Method: post
 
+  IsDeviceActiveFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 3
+      MemorySize: 128
+      CodeUri: is_device_active/
+      Handler: app.lambda_handler
+      FunctionName: IsDeviceActive
+      Layers:
+        - !Ref FMLaaSCoreDependencyLayer
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref GroupsTable
+      Events:
+        IsDeviceActiveApiEvent:
+          Type: Api
+          Properties:
+            Path: /api/v1/device/get/active
+            Method: get
+
   SubmitModelUpdateFunction:
     Type: AWS::Serverless::Function
     Properties:

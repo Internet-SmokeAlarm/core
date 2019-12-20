@@ -2,14 +2,14 @@ import json
 
 from fmlaas import get_group_table_name_from_env
 from fmlaas.database import DynamoDBInterface
-from fmlaas.request_processor import RequestJSONProcessor
+from fmlaas.request_processor import IDProcessor
 
 def lambda_handler(event, context):
     req_json = json.loads(event.get('body'))
 
     try:
-        req_json_processor = RequestJSONProcessor(req_json)
-        group_id = req_json_processor.get_group_id()
+        id_processor = IDProcessor(req_json)
+        group_id = id_processor.get_group_id()
     except ValueError as error:
         return {
             "statusCode" : 400,

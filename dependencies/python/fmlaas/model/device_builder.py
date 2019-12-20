@@ -1,8 +1,9 @@
 from .device import Device
+from .builder import Builder
 
 from ..utils.time import get_epoch_time
 
-class DeviceBuilder:
+class DeviceBuilder(Builder):
 
     def __init__(self):
         self.id = None

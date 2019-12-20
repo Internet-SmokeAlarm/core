@@ -1,3 +1,4 @@
+from .group_builder import GroupBuilderTestCase
 from .group import FLGroupTestCase
 from .round import RoundTestCase
 from .round_configuration import RoundConfigurationTestCase
