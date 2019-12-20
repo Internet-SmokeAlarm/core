@@ -1,5 +1,6 @@
 from .device_builder import DeviceBuilder
 from .round_builder import RoundBuilder
+from .round_status import RoundStatus
 from .round import Round
 from ..generate_unique_id import generate_unique_id
 from ..device_selection import DeviceSelectorFactory
@@ -48,8 +49,7 @@ class FLGroup:
         round = round_builder.build()
 
         self.add_round(round)
-
-        self.current_round_id = round_id
+        self.set_current_round(round.get_id())
 
         return round_id
 
@@ -58,6 +58,25 @@ class FLGroup:
         :param round: Round
         """
         self.rounds[round.get_id()] = round.to_json()
+
+    def set_current_round(self, round_id):
+        """
+        :param round_id: string
+        """
+        if self.is_round_active(self.current_round_id):
+            self.update_round_status(self.current_round_id, RoundStatus.CANCELLED)
+
+        self.current_round_id = round_id
+        self.update_round_status(self.current_round_id, RoundStatus.IN_PROGRESS)
+
+    def update_round_status(self, round_id, status):
+        """
+        :param round_id: string
+        :param status: RoundStatus
+        """
+        round = self.get_round(round_id)
+        round.set_status(status)
+        self.rounds[round_id] = round.to_json()
 
     def get_device_selector(self, round_configuration):
         """

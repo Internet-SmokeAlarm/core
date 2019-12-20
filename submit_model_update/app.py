@@ -26,13 +26,19 @@ def lambda_handler(event, context):
             "body" : str(error)
         }
 
-    dynamodb_ = DynamoDBInterface(get_group_table_name_from_env())
-    group = FLGroup.load_from_db(group_id, dynamodb_)
-
-    if group.is_round_complete(round_id):
+    try:
+        dynamodb_ = DynamoDBInterface(get_group_table_name_from_env())
+        group = FLGroup.load_from_db(group_id, dynamodb_)
+    except KeyError:
         return {
             "statusCode" : 400,
-            "body" : "Cannot submit model to completed round"
+            "body" : "Group does not exist"
+        }
+
+    if group.is_round_complete(round_id) or not group.is_device_active(device_id):
+        return {
+            "statusCode" : 400,
+            "body" : "Cannot submit model to this round. Either device is not active, or round is complete"
         }
     else:
         object_name = HierarchicalModelNameStructure()

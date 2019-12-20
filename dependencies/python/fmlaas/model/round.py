@@ -63,16 +63,22 @@ class Round:
         self.aggregate_model = aggregate_model.to_json()
 
     def is_complete(self):
-        return self.status == RoundStatus.COMPLETED
+        return self.status != RoundStatus.IN_PROGRESS
 
     def is_active(self):
-        return self.status != RoundStatus.COMPLETED
+        return self.status == RoundStatus.IN_PROGRESS
 
     def contains_device(self, device_id):
         """
         :param device_id: string
         """
         return device_id in self.devices
+
+    def set_status(self, status):
+        """
+        :param status: RoundStatus
+        """
+        self.status = status
 
     def to_json(self):
         return {

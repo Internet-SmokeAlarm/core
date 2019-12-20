@@ -4,6 +4,7 @@ from dependencies.python.fmlaas.model import FLGroup
 from dependencies.python.fmlaas.model import Round
 from dependencies.python.fmlaas.model import RoundBuilder
 from dependencies.python.fmlaas.model import Model
+from dependencies.python.fmlaas.model import RoundStatus
 from dependencies.python.fmlaas.model import RoundConfiguration
 from dependencies.python.fmlaas import generate_device_key_pair
 from dependencies.python.fmlaas import generate_unique_id
@@ -290,10 +291,35 @@ class FLGroupTestCase(unittest.TestCase):
         self.assertFalse(group.is_round_complete("4152602852358113"))
 
     def test_is_round_complete_pass_2(self):
-        json_data = {'current_round_id' : "N/A", 'name': 'a_different_name', 'ID': 'id10', 'devices': {'7897956979947357': {'ID': '7897956979947357', 'registered_on': "1576779498"}, '1822867963788927': {'ID': '1822867963788927', 'registered_on': "1576779498"}}, 'rounds': {'4152602852358113': {'ID': '4152602852358113', 'status': 'COMPLETED', 'devices': ['7897956979947357', '1822867963788927'], 'previous_round_id': 'N/A', 'aggregate_model': 'N/A', 'configuration': {'num_devices': "0"}, 'models': {}, 'created_on': "1576779498"}}}
+        group = self.build_default_group()
+
+        device_id, device_api_key = generate_device_key_pair()
+        group.add_device(device_id)
+        round_id = group.create_round(RoundConfiguration("1", "RANDOM"))
+        round_id_2 = group.create_round(RoundConfiguration("1", "RANDOM"))
+
+        self.assertTrue(group.is_round_complete(round_id))
+        self.assertFalse(group.is_round_complete(round_id_2))
+
+    def test_set_current_round_pass(self):
+        json_data = {'current_round_id' : "4152602852358113", 'name': 'a_different_name', 'ID': 'id10', 'devices': {'7897956979947357': {'ID': '7897956979947357', 'registered_on': "1576779498"}, '1822867963788927': {'ID': '1822867963788927', 'registered_on': "1576779498"}}, 'rounds': {'4152602852358113': {'ID': '4152602852358113', 'status': 'IN_PROGRESS', 'devices': ['7897956979947357', '1822867963788927'], 'previous_round_id': 'N/A', 'aggregate_model': 'N/A', 'configuration': {'num_devices': "0"}, 'models': {}, 'created_on': "1576779498"}, '4142634852358226': {'ID': '4142634852358226', 'status': 'CANCELLED', 'devices': ['7897956979947357', '1822867963788927'], 'previous_round_id': 'N/A', 'aggregate_model': 'N/A', 'configuration': {'num_devices': "0"}, 'models': {}, 'created_on': "1576779498"}}}
+
         group = FLGroup.from_json(json_data)
 
-        self.assertTrue(group.is_round_complete("4152602852358113"))
+        group.set_current_round("4142634852358226")
+
+        self.assertEqual(group.current_round_id, "4142634852358226")
+        self.assertEqual(group.get_round("4152602852358113").get_status(), RoundStatus.CANCELLED)
+        self.assertEqual(group.get_round("4142634852358226").get_status(), RoundStatus.IN_PROGRESS)
+
+    def test_update_round_status(self):
+        json_data = {'current_round_id' : "4152602852358113", 'name': 'a_different_name', 'ID': 'id10', 'devices': {'7897956979947357': {'ID': '7897956979947357', 'registered_on': "1576779498"}, '1822867963788927': {'ID': '1822867963788927', 'registered_on': "1576779498"}}, 'rounds': {'4152602852358113': {'ID': '4152602852358113', 'status': 'IN_PROGRESS', 'devices': ['7897956979947357', '1822867963788927'], 'previous_round_id': 'N/A', 'aggregate_model': 'N/A', 'configuration': {'num_devices': "0"}, 'models': {}, 'created_on': "1576779498"}, '4142634852358226': {'ID': '4142634852358226', 'status': 'CANCELLED', 'devices': ['7897956979947357', '1822867963788927'], 'previous_round_id': 'N/A', 'aggregate_model': 'N/A', 'configuration': {'num_devices': "0"}, 'models': {}, 'created_on': "1576779498"}}}
+
+        group = FLGroup.from_json(json_data)
+        group.update_round_status("4142634852358226", RoundStatus.COMPLETED)
+
+        self.assertEqual(group.get_round("4152602852358113").get_status(), RoundStatus.IN_PROGRESS)
+        self.assertEqual(group.get_round("4142634852358226").get_status(), RoundStatus.COMPLETED)
 
     def test_is_round_active_pass(self):
         json_data = {'current_round_id' : "N/A", 'name': 'a_different_name', 'ID': 'id10', 'devices': {'7897956979947357': {'ID': '7897956979947357', 'registered_on': "1576779498"}, '1822867963788927': {'ID': '1822867963788927', 'registered_on': "1576779498"}}, 'rounds': {'4152602852358113': {'ID': '4152602852358113', 'status': 'COMPLETED', 'devices': ['7897956979947357', '1822867963788927'], 'previous_round_id': 'N/A', 'aggregate_model': 'N/A', 'configuration': {'num_devices': "0"}, 'models': {}, 'created_on': "1576779498"}}}
