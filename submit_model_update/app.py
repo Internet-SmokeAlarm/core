@@ -35,7 +35,7 @@ def lambda_handler(event, context):
             "body" : "Group does not exist"
         }
 
-    if group.is_round_complete(round_id) or not group.is_device_active(device_id):
+    if not group.is_round_active(round_id) or not group.is_device_active(device_id):
         return {
             "statusCode" : 400,
             "body" : "Cannot submit model to this round. Either device is not active, or round is complete"

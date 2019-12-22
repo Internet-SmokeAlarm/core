@@ -32,7 +32,7 @@ def lambda_handler(event, context):
             "body" : "Group does not exist or you are not authorized to access it."
         }
 
-    if group.is_round_complete(round_id):
+    if group.contains_round(round_id) and group.is_round_complete(round_id):
         object_name = group.get_round_aggregate_model(round_id).get_name().get_name()
 
         presigned_url = create_presigned_url(get_models_bucket_name(), object_name, expiration=EXPIRATION_SEC)
@@ -44,5 +44,5 @@ def lambda_handler(event, context):
     else:
         return {
             "statusCode" : 400,
-            "body" : "Cannot get aggregate model for incomplete round"
+            "body" : "Cannot get aggregate model for incomplete round or round that does not exist"
         }
