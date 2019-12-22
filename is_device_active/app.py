@@ -23,7 +23,7 @@ def lambda_handler(event, context):
         group = FLGroup.load_from_db(group_id, dynamodb_)
     except KeyError:
         return {
-            "statusCode" : 403,
+            "statusCode" : 400,
             "body" : "Group does not exist or you are not authorized to access it."
         }
 

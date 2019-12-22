@@ -256,7 +256,7 @@ class FLGroupTestCase(unittest.TestCase):
         self.assertEqual(len(round_models_2), 0)
         self.assertEqual(round_models["1234"].get_entity_id(), "1234")
 
-    def test_set_round_global_model_pass(self):
+    def test_set_round_aggregate_model_pass(self):
         group = self.build_default_group()
 
         round_id = group.create_round(RoundConfiguration("0", "RANDOM"))
@@ -298,7 +298,7 @@ class FLGroupTestCase(unittest.TestCase):
         round_id = group.create_round(RoundConfiguration("1", "RANDOM"))
         round_id_2 = group.create_round(RoundConfiguration("1", "RANDOM"))
 
-        self.assertTrue(group.is_round_complete(round_id))
+        self.assertTrue(group.is_round_cancelled(round_id))
         self.assertFalse(group.is_round_complete(round_id_2))
 
     def test_set_current_round_pass(self):
@@ -375,3 +375,18 @@ class FLGroupTestCase(unittest.TestCase):
         device_selector = group.get_device_selector(round_config)
 
         self.assertEqual(RandomDeviceSelector, type(device_selector))
+
+    def test_get_round_aggregate_model(self):
+        group = self.build_default_group()
+
+        round_config = RoundConfiguration("0", "RANDOM")
+        round_id = group.create_round(round_config)
+
+        model_name_txt = "1234/" + round_id + "/9999"
+        model = Model("9999", model_name_txt, "555555")
+        group.set_round_aggregate_model(round_id, model)
+
+        aggregate_model = group.get_round_aggregate_model(round_id)
+        self.assertEqual(aggregate_model.get_entity_id(), model.get_entity_id())
+        self.assertEqual(aggregate_model.get_size(), model.get_size())
+        self.assertEqual(aggregate_model.get_size(), model.get_size())

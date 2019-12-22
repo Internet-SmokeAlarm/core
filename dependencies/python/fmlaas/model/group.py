@@ -131,6 +131,12 @@ class FLGroup:
         """
         return Round.from_json(self.rounds[round_id]).is_complete()
 
+    def is_round_cancelled(self, round_id):
+        """
+        :param round_id: string
+        """
+        return Round.from_json(self.rounds[round_id]).is_cancelled()
+
     def get_models(self, round_id):
         """
         :param round_id: string
@@ -140,7 +146,7 @@ class FLGroup:
     def set_round_aggregate_model(self, round_id, model):
         """
         :param round_id: string
-        :param global_model: string
+        :param model: Model
         """
         round = self.get_round(round_id)
         round.set_aggregate_model(model)
@@ -152,7 +158,7 @@ class FLGroup:
         :param round_id: string
         :return: Model
         """
-        return Round(self.rounds[round_id]).get_aggregate_model()
+        return Round.from_json(self.rounds[round_id]).get_aggregate_model()
 
     def is_device_active(self, device_id):
         """

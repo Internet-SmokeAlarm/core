@@ -8,10 +8,10 @@ from fmlaas.aws import get_models_bucket_name
 from fmlaas import HierarchicalModelNameStructure
 from fmlaas.request_processor import IDProcessor
 
-EXPIRATION_SEC = 60 * 5
-
 def lambda_handler(event, context):
     req_json = json.loads(event.get('body'))
+
+    EXPIRATION_SEC = 60 * 5
 
     try:
         id_processor = IDProcessor(req_json)

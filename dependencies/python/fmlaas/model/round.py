@@ -56,6 +56,18 @@ class Round:
         """
         self.models[model.get_entity_id()] = model.to_json()
 
+        if self.should_round_state_be_complete():
+            self.set_status(RoundStatus.COMPLETED)
+
+    def should_round_state_be_complete(self):
+        return len(self.devices) == len(list(self.models.keys()))
+
+    def is_aggregate_model_set(self):
+        """
+        :return: boolean
+        """
+        return Model.is_valid_json(self.aggregate_model)
+
     def set_aggregate_model(self, aggregate_model):
         """
         :param aggregate_model: Model
@@ -63,10 +75,13 @@ class Round:
         self.aggregate_model = aggregate_model.to_json()
 
     def is_complete(self):
-        return self.status != RoundStatus.IN_PROGRESS
+        return self.status == RoundStatus.COMPLETED
 
     def is_active(self):
         return self.status == RoundStatus.IN_PROGRESS
+
+    def is_cancelled(self):
+        return self.status == RoundStatus.CANCELLED
 
     def contains_device(self, device_id):
         """

@@ -1,6 +1,8 @@
 import unittest
 
 from dependencies.python.fmlaas.model import Round
+from dependencies.python.fmlaas.model import RoundBuilder
+from dependencies.python.fmlaas.model import RoundConfiguration
 from dependencies.python.fmlaas.model import RoundStatus
 from dependencies.python.fmlaas.model import Model
 
@@ -75,6 +77,30 @@ class RoundTestCase(unittest.TestCase):
         self.assertTrue("123235345" in models)
         self.assertTrue("1232353465" in models)
 
+    def test_is_cancelled_pass_1(self):
+        round = Round("my_id",
+            ["test1", "test2"],
+            RoundStatus.CANCELLED,
+            "previous_round_id",
+            {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : "2134235"},
+            {"config info" : "here"},
+            {"123235345" : {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : "2134235"}, "1232353465" : {"name" : "21313124/123123/1232353465", "entity_id" : "1232353465", "size" : "2134235"}},
+            "December 19th, 2019")
+
+        self.assertTrue(round.is_cancelled())
+
+    def test_is_cancelled_pass_2(self):
+        round = Round("my_id",
+            ["test1", "test2"],
+            RoundStatus.COMPLETED,
+            "previous_round_id",
+            {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : "2134235"},
+            {"config info" : "here"},
+            {"123235345" : {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : "2134235"}, "1232353465" : {"name" : "21313124/123123/1232353465", "entity_id" : "1232353465", "size" : "2134235"}},
+            "December 19th, 2019")
+
+        self.assertFalse(round.is_cancelled())
+
     def test_is_complete_pass_1(self):
         round = Round("my_id",
             ["test1", "test2"],
@@ -136,3 +162,48 @@ class RoundTestCase(unittest.TestCase):
         self.assertTrue(round.contains_device("test1"))
         self.assertFalse(round.contains_device("test10"))
         self.assertTrue(round.contains_device("test2"))
+
+    def test_is_aggregate_model_set_pass_1(self):
+        builder = RoundBuilder()
+        builder.set_id("test_id")
+        configuration = RoundConfiguration("50", "RANDOM")
+        builder.set_configuration(configuration.to_json())
+        round = builder.build()
+
+        self.assertFalse(round.is_aggregate_model_set())
+
+    def test_is_aggregate_model_set_pass_2(self):
+        builder = RoundBuilder()
+        builder.set_id("test_id")
+        configuration = RoundConfiguration("50", "RANDOM")
+        builder.set_configuration(configuration.to_json())
+        round = builder.build()
+        round.set_aggregate_model(Model("sefsljkdf", "123123", "12324"))
+
+        self.assertTrue(round.is_aggregate_model_set())
+
+    def test_should_round_state_be_complete_pass(self):
+        builder = RoundBuilder()
+        builder.set_id("test_id")
+        builder.set_devices(["123", "234"])
+        configuration = RoundConfiguration("50", "RANDOM")
+        builder.set_configuration(configuration.to_json())
+        round = builder.build()
+
+        self.assertFalse(round.should_round_state_be_complete())
+        self.assertEqual(round.get_status(), RoundStatus.IN_PROGRESS)
+
+
+    def test_should_round_state_be_complete_pass_2(self):
+        builder = RoundBuilder()
+        builder.set_id("test_id")
+        builder.set_devices(["123", "234"])
+        configuration = RoundConfiguration("50", "RANDOM")
+        builder.set_configuration(configuration.to_json())
+        round = builder.build()
+
+        round.add_model(Model("123", "fdldasf", "1231231"))
+        round.add_model(Model("234", "fdldasf", "1231231"))
+
+        self.assertTrue(round.should_round_state_be_complete())
+        self.assertEqual(round.get_status(), RoundStatus.COMPLETED)

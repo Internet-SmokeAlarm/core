@@ -8,10 +8,10 @@ from fmlaas.aws import create_presigned_url
 from fmlaas.aws import get_models_bucket_name
 from fmlaas.request_processor import IDProcessor
 
-EXPIRATION_SEC = 60 * 5
-
 def lambda_handler(event, context):
     req_json = json.loads(event.get('body'))
+
+    EXPIRATION_SEC = 60 * 5
 
     try:
         id_processor = IDProcessor(req_json)
@@ -23,8 +23,14 @@ def lambda_handler(event, context):
             "body" : str(error)
         }
 
-    dynamodb_ = DynamoDBInterface(get_group_table_name_from_env())
-    group = FLGroup.load_from_db(group_id, dynamodb_)
+    try:
+        dynamodb_ = DynamoDBInterface(get_group_table_name_from_env())
+        group = FLGroup.load_from_db(group_id, dynamodb_)
+    except KeyError:
+        return {
+            "statusCode" : 400,
+            "body" : "Group does not exist or you are not authorized to access it."
+        }
 
     if group.is_round_complete(round_id):
         object_name = group.get_round_aggregate_model(round_id).get_name().get_name()

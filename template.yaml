@@ -9,6 +9,7 @@ Globals:
       Variables:
         MODELS_BUCKET: fmlaas-models
         GROUPS_TABLE_NAME: fl_groups_prod
+        AGGREGATION_LAMBDA_FUNCTION_NAME: AggregateModels
 
 Resources:
   # ------------ DynamoDB ------------
@@ -133,7 +134,7 @@ Resources:
           Type: Api
           Properties:
             Path: /api/v1/round/get
-            Method: get
+            Method: post
 
   ModelUploadedFunction:
     Type: AWS::Serverless::Function
@@ -147,6 +148,7 @@ Resources:
         - !Ref FMLaaSCoreDependencyLayer
       Policies:
         - AWSLambdaBasicExecutionRole
+        - AWSLambdaRole
         - DynamoDBCrudPolicy:
             TableName: !Ref GroupsTable
       Events:
@@ -170,12 +172,13 @@ Resources:
         - AWSLambdaBasicExecutionRole
         - DynamoDBCrudPolicy:
             TableName: !Ref GroupsTable
+        - !Ref S3GetObjectPolicy
       Events:
         GetRoundAggregateModelApiEvent:
           Type: Api
           Properties:
             Path: /api/v1/round/get/aggregate_model
-            Method: get
+            Method: post
 
   GetInitialGroupModelFunction:
     Type: AWS::Serverless::Function
@@ -191,12 +194,13 @@ Resources:
         - AWSLambdaBasicExecutionRole
         - DynamoDBCrudPolicy:
             TableName: !Ref GroupsTable
+        - !Ref S3GetObjectPolicy
       Events:
         GetInitialGroupModelApiEvent:
           Type: Api
           Properties:
             Path: /api/v1/group/get/initial_model
-            Method: get
+            Method: post
 
   CreateGroupFunction:
     Type: AWS::Serverless::Function
@@ -259,7 +263,7 @@ Resources:
           Type: Api
           Properties:
             Path: /api/v1/device/get/active
-            Method: get
+            Method: post
 
   SubmitModelUpdateFunction:
     Type: AWS::Serverless::Function
@@ -275,7 +279,8 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref GroupsTable
         - AWSLambdaBasicExecutionRole
-        - !Ref S3PutObjectPolicy
+        - S3CrudPolicy:
+            BucketName: fmlaas-models
       Events:
         SubmitModelUpdateApiEvent:
           Type: Api

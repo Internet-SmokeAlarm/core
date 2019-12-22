@@ -8,12 +8,12 @@ from fmlaas import get_group_table_name_from_env
 from fmlaas.database import DynamoDBInterface
 from fmlaas.model import FLGroup
 
-EXPIRATION_SEC = 60 * 30
-FIELDS = {}
-CONDITIONS = []
-
 def lambda_handler(event, context):
     req_json = json.loads(event.get('body'))
+
+    EXPIRATION_SEC = 60 * 10
+    FIELDS = {}
+    CONDITIONS = []
 
     try:
         id_processor = IDProcessor(req_json)
@@ -43,8 +43,13 @@ def lambda_handler(event, context):
     else:
         object_name = HierarchicalModelNameStructure()
         object_name.generate_name(group_id, round_id, device_id)
-        presigned_url = create_presigned_post(get_models_bucket_name(), object_name.get_name(),
-                                              FIELDS, CONDITIONS, expiration=EXPIRATION_SEC)
+
+        presigned_url = create_presigned_post(
+            get_models_bucket_name(),
+            object_name.get_name(),
+            FIELDS,
+            CONDITIONS,
+            expiration=EXPIRATION_SEC)
 
         return {
             "statusCode" : 200,

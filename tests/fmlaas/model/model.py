@@ -21,3 +21,9 @@ class ModelTestCase(unittest.TestCase):
         self.assertEqual(model.get_entity_id(), "1234")
         self.assertEqual(model.get_name().get_name(), "4456/5567/1234")
         self.assertEqual(model.get_size(), "123552")
+
+    def test_is_valid_json_pass(self):
+        self.assertTrue(Model.is_valid_json({'entity_id': '1234', 'name': '4456/5567/1234', 'size': "123552"}))
+        self.assertFalse(Model.is_valid_json({'name': '4456/5567/1234', 'size': "123552"}))
+        self.assertFalse(Model.is_valid_json({'entity_id': '1234', 'size': "123552"}))
+        self.assertFalse(Model.is_valid_json({'entity_id': '1234', 'name': '4456/5567/1234'}))
