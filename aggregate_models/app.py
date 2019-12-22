@@ -1,5 +1,5 @@
-import json
 from tempfile import NamedTemporaryFile
+import json
 
 from fmlaas.aws import download_s3_object
 from fmlaas.aws import upload_s3_object
@@ -10,7 +10,9 @@ from fmlaas.storage import DiskModelStorage
 from fmlaas import get_group_table_name_from_env
 from fmlaas.database import DynamoDBInterface
 from fmlaas.model import FLGroup
-from fmlaas.request_processor import RequestJSONProcessor
+from fmlaas.model import Model
+from fmlaas.request_processor import IDProcessor
+from fmlaas import HierarchicalModelNameStructure
 
 def load_model_from_s3(object_name):
     model_file = NamedTemporaryFile(delete=True)
@@ -56,12 +58,10 @@ def generate_global_model(models):
     return global_model
 
 def lambda_handler(event, context):
-    req_json = json.loads(event.get('body'))
-
     try:
-        req_json_processor = RequestJSONProcessor(req_json)
-        group_id = req_json_processor.get_group_id()
-        round_id = req_json_processor.get_round_id()
+        id_processor = IDProcessor(event)
+        group_id = id_processor.get_group_id()
+        round_id = id_processor.get_round_id()
     except ValueError as error:
         return {
             "statusCode" : 400,
@@ -70,19 +70,22 @@ def lambda_handler(event, context):
 
     dynamodb_ = DynamoDBInterface(get_group_table_name_from_env())
     group = FLGroup.load_from_db(group_id, dynamodb_)
+    round = group.get_round(round_id)
 
-    models = group.get_models(round_id)
-    num_models = len(models)
+    if round.is_complete() and not round.is_aggregate_model_set():
+        name = HierarchicalModelNameStructure()
+        name.generate_name(group_id=group_id, round_id=round_id)
 
-    global_model = generate_global_model(models)
-    scaled_global_model = FederatedAveraging().scale_model(global_model, num_models)
+        models = group.get_models(round_id)
+        model_names = [models[model].get_name().get_name() for model in models]
+        num_models = len(model_names)
 
-    save_model_to_s3(str(round_id), scaled_global_model)
-    group.set_round_global_model(round_id, str(round_id))
+        global_model = generate_global_model(model_names)
+        scaled_global_model = FederatedAveraging().scale_model(global_model, num_models)
 
-    FLGroup.save_to_db(group, dynamodb_)
+        save_model_to_s3(name.get_name(), scaled_global_model)
 
     return {
         "statusCode" : 200,
-        "body" : json.dumps({})
+        "body" : "{}"
     }

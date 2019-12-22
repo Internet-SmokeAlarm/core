@@ -9,6 +9,7 @@ Globals:
       Variables:
         MODELS_BUCKET: fmlaas-models
         GROUPS_TABLE_NAME: fl_groups_prod
+        AGGREGATION_LAMBDA_FUNCTION_NAME: AggregateModels
 
 Resources:
   # ------------ DynamoDB ------------
@@ -114,14 +115,14 @@ Resources:
             Path: /api/v1/round/start
             Method: post
 
-  GetRoundStatusFunction:
+  GetRoundStateFunction:
     Type: AWS::Serverless::Function
     Properties:
       Timeout: 3
       MemorySize: 128
-      CodeUri: get_round_status/
+      CodeUri: get_round_state/
       Handler: app.lambda_handler
-      FunctionName: GetRoundStatus
+      FunctionName: GetRoundState
       Layers:
         - !Ref FMLaaSCoreDependencyLayer
       Policies:
@@ -129,11 +130,11 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref GroupsTable
       Events:
-        GetRoundStatusApiEvent:
+        GetRoundStateApiEvent:
           Type: Api
           Properties:
             Path: /api/v1/round/get
-            Method: get
+            Method: post
 
   ModelUploadedFunction:
     Type: AWS::Serverless::Function
@@ -147,6 +148,7 @@ Resources:
         - !Ref FMLaaSCoreDependencyLayer
       Policies:
         - AWSLambdaBasicExecutionRole
+        - AWSLambdaRole
         - DynamoDBCrudPolicy:
             TableName: !Ref GroupsTable
       Events:
@@ -170,12 +172,35 @@ Resources:
         - AWSLambdaBasicExecutionRole
         - DynamoDBCrudPolicy:
             TableName: !Ref GroupsTable
+        - !Ref S3GetObjectPolicy
       Events:
         GetRoundAggregateModelApiEvent:
           Type: Api
           Properties:
             Path: /api/v1/round/get/aggregate_model
-            Method: get
+            Method: post
+
+  GetInitialGroupModelFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 3
+      MemorySize: 128
+      CodeUri: get_initial_group_model/
+      Handler: app.lambda_handler
+      FunctionName: GetInitialGroupModel
+      Layers:
+        - !Ref FMLaaSCoreDependencyLayer
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref GroupsTable
+        - !Ref S3GetObjectPolicy
+      Events:
+        GetInitialGroupModelApiEvent:
+          Type: Api
+          Properties:
+            Path: /api/v1/group/get/initial_model
+            Method: post
 
   CreateGroupFunction:
     Type: AWS::Serverless::Function
@@ -219,6 +244,27 @@ Resources:
             Path: /api/v1/group/delete
             Method: post
 
+  IsDeviceActiveFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 3
+      MemorySize: 128
+      CodeUri: is_device_active/
+      Handler: app.lambda_handler
+      FunctionName: IsDeviceActive
+      Layers:
+        - !Ref FMLaaSCoreDependencyLayer
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref GroupsTable
+      Events:
+        IsDeviceActiveApiEvent:
+          Type: Api
+          Properties:
+            Path: /api/v1/device/get/active
+            Method: post
+
   SubmitModelUpdateFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -233,7 +279,8 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref GroupsTable
         - AWSLambdaBasicExecutionRole
-        - !Ref S3PutObjectPolicy
+        - S3CrudPolicy:
+            BucketName: fmlaas-models
       Events:
         SubmitModelUpdateApiEvent:
           Type: Api

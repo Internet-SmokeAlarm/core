@@ -1,0 +1,2 @@
+from .device_selector_factory import DeviceSelectorFactoryTestCase
+from .random_device_selector import RandomDeviceSelectorTestCase
