@@ -32,7 +32,8 @@ def lambda_handler(event, context):
 
         simplified_round_json = {
             "ID" : round_json["ID"],
-            "status" : round_json["status"]
+            "status" : round_json["status"],
+            "previous_round_id" : round_json["previous_round_id"]
         }
 
         return {

@@ -265,6 +265,27 @@ Resources:
             Path: /api/v1/device/get/active
             Method: post
 
+  GetGroupCurrentRoundIdFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 3
+      MemorySize: 128
+      CodeUri: get_group_current_round_id/
+      Handler: app.lambda_handler
+      FunctionName: GetGroupCurrentRoundIdFunction
+      Layers:
+        - !Ref FMLaaSCoreDependencyLayer
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref GroupsTable
+      Events:
+        GetGroupCurrentRoundIdEvent:
+          Type: Api
+          Properties:
+            Path: /api/v1/group/get/current_round_id
+            Method: post
+
   SubmitModelUpdateFunction:
     Type: AWS::Serverless::Function
     Properties:
