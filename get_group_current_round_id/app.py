@@ -22,15 +22,7 @@ def lambda_handler(event, context):
     dynamodb_ = DynamoDBInterface(get_group_table_name_from_env())
     group = FLGroup.load_from_db(group_id, dynamodb_)
 
-    current_round_id = group.get_current_round_id()
-    round_status = RoundStatus.IN_PROGRESS
-    if group.contains_round(current_round_id):
-        round_status = group.get_round(current_round_id).get_status()
-
     return {
         "statusCode" : 200,
-        "body" : json.dumps({
-            "round_id" : current_round_id,
-            "round_status" : round_status.value
-        })
+        "body" : json.dumps({"round_id" : group.get_current_round_id()})
     }
