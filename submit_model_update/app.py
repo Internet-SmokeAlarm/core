@@ -26,14 +26,8 @@ def lambda_handler(event, context):
             "body" : str(error)
         }
 
-    try:
-        dynamodb_ = DynamoDBInterface(get_group_table_name_from_env())
-        group = FLGroup.load_from_db(group_id, dynamodb_)
-    except KeyError:
-        return {
-            "statusCode" : 400,
-            "body" : "Group does not exist"
-        }
+    dynamodb_ = DynamoDBInterface(get_group_table_name_from_env())
+    group = FLGroup.load_from_db(group_id, dynamodb_)
 
     if not group.is_round_active(round_id) or not group.is_device_active(device_id):
         return {

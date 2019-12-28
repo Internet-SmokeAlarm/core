@@ -18,14 +18,8 @@ def lambda_handler(event, context):
             "body" : str(error)
         }
 
-    try:
-        dynamodb_ = DynamoDBInterface(get_group_table_name_from_env())
-        group = FLGroup.load_from_db(group_id, dynamodb_)
-    except KeyError:
-        return {
-            "statusCode" : 400,
-            "body" : "Group does not exist or you are not authorized to access it."
-        }
+    dynamodb_ = DynamoDBInterface(get_group_table_name_from_env())
+    group = FLGroup.load_from_db(group_id, dynamodb_)
 
     if group.contains_round(round_id):
         round_json = group.get_round(round_id).to_json()

@@ -23,14 +23,8 @@ def lambda_handler(event, context):
             "body" : str(error)
         }
 
-    try:
-        dynamodb_ = DynamoDBInterface(get_group_table_name_from_env())
-        group = FLGroup.load_from_db(group_id, dynamodb_)
-    except KeyError:
-        return {
-            "statusCode" : 400,
-            "body" : "Group does not exist or you are not authorized to access it."
-        }
+    dynamodb_ = DynamoDBInterface(get_group_table_name_from_env())
+    group = FLGroup.load_from_db(group_id, dynamodb_)
 
     round_config = RoundConfiguration(num_devices, device_selection_strategy)
     round_id = group.create_round(round_config)
