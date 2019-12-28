@@ -163,6 +163,24 @@ class RoundTestCase(unittest.TestCase):
         self.assertFalse(round.contains_device("test10"))
         self.assertTrue(round.contains_device("test2"))
 
+    def test_is_device_active_pass(self):
+        builder = RoundBuilder()
+        builder.set_id("test_id")
+        configuration = RoundConfiguration("50", "RANDOM")
+        builder.set_configuration(configuration.to_json())
+        builder.set_devices(["1234", "2345", "4567", "8786"])
+        round = builder.build()
+
+        self.assertTrue(round.is_device_active("1234"))
+        self.assertTrue(round.is_device_active("2345"))
+        self.assertTrue(round.is_device_active("4567"))
+
+        round.add_model(Model("1234", "34234342/213434523/1234", "12355"))
+
+        self.assertFalse(round.is_device_active("1234"))
+        self.assertTrue(round.is_device_active("2345"))
+        self.assertTrue(round.is_device_active("4567"))
+
     def test_is_aggregate_model_set_pass_1(self):
         builder = RoundBuilder()
         builder.set_id("test_id")

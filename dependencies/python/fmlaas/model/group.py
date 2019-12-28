@@ -168,7 +168,7 @@ class FLGroup:
         if self.is_round_active(self.current_round_id):
             round = Round.from_json(self.rounds[self.current_round_id])
 
-            return round.contains_device(device_id)
+            return round.is_device_active(device_id)
 
         return False
 

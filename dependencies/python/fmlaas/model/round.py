@@ -89,6 +89,15 @@ class Round:
         """
         return device_id in self.devices
 
+    def is_device_active(self, device_id):
+        """
+        :param device_id: string
+        """
+        if not self.contains_device(device_id):
+            return False
+        else:
+            return device_id not in self.models.keys()
+
     def set_status(self, status):
         """
         :param status: RoundStatus
