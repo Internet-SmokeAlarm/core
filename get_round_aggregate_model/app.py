@@ -9,7 +9,7 @@ from fmlaas.aws import get_models_bucket_name
 from fmlaas.request_processor import IDProcessor
 
 def lambda_handler(event, context):
-    req_json = json.loads(event.get('body'))
+    req_json = event.get("pathParameters")
 
     EXPIRATION_SEC = 60 * 5
 

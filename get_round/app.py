@@ -6,7 +6,7 @@ from fmlaas.model import FLGroup
 from fmlaas.request_processor import IDProcessor
 
 def lambda_handler(event, context):
-    req_json = json.loads(event.get('body'))
+    req_json = event.get("pathParameters")
 
     try:
         id_processor = IDProcessor(req_json)
@@ -24,15 +24,9 @@ def lambda_handler(event, context):
     if group.contains_round(round_id):
         round_json = group.get_round(round_id).to_json()
 
-        simplified_round_json = {
-            "ID" : round_json["ID"],
-            "status" : round_json["status"],
-            "previous_round_id" : round_json["previous_round_id"]
-        }
-
         return {
             "statusCode" : 200,
-            "body" : json.dumps(simplified_round_json)
+            "body" : json.dumps(round_json)
         }
     else:
         return {

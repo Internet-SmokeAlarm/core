@@ -12,6 +12,13 @@ Globals:
         AGGREGATION_LAMBDA_FUNCTION_NAME: AggregateModels
 
 Resources:
+  # ------------ Api ------------
+  FmlaasProdApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+
+
   # ------------ DynamoDB ------------
   GroupsTable:
     Type: AWS::DynamoDB::Table
@@ -91,7 +98,8 @@ Resources:
         RegisterDeviceApiEvent:
           Type: Api
           Properties:
-            Path: /api/v1/device/register
+            RestApiId: !Ref FmlaasProdApi
+            Path: /v1/device/register
             Method: post
 
   StartRoundFunction:
@@ -112,17 +120,18 @@ Resources:
         StartRoundApiEvent:
           Type: Api
           Properties:
-            Path: /api/v1/round/start
+            RestApiId: !Ref FmlaasProdApi
+            Path: /v1/round/start
             Method: post
 
-  GetRoundStateFunction:
+  GetRoundFunction:
     Type: AWS::Serverless::Function
     Properties:
       Timeout: 3
       MemorySize: 128
-      CodeUri: get_round_state/
+      CodeUri: get_round/
       Handler: app.lambda_handler
-      FunctionName: GetRoundState
+      FunctionName: GetRound
       Layers:
         - !Ref FMLaaSCoreDependencyLayer
       Policies:
@@ -130,11 +139,34 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref GroupsTable
       Events:
-        GetRoundStateApiEvent:
+        GetRoundApiEvent:
           Type: Api
           Properties:
-            Path: /api/v1/round/get
-            Method: post
+            RestApiId: !Ref FmlaasProdApi
+            Path: /v1/round/get/{group_id}/{round_id}
+            Method: get
+
+  GetGroupFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 3
+      MemorySize: 128
+      CodeUri: get_group/
+      Handler: app.lambda_handler
+      FunctionName: GetGroup
+      Layers:
+        - !Ref FMLaaSCoreDependencyLayer
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref GroupsTable
+      Events:
+        GetGroupApiEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FmlaasProdApi
+            Path: /v1/group/get/{group_id}
+            Method: get
 
   ModelUploadedFunction:
     Type: AWS::Serverless::Function
@@ -177,17 +209,18 @@ Resources:
         GetRoundAggregateModelApiEvent:
           Type: Api
           Properties:
-            Path: /api/v1/round/get/aggregate_model
-            Method: post
+            RestApiId: !Ref FmlaasProdApi
+            Path: /v1/round/get/aggregate_model/{group_id}/{round_id}
+            Method: get
 
-  GetInitialGroupModelFunction:
+  GetGroupInitialModelFunction:
     Type: AWS::Serverless::Function
     Properties:
       Timeout: 3
       MemorySize: 128
-      CodeUri: get_initial_group_model/
+      CodeUri: get_group_initial_model/
       Handler: app.lambda_handler
-      FunctionName: GetInitialGroupModel
+      FunctionName: GetGroupInitialModel
       Layers:
         - !Ref FMLaaSCoreDependencyLayer
       Policies:
@@ -196,11 +229,12 @@ Resources:
             TableName: !Ref GroupsTable
         - !Ref S3GetObjectPolicy
       Events:
-        GetInitialGroupModelApiEvent:
+        GetGroupInitialModelApiEvent:
           Type: Api
           Properties:
-            Path: /api/v1/group/get/initial_model
-            Method: post
+            RestApiId: !Ref FmlaasProdApi
+            Path: /v1/group/get/initial_model/{group_id}
+            Method: get
 
   CreateGroupFunction:
     Type: AWS::Serverless::Function
@@ -220,7 +254,8 @@ Resources:
         CreateGroupApiEvent:
           Type: Api
           Properties:
-            Path: /api/v1/group/create
+            RestApiId: !Ref FmlaasProdApi
+            Path: /v1/group/create
             Method: post
 
   DeleteGroupFunction:
@@ -241,7 +276,8 @@ Resources:
         DeleteGroupApiEvent:
           Type: Api
           Properties:
-            Path: /api/v1/group/delete
+            RestApiId: !Ref FmlaasProdApi
+            Path: /v1/group/delete
             Method: post
 
   IsDeviceActiveFunction:
@@ -262,8 +298,9 @@ Resources:
         IsDeviceActiveApiEvent:
           Type: Api
           Properties:
-            Path: /api/v1/device/get/active
-            Method: post
+            RestApiId: !Ref FmlaasProdApi
+            Path: /v1/device/get/active/{group_id}/{device_id}
+            Method: get
 
   GetGroupCurrentRoundIdFunction:
     Type: AWS::Serverless::Function
@@ -283,8 +320,9 @@ Resources:
         GetGroupCurrentRoundIdEvent:
           Type: Api
           Properties:
-            Path: /api/v1/group/get/current_round_id
-            Method: post
+            RestApiId: !Ref FmlaasProdApi
+            Path: /v1/group/get/current_round_id/{group_id}
+            Method: get
 
   SubmitModelUpdateFunction:
     Type: AWS::Serverless::Function
@@ -306,17 +344,18 @@ Resources:
         SubmitModelUpdateApiEvent:
           Type: Api
           Properties:
-            Path: /api/v1/submit_model_update
+            RestApiId: !Ref FmlaasProdApi
+            Path: /v1/submit_model_update
             Method: post
 
-  SubmitInitialModelFunction:
+  SubmitGroupInitialModelFunction:
     Type: AWS::Serverless::Function
     Properties:
       Timeout: 3
       MemorySize: 128
-      CodeUri: submit_initial_group_model/
+      CodeUri: submit_group_initial_model/
       Handler: app.lambda_handler
-      FunctionName: SubmitInitialModel
+      FunctionName: SubmitGroupInitialModel
       Layers:
         - !Ref FMLaaSCoreDependencyLayer
       Policies:
@@ -325,10 +364,11 @@ Resources:
         - AWSLambdaBasicExecutionRole
         - !Ref S3PutObjectPolicy
       Events:
-        SubmitInitialModelApiEvent:
+        SubmitGroupInitialModelApiEvent:
           Type: Api
           Properties:
-            Path: /api/v1/group/post/initial_model
+            RestApiId: !Ref FmlaasProdApi
+            Path: /v1/group/post/initial_model
             Method: post
 
   AggregateModelsFunction:
@@ -351,5 +391,6 @@ Resources:
         AggregateModelsApiEvent:
           Type: Api
           Properties:
-            Path: /api/v1/round/aggregate
+            RestApiId: !Ref FmlaasProdApi
+            Path: /v1/round/aggregate
             Method: post

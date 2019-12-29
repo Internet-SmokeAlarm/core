@@ -8,7 +8,7 @@ from fmlaas import HierarchicalModelNameStructure
 from fmlaas.request_processor import IDProcessor
 
 def lambda_handler(event, context):
-    req_json = json.loads(event.get('body'))
+    req_json = event.get("pathParameters")
 
     try:
         id_processor = IDProcessor(req_json)
