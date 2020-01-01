@@ -370,27 +370,3 @@ Resources:
             RestApiId: !Ref FmlaasProdApi
             Path: /v1/group/post/initial_model
             Method: post
-
-  AggregateModelsFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      Timeout: 60
-      MemorySize: 256
-      CodeUri: aggregate_models/
-      Handler: app.lambda_handler
-      FunctionName: AggregateModels
-      Layers:
-        - !Ref FMLaaSCoreDependencyLayer
-      Policies:
-        - AWSLambdaBasicExecutionRole
-        - DynamoDBCrudPolicy:
-            TableName: !Ref GroupsTable
-        - !Ref S3GetObjectPolicy
-        - !Ref S3PutObjectPolicy
-      Events:
-        AggregateModelsApiEvent:
-          Type: Api
-          Properties:
-            RestApiId: !Ref FmlaasProdApi
-            Path: /v1/round/aggregate
-            Method: post
