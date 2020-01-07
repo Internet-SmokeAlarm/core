@@ -7,9 +7,10 @@ from fmlaas.aggregation import FederatedAveraging
 from fmlaas.serde import deserialize_state_dict
 from fmlaas.serde import serialize_numpy
 from fmlaas.storage import DiskModelStorage
-from fmlaas import get_group_table_name_from_env
+from fmlaas import get_round_table_name_from_env
 from fmlaas.database import DynamoDBInterface
-from fmlaas.model import FLGroup
+from fmlaas.model import DBObjects
+from fmlaas.model import Round
 from fmlaas.model import Model
 from fmlaas.request_processor import IDProcessor
 from fmlaas import HierarchicalModelNameStructure
@@ -68,9 +69,8 @@ def lambda_handler(event, context):
             "body" : str(error)
         }
 
-    dynamodb_ = DynamoDBInterface(get_group_table_name_from_env())
-    group = FLGroup.load_from_db(group_id, dynamodb_)
-    round = group.get_round(round_id)
+    dynamodb_ = DynamoDBInterface(get_round_table_name_from_env())
+    round = DBObject.load_from_db(Round, round_id, dynamodb_)
 
     if round.is_complete() and not round.is_aggregate_model_set():
         name = HierarchicalModelNameStructure()

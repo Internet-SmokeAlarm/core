@@ -9,6 +9,7 @@ Globals:
       Variables:
         MODELS_BUCKET: fmlaas-models
         GROUPS_TABLE_NAME: fl_groups_prod
+        ROUNDS_TABLE_NAME: fl_rounds_prod
         AGGREGATION_LAMBDA_FUNCTION_NAME: AggregateModels
 
 Resources:
@@ -33,6 +34,20 @@ Resources:
           AttributeName: "ID"
           KeyType: "HASH"
       TableName: "fl_groups_prod"
+
+  RoundsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        -
+          AttributeName: "ID"
+          AttributeType: "S"
+      KeySchema:
+        -
+          AttributeName: "ID"
+          KeyType: "HASH"
+      TableName: "fl_rounds_prod"
 
 
   # ------------ S3 ------------
@@ -116,6 +131,8 @@ Resources:
         - AWSLambdaBasicExecutionRole
         - DynamoDBCrudPolicy:
             TableName: !Ref GroupsTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref RoundsTable
       Events:
         StartRoundApiEvent:
           Type: Api
@@ -137,7 +154,7 @@ Resources:
       Policies:
         - AWSLambdaBasicExecutionRole
         - DynamoDBCrudPolicy:
-            TableName: !Ref GroupsTable
+            TableName: !Ref RoundsTable
       Events:
         GetRoundApiEvent:
           Type: Api
@@ -183,6 +200,8 @@ Resources:
         - AWSLambdaRole
         - DynamoDBCrudPolicy:
             TableName: !Ref GroupsTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref RoundsTable
       Events:
         ModelUploadedEvent:
           Type: S3
@@ -203,7 +222,7 @@ Resources:
       Policies:
         - AWSLambdaBasicExecutionRole
         - DynamoDBCrudPolicy:
-            TableName: !Ref GroupsTable
+            TableName: !Ref RoundsTable
         - !Ref S3GetObjectPolicy
       Events:
         GetRoundAggregateModelApiEvent:
@@ -272,6 +291,8 @@ Resources:
         - AWSLambdaBasicExecutionRole
         - DynamoDBCrudPolicy:
             TableName: !Ref GroupsTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref RoundsTable
       Events:
         DeleteGroupApiEvent:
           Type: Api
@@ -293,7 +314,7 @@ Resources:
       Policies:
         - AWSLambdaBasicExecutionRole
         - DynamoDBCrudPolicy:
-            TableName: !Ref GroupsTable
+            TableName: !Ref RoundsTable
       Events:
         IsDeviceActiveApiEvent:
           Type: Api

@@ -1,3 +1,4 @@
+from .db_object import DBObject
 from .model import Model
 from .round_status import RoundStatus
 from .round_configuration import RoundConfiguration

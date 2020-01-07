@@ -3,6 +3,7 @@ import json
 from fmlaas import get_group_table_name_from_env
 from fmlaas.database import DynamoDBInterface
 from fmlaas.model import FLGroup
+from fmlaas.model import DBObject
 from fmlaas.model import RoundStatus
 from fmlaas import HierarchicalModelNameStructure
 from fmlaas.request_processor import IDProcessor
@@ -20,7 +21,7 @@ def lambda_handler(event, context):
         }
 
     dynamodb_ = DynamoDBInterface(get_group_table_name_from_env())
-    group = FLGroup.load_from_db(group_id, dynamodb_)
+    group = DBObject.load_from_db(FLGroup, group_id, dynamodb_)
 
     return {
         "statusCode" : 200,

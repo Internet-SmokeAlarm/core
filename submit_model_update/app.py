@@ -4,9 +4,10 @@ from fmlaas.aws import create_presigned_post
 from fmlaas import HierarchicalModelNameStructure
 from fmlaas.aws import get_models_bucket_name
 from fmlaas.request_processor import IDProcessor
-from fmlaas import get_group_table_name_from_env
+from fmlaas import get_round_table_name_from_env
 from fmlaas.database import DynamoDBInterface
-from fmlaas.model import FLGroup
+from fmlaas.model import Round
+from fmlaas.model import DBObject
 
 def lambda_handler(event, context):
     req_json = json.loads(event.get('body'))
@@ -26,10 +27,10 @@ def lambda_handler(event, context):
             "body" : str(error)
         }
 
-    dynamodb_ = DynamoDBInterface(get_group_table_name_from_env())
-    group = FLGroup.load_from_db(group_id, dynamodb_)
+    dynamodb_ = DynamoDBInterface(get_round_table_name_from_env())
+    round = DBObject.load_from_db(Round, round_id, dynamodb_)
 
-    if not group.is_round_active(round_id) or not group.is_device_active(device_id):
+    if not round.is_in_progress() and round.is_device_active(device_id):
         return {
             "statusCode" : 400,
             "body" : "Cannot submit model to this round. Either device is not active, or round is complete"

@@ -1,9 +1,10 @@
 import json
 
+from fmlaas import get_round_table_name_from_env
 from fmlaas import get_group_table_name_from_env
 from fmlaas.database import DynamoDBInterface
-from fmlaas.model import FLGroup
 from fmlaas.model import RoundConfiguration
+from fmlaas.controllers.start_round import start_round_controller
 from fmlaas.request_processor import IDProcessor
 from fmlaas.request_processor import RoundConfigJSONProcessor
 
@@ -23,13 +24,12 @@ def lambda_handler(event, context):
             "body" : str(error)
         }
 
-    dynamodb_ = DynamoDBInterface(get_group_table_name_from_env())
-    group = FLGroup.load_from_db(group_id, dynamodb_)
+    round_db = DynamoDBInterface(get_round_table_name_from_env())
+    group_db = DynamoDBInterface(get_group_table_name_from_env())
 
     round_config = RoundConfiguration(num_devices, device_selection_strategy)
-    round_id = group.create_round(round_config)
 
-    group.save_to_db(dynamodb_)
+    round_id = start_round_controller(round_db, group_db, group_id, round_config)
 
     return {
         "statusCode" : 200,
