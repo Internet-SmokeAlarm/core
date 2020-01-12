@@ -9,7 +9,7 @@ from fmlaas.serde import serialize_numpy
 from fmlaas.storage import DiskModelStorage
 from fmlaas import get_round_table_name_from_env
 from fmlaas.database import DynamoDBInterface
-from fmlaas.model import DBObjects
+from fmlaas.model import DBObject
 from fmlaas.model import Round
 from fmlaas.model import Model
 from fmlaas.request_processor import IDProcessor
@@ -72,18 +72,17 @@ def lambda_handler(event, context):
     dynamodb_ = DynamoDBInterface(get_round_table_name_from_env())
     round = DBObject.load_from_db(Round, round_id, dynamodb_)
 
-    if round.is_complete() and not round.is_aggregate_model_set():
-        name = HierarchicalModelNameStructure()
-        name.generate_name(group_id=group_id, round_id=round_id)
+    name = HierarchicalModelNameStructure()
+    name.generate_name(group_id=group_id, round_id=round_id)
 
-        models = group.get_models(round_id)
-        model_names = [models[model].get_name().get_name() for model in models]
-        num_models = len(model_names)
+    models = round.get_models()
+    model_names = [models[model].get_name().get_name() for model in models.keys()]
+    num_models = len(model_names)
 
-        global_model = generate_global_model(model_names)
-        scaled_global_model = FederatedAveraging().scale_model(global_model, num_models)
+    global_model = generate_global_model(model_names)
+    scaled_global_model = FederatedAveraging().scale_model(global_model, num_models)
 
-        save_model_to_s3(name.get_name(), scaled_global_model)
+    save_model_to_s3(name.get_name(), scaled_global_model)
 
     return {
         "statusCode" : 200,

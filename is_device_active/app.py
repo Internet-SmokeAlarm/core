@@ -12,6 +12,7 @@ def lambda_handler(event, context):
     try:
         id_processor = IDProcessor(req_json)
         group_id = id_processor.get_group_id()
+        round_id = id_processor.get_round_id()
         device_id = id_processor.get_device_id()
     except ValueError as error:
         return {

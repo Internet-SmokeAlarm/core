@@ -30,7 +30,7 @@ def lambda_handler(event, context):
     dynamodb_ = DynamoDBInterface(get_round_table_name_from_env())
     round = DBObject.load_from_db(Round, round_id, dynamodb_)
 
-    if not round.is_in_progress() and round.is_device_active(device_id):
+    if not round.is_in_progress() or not round.is_device_active(device_id):
         return {
             "statusCode" : 400,
             "body" : "Cannot submit model to this round. Either device is not active, or round is complete"

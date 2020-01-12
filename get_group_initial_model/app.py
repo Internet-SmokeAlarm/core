@@ -26,10 +26,10 @@ def lambda_handler(event, context):
     dynamodb_ = DynamoDBInterface(get_group_table_name_from_env())
     group = DBObject.load_from_db(FLGroup, group_id, dynamodb_)
 
-    object_name = HierarchicalModelNameStructure()
-    object_name.generate_name(group_id=group.get_initial_model())
-
-    presigned_url = create_presigned_url(get_models_bucket_name(), object_name.get_name(), expiration=EXPIRATION_SEC)
+    presigned_url = create_presigned_url(
+        get_models_bucket_name(),
+        group.get_initial_model().get_name().get_name(),
+        expiration=EXPIRATION_SEC)
 
     return {
         "statusCode" : 200,

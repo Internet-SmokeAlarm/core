@@ -32,14 +32,14 @@ class StartRoundControllerTestCase(unittest.TestCase):
         round_builder.set_devices(["34553"])
         round = round_builder.build()
 
-        new_round = create_round(devices, round, round_config)
+        new_round = create_round(devices, round.get_id(), round.get_end_model(), round_config)
 
         self.assertIsNotNone(new_round.get_id())
         self.assertEqual(new_round.get_devices(), devices)
         self.assertEqual(round_config.to_json(), new_round.get_configuration().to_json())
         self.assertEqual(new_round.get_previous_round_id(), round.get_id())
 
-    def test_start_round_controller_pass(self):
+    def test_start_round_controller_pass_1(self):
         group_db = InMemoryDBInterface()
         round_db = InMemoryDBInterface()
 
@@ -69,6 +69,30 @@ class StartRoundControllerTestCase(unittest.TestCase):
 
         self.assertEqual(new_round.get_previous_round_id(), round.get_id())
         self.assertEqual(new_round.get_start_model().to_json(), previous_round.get_end_model().to_json())
+        self.assertEqual(new_round.get_devices(), ["34553"])
+
+        self.assertEqual(updated_group.get_current_round_id(), new_round_id)
+        self.assertTrue(updated_group.contains_round(new_round_id))
+
+    def test_start_round_controller_pass_2(self):
+        group_db = InMemoryDBInterface()
+        round_db = InMemoryDBInterface()
+
+        builder = GroupBuilder()
+        builder.set_id("test_id")
+        builder.set_name("test_name")
+        builder.set_devices({"34553" : {"ID" : "34553", "registered_on" : "213123144.2342"}})
+        group = builder.build()
+        group.set_initial_model(Model("test_id", "test_id/test_id", "34532"))
+
+        group.save_to_db(group_db)
+
+        new_round_id = start_round_controller(round_db, group_db, group.get_id(), RoundConfiguration("1", "RANDOM"))
+        new_round = DBObject.load_from_db(Round, new_round_id, round_db)
+        updated_group = DBObject.load_from_db(FLGroup, group.get_id(), group_db)
+
+        self.assertEqual(new_round.get_previous_round_id(), "N/A")
+        self.assertEqual(new_round.get_start_model().to_json(), updated_group.get_initial_model().to_json())
         self.assertEqual(new_round.get_devices(), ["34553"])
 
         self.assertEqual(updated_group.get_current_round_id(), new_round_id)

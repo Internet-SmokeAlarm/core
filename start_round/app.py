@@ -4,7 +4,7 @@ from fmlaas import get_round_table_name_from_env
 from fmlaas import get_group_table_name_from_env
 from fmlaas.database import DynamoDBInterface
 from fmlaas.model import RoundConfiguration
-from fmlaas.controllers.start_round import start_round_controller
+from fmlaas.controller.start_round import start_round_controller
 from fmlaas.request_processor import IDProcessor
 from fmlaas.request_processor import RoundConfigJSONProcessor
 

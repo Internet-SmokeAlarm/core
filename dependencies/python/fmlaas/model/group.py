@@ -2,6 +2,7 @@ from .device_builder import DeviceBuilder
 from .round_builder import RoundBuilder
 from .round_status import RoundStatus
 from .round import Round
+from .model import Model
 from ..generate_unique_id import generate_unique_id
 from ..device_selection import DeviceSelectorFactory
 
@@ -9,19 +10,21 @@ from .db_object import DBObject
 
 class FLGroup(DBObject):
 
-    def __init__(self, name, id, devices, rounds, current_round_id):
+    def __init__(self, name, id, devices, rounds, current_round_id, initial_model):
         """
         :param name: string
         :param id: string
         :param devices: dict
         :param rounds: dict
         :param current_round_id: string
+        :param initial_model: dict
         """
         self.id = id
         self.name = name
         self.devices = devices
         self.rounds = rounds
         self.current_round_id = current_round_id
+        self.initial_model = initial_model
 
     def add_device(self, device_id):
         """
@@ -53,7 +56,13 @@ class FLGroup(DBObject):
         return round_id in self.rounds
 
     def get_initial_model(self):
-        return self.id
+        return Model.from_json(self.initial_model)
+
+    def set_initial_model(self, initial_model):
+        """
+        :param initial_model: Model
+        """
+        self.initial_model = initial_model.to_json()
 
     def get_id(self):
         return self.id
@@ -79,7 +88,8 @@ class FLGroup(DBObject):
             "ID" : self.id,
             "devices" : self.devices,
             "rounds" : self.rounds,
-            "current_round_id" : self.current_round_id
+            "current_round_id" : self.current_round_id,
+            "initial_model" : self.initial_model
         }
 
     @staticmethod
@@ -88,4 +98,5 @@ class FLGroup(DBObject):
             json_data["ID"],
             json_data["devices"],
             json_data["rounds"],
-            json_data["current_round_id"])
+            json_data["current_round_id"],
+            json_data["initial_model"])

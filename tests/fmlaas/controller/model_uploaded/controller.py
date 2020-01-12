@@ -2,6 +2,7 @@ import unittest
 
 from dependencies.python.fmlaas.model import Model
 from dependencies.python.fmlaas.model import FLGroup
+from dependencies.python.fmlaas.model import GroupBuilder
 from dependencies.python.fmlaas.model import Round
 from dependencies.python.fmlaas.model import RoundBuilder
 from dependencies.python.fmlaas.model import RoundConfiguration
@@ -24,6 +25,13 @@ class ModelUploadedControllerTestCase(unittest.TestCase):
         round_builder.set_start_model(Model("1234", "1234/1234", "123211").to_json())
 
         return round_builder.build()
+
+    def _build_default_group(self):
+        group_builder = GroupBuilder()
+        group_builder.set_id("test_id")
+        group_builder.set_name("test_name")
+
+        return group_builder.build()
 
     def test_get_model_process_function_pass_1(self):
         model = Model("1234", "1234/23456/435647", "923843287")
@@ -55,6 +63,20 @@ class ModelUploadedControllerTestCase(unittest.TestCase):
         round_2 = DBObject.load_from_db(Round, round.get_id(), db_)
 
         self.assertTrue(round_2.is_device_model_submitted("3456"))
+
+    def test_handle_group_initial_model_pass(self):
+        db_ = InMemoryDBInterface()
+        model = Model(None, "test_id/test_id", "1232131")
+
+        group = self._build_default_group()
+        group.save_to_db(db_)
+
+        should_aggregate = handle_group_initial_model(model, db_, None)
+
+        group_2 = DBObject.load_from_db(FLGroup, group.get_id(), db_)
+
+        self.assertFalse(should_aggregate)
+        self.assertEqual(group_2.get_initial_model().to_json(), model.to_json())
 
     def test_handle_device_model_update_pass_no_aggregation(self):
         db_ = InMemoryDBInterface()
@@ -115,3 +137,16 @@ class ModelUploadedControllerTestCase(unittest.TestCase):
 
         self.assertTrue(round_2.is_complete())
         self.assertEqual(round_2.get_aggregate_model().get_size(), "435345")
+
+    def test_models_uploaded_controller_pass(self):
+        db_ = InMemoryDBInterface()
+        model = Model(None, "test_id/test_id", "1232131")
+
+        group = self._build_default_group()
+        group.save_to_db(db_)
+
+        models_uploaded_controller(db_, None, [model])
+
+        group_2 = DBObject.load_from_db(FLGroup, group.get_id(), db_)
+
+        self.assertEqual(group_2.get_initial_model().to_json(), model.to_json())

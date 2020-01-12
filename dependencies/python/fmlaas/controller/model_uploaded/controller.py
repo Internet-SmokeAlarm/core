@@ -16,15 +16,12 @@ def models_uploaded_controller(group_db, round_db, models_uploaded):
     for model in models_uploaded:
         model_name = model.get_name()
         handler_function = get_model_process_function(model_name)
-        should_trigger_aggregation = handler_function(model_name, group_db, round_db)
+        should_trigger_aggregation = handler_function(model, group_db, round_db)
 
         if should_trigger_aggregation:
             payload = generate_aggregation_func_payload(model_name.get_group_id(), model_name.get_round_id())
 
-            trigger_lambda_function(
-                get_aggregation_lambda_func_name(),
-                model_name.get_group_id(),
-                model_name.get_round_id())
+            trigger_lambda_function(get_aggregation_lambda_func_name(), payload)
 
 def get_model_process_function(model_name):
     if model_name.is_initial_group_model():
@@ -35,7 +32,12 @@ def get_model_process_function(model_name):
         return handle_round_aggregate_model
 
 def handle_group_initial_model(model, group_db, round_db):
-    # TODO : Capture model information (including size) here
+    model.set_entity_id(model.get_name().get_group_id())
+
+    group = DBObject.load_from_db(FLGroup, model.get_name().get_group_id(), group_db)
+    group.set_initial_model(model)
+    group.save_to_db(group_db)
+
     return False
 
 def handle_device_model_update(model, group_db, round_db):
