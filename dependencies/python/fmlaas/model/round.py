@@ -16,7 +16,8 @@ class Round(DBObject):
                  end_model,
                  configuration,
                  models,
-                 created_on):
+                 created_on,
+                 billable_size):
         """
         :param id: string
         :param devices: list(string)
@@ -28,6 +29,7 @@ class Round(DBObject):
         :param configuration: dict
         :param models: dict
         :param created_on: string
+        :param billable_size: string
         """
         self.id = id
         self.devices = devices
@@ -39,6 +41,7 @@ class Round(DBObject):
         self.configuration = configuration
         self.models = models
         self.created_on = created_on
+        self.billable_size = billable_size
 
     def get_id(self):
         return self.id
@@ -169,14 +172,45 @@ class Round(DBObject):
         Cancels this round
         """
         self.set_status(RoundStatus.CANCELLED)
+
         self.end_model = self.start_model
+
+        self.set_billable_size(self.calculate_billable_size())
 
     def complete(self):
         """
         Completes the round
         """
         self.set_status(RoundStatus.COMPLETED)
+
         self.end_model = self.aggregate_model
+
+        self.set_billable_size(self.calculate_billable_size())
+
+    def set_billable_size(self, billable_size):
+        """
+        :param billable_size: string
+        """
+        self.billable_size = billable_size
+
+    def calculate_billable_size(self):
+        """
+        Calculates the billable size of the data stored in this round.
+
+        :return: string
+        """
+        billable_size = 0
+
+        for device_id, model in self.get_models().items():
+            billable_size += int(model.get_size())
+
+        if Model.is_valid_json(self.aggregate_model):
+            billable_size += int(self.get_aggregate_model().get_size())
+
+        return str(billable_size)
+
+    def get_billable_size(self):
+        return self.billable_size
 
     def to_json(self):
         return {
@@ -189,7 +223,8 @@ class Round(DBObject):
             "end_model" : self.end_model,
             "configuration" : self.configuration,
             "models" : self.models,
-            "created_on" : self.created_on
+            "created_on" : self.created_on,
+            "billable_size" : self.billable_size
         }
 
     @staticmethod
@@ -203,4 +238,5 @@ class Round(DBObject):
             json_data["end_model"],
             json_data["configuration"],
             json_data["models"],
-            json_data["created_on"])
+            json_data["created_on"],
+            json_data["billable_size"])

@@ -18,6 +18,7 @@ class RoundBuilder(Builder):
         self.configuration = None
         self.models = {}
         self.created_on = get_epoch_time()
+        self.billable_size = 0
 
     def set_id(self, id):
         """
@@ -67,6 +68,12 @@ class RoundBuilder(Builder):
         """
         self.start_model = start_model
 
+    def set_billable_size(self, billable_size):
+        """
+        :param billable_size: string
+        """
+        self.billable_size = billable_size
+
     def build(self):
         self._validate_parameters()
 
@@ -79,7 +86,8 @@ class RoundBuilder(Builder):
             self.end_model,
             self.configuration,
             self.models,
-            self.created_on)
+            self.created_on,
+            self.billable_size)
 
     def _validate_parameters(self):
         if self.start_model is None:

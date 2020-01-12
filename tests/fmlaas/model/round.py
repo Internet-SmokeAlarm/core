@@ -28,7 +28,8 @@ class RoundTestCase(unittest.TestCase):
             {"name" : "21313124/21313124", "entity_id" : "21313124", "size" : "21313124"},
             {"config info" : "here"},
             {"test1" : {"size" : "123300"}},
-            "December 19th, 2019")
+            "December 19th, 2019",
+            "1234345")
 
         round_json = round.to_json()
 
@@ -42,9 +43,10 @@ class RoundTestCase(unittest.TestCase):
         self.assertEqual({"config info" : "here"}, round_json["configuration"])
         self.assertEqual({"test1" : {"size" : "123300"}}, round_json["models"])
         self.assertEqual("December 19th, 2019", round_json["created_on"])
+        self.assertEqual("1234345", round_json["billable_size"])
 
     def test_from_json_pass(self):
-        round_json = {'ID': 'my_id', 'status': 'COMPLETED', 'devices': ['test1', 'test2'], 'previous_round_id': 'previous_round_id', 'aggregate_model': {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : "2134235"}, 'start_model': {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : "2134235"}, 'end_model' : {"name" : "21313124/21313124", "entity_id" : "21313124", "size" : "21313124"}, 'configuration': {'num_devices' : "5", "device_selection_strategy" : "RANDOM"}, 'models': {"123235345" : {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : "2134235"}}, 'created_on': 'December 19th, 2019'}
+        round_json = {'ID': 'my_id', 'status': 'COMPLETED', 'devices': ['test1', 'test2'], 'previous_round_id': 'previous_round_id', 'aggregate_model': {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : "2134235"}, 'start_model': {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : "2134235"}, 'end_model' : {"name" : "21313124/21313124", "entity_id" : "21313124", "size" : "21313124"}, 'configuration': {'num_devices' : "5", "device_selection_strategy" : "RANDOM"}, 'models': {"123235345" : {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : "2134235"}}, 'created_on': 'December 19th, 2019', "billable_size" : "0"}
 
         round = Round.from_json(round_json)
 
@@ -58,6 +60,7 @@ class RoundTestCase(unittest.TestCase):
         self.assertEqual(round.get_created_on(), round_json["created_on"])
         self.assertEqual(round.get_start_model().to_json(), round_json["start_model"])
         self.assertEqual(round.get_end_model().to_json(), round_json["end_model"])
+        self.assertEqual(round.get_billable_size(), round_json["billable_size"])
 
     def test_add_model_pass(self):
         round = self._build_default_round()
@@ -80,7 +83,8 @@ class RoundTestCase(unittest.TestCase):
             {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : "2134235"},
             {"config info" : "here"},
             {"123235345" : {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : "2134235"}, "1232353465" : {"name" : "21313124/123123/1232353465", "entity_id" : "1232353465", "size" : "2134235"}},
-            "December 19th, 2019")
+            "December 19th, 2019",
+            "0")
 
         models = round.get_models()
 
@@ -254,6 +258,7 @@ class RoundTestCase(unittest.TestCase):
 
         self.assertEqual(round.get_status(), RoundStatus.CANCELLED)
         self.assertEqual(round.get_start_model().to_json(), round.get_end_model().to_json())
+        self.assertEqual(round.get_billable_size(), "0")
 
     def test_complete_pass(self):
         round = self._build_default_round()
@@ -265,3 +270,19 @@ class RoundTestCase(unittest.TestCase):
 
         self.assertEqual(round.get_status(), RoundStatus.COMPLETED)
         self.assertEqual(round.get_aggregate_model().to_json(), round.get_end_model().to_json())
+        self.assertEqual(round.get_billable_size(), "12324")
+
+    def test_calculate_billable_size_pass_1(self):
+        round = self._build_default_round()
+
+        round.set_aggregate_model(Model("sefsljkdf", "123123", "12324"))
+
+        self.assertEqual(round.calculate_billable_size(), "12324")
+
+    def test_calculate_billable_size_pass_2(self):
+        round = self._build_default_round()
+
+        round.add_model(Model("1231241241", "123/345/1231241241", "55543"))
+        round.set_aggregate_model(Model("sefsljkdf", "123123", "12324"))
+
+        self.assertEqual(round.calculate_billable_size(), "67867")
