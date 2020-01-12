@@ -24,15 +24,18 @@ def lambda_handler(event, context):
     group_db = DynamoDBInterface(get_group_table_name_from_env())
     round_db = DynamoDBInterface(get_round_table_name_from_env())
 
-    group = DBObject.load_from_db(FLGroup, group_id, group_db)
-    round_ids = group.get_rounds().keys()
+    try:
+        group = DBObject.load_from_db(FLGroup, group_id, group_db)
+        round_ids = group.get_rounds().keys()
 
-    for round_id in round_ids:
-        round_db.delete_object(round_id)
+        for round_id in round_ids:
+            round_db.delete_object(round_id)
 
-    delete_s3_objects_with_prefix(get_models_bucket_name(), group_id)
+        delete_s3_objects_with_prefix(get_models_bucket_name(), group_id)
 
-    success = group_db.delete_object(group_id)
+        success = group_db.delete_object(group_id)
+    except:
+        success = True
 
     return {
         "statusCode" : 200,

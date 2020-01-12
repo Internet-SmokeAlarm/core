@@ -363,7 +363,7 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref RoundsTable
         - AWSLambdaBasicExecutionRole
-        - !Ref S3GetObjectPolicy
+        - !Ref S3PutObjectPolicy
       Events:
         SubmitModelUpdateApiEvent:
           Type: Api
@@ -394,6 +394,29 @@ Resources:
             RestApiId: !Ref FmlaasProdApi
             Path: /v1/group/post/initial_model
             Method: post
+
+  GetRoundStartModelFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 3
+      MemorySize: 128
+      CodeUri: get_round_start_model/
+      Handler: app.lambda_handler
+      FunctionName: GetRoundStartModel
+      Layers:
+        - !Ref FMLaaSCoreDependencyLayer
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref RoundsTable
+        - !Ref S3GetObjectPolicy
+      Events:
+        GetRoundStartModelApiEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FmlaasProdApi
+            Path: /v1/round/get/start_model/{group_id}/{round_id}
+            Method: get
 
   AggregateModelsFunction:
     Type: AWS::Serverless::Function
