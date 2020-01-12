@@ -1,5 +1,6 @@
 import unittest
 
+from dependencies.python.fmlaas.model import Model
 from dependencies.python.fmlaas.model import RoundBuilder
 from dependencies.python.fmlaas.model import RoundStatus
 from dependencies.python.fmlaas.model import RoundConfiguration
@@ -12,11 +13,13 @@ class RoundBuilderTestCase(unittest.TestCase):
 
         configuration = RoundConfiguration("50", "RANDOM")
         round_builder.set_configuration(configuration.to_json())
+        round_builder.set_start_model(Model("1234", "1234/1234", "123211").to_json())
 
         round = round_builder.build()
 
-        self.assertEqual(round.get_configuration(), configuration.to_json())
+        self.assertEqual(round.get_configuration().to_json(), configuration.to_json())
         self.assertEqual(round.get_id(), "test_id")
+        self.assertEqual(round.get_start_model().get_entity_id(), "1234")
         self.assertEqual(round.get_previous_round_id(), "N/A")
         self.assertEqual(round.get_status(), RoundStatus.IN_PROGRESS)
         self.assertEqual(round.get_models(), {})
@@ -36,12 +39,22 @@ class RoundBuilderTestCase(unittest.TestCase):
 
         self.assertRaises(ValueError, round_builder.build)
 
+    def test_build_fail_invalid_start_model(self):
+        round_builder = RoundBuilder()
+        round_builder.set_id("test_id")
+        configuration = RoundConfiguration("50", "RANDOM")
+        round_builder.set_configuration(configuration.to_json())
+
+        self.assertRaises(ValueError, round_builder.build)
+
     def test_validate_parameters_pass(self):
         round_builder = RoundBuilder()
         round_builder.set_id("test_id")
 
         configuration = RoundConfiguration("50", "RANDOM")
         round_builder.set_configuration(configuration.to_json())
+
+        round_builder.set_start_model(Model("1234", "1234/1234", "123211").to_json())
 
         round_builder._validate_parameters()
 
@@ -56,5 +69,13 @@ class RoundBuilderTestCase(unittest.TestCase):
     def test_validate_parameters_fail_2(self):
         round_builder = RoundBuilder()
         round_builder.set_id("test_id")
+
+        self.assertRaises(ValueError, round_builder._validate_parameters)
+
+    def test_validate_parameters_fail_invalid_start_model(self):
+        round_builder = RoundBuilder()
+        round_builder.set_id("test_id")
+        configuration = RoundConfiguration("50", "RANDOM")
+        round_builder.set_configuration(configuration.to_json())
 
         self.assertRaises(ValueError, round_builder._validate_parameters)

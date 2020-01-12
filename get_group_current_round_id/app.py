@@ -3,12 +3,13 @@ import json
 from fmlaas import get_group_table_name_from_env
 from fmlaas.database import DynamoDBInterface
 from fmlaas.model import FLGroup
+from fmlaas.model import DBObject
 from fmlaas.model import RoundStatus
 from fmlaas import HierarchicalModelNameStructure
 from fmlaas.request_processor import IDProcessor
 
 def lambda_handler(event, context):
-    req_json = json.loads(event.get('body'))
+    req_json = event.get("pathParameters")
 
     try:
         id_processor = IDProcessor(req_json)
@@ -20,17 +21,9 @@ def lambda_handler(event, context):
         }
 
     dynamodb_ = DynamoDBInterface(get_group_table_name_from_env())
-    group = FLGroup.load_from_db(group_id, dynamodb_)
-
-    current_round_id = group.get_current_round_id()
-    round_status = RoundStatus.IN_PROGRESS
-    if group.contains_round(current_round_id):
-        round_status = group.get_round(current_round_id).get_status()
+    group = DBObject.load_from_db(FLGroup, group_id, dynamodb_)
 
     return {
         "statusCode" : 200,
-        "body" : json.dumps({
-            "round_id" : current_round_id,
-            "round_status" : round_status.value
-        })
+        "body" : json.dumps({"round_id" : group.get_current_round_id()})
     }

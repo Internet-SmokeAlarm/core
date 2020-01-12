@@ -17,3 +17,5 @@ from .aggregation import *
 from .request_processor import *
 
 from .aws import *
+
+from .controller import *

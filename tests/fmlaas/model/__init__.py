@@ -6,3 +6,4 @@ from .round_builder import RoundBuilderTestCase
 from .device import DeviceTestCase
 from .device_builder import DeviceBuilderTestCase
 from .model import ModelTestCase
+from .db_object import DBObjectTestCase
