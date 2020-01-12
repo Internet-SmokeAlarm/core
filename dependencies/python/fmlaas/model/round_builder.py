@@ -18,7 +18,7 @@ class RoundBuilder(Builder):
         self.configuration = None
         self.models = {}
         self.created_on = get_epoch_time()
-        self.billable_size = 0
+        self.billable_size = "0"
 
     def set_id(self, id):
         """
