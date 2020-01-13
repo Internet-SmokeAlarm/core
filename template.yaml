@@ -2,22 +2,26 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: FMLaaS Core
 
+Parameters:
+  Stage:
+    Type: String
+
 Globals:
   Function:
     Runtime: python3.7
     Environment:
       Variables:
-        MODELS_BUCKET: fmlaas-models
-        GROUPS_TABLE_NAME: fl_groups_prod
-        ROUNDS_TABLE_NAME: fl_rounds_prod
-        AGGREGATION_LAMBDA_FUNCTION_NAME: AggregateModels
+        MODELS_BUCKET: !Join ["", [!Ref Stage, "-fedlearn-models"]]
+        GROUPS_TABLE_NAME: !Join ["", [!Ref Stage, "-fl-groups"]]
+        ROUNDS_TABLE_NAME: !Join ["", [!Ref Stage, "-fl-rounds"]]
+        AGGREGATION_LAMBDA_FUNCTION_NAME: !Join ["", [!Ref Stage, "-AggregateModels"]]
 
 Resources:
   # ------------ Api ------------
   FmlaasProdApi:
     Type: AWS::Serverless::Api
     Properties:
-      StageName: Prod
+      StageName: !Ref Stage
 
 
   # ------------ DynamoDB ------------
@@ -33,7 +37,7 @@ Resources:
         -
           AttributeName: "ID"
           KeyType: "HASH"
-      TableName: "fl_groups_prod"
+      TableName: !Join ["", [!Ref Stage, "-fl-groups"]]
 
   RoundsTable:
     Type: AWS::DynamoDB::Table
@@ -47,21 +51,21 @@ Resources:
         -
           AttributeName: "ID"
           KeyType: "HASH"
-      TableName: "fl_rounds_prod"
+      TableName: !Join ["", [!Ref Stage, "-fl-rounds"]]
 
 
   # ------------ S3 ------------
   ModelBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: fmlaas-models
+      BucketName: !Join ["", [!Ref Stage, "-fedlearn-models"]]
 
 
   # ------------ IAM ------------
   S3PutObjectPolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
-      ManagedPolicyName: S3PutObjectPolicy
+      ManagedPolicyName: !Join ["", [!Ref Stage, "-S3PutObjectPolicy"]]
       PolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -73,7 +77,7 @@ Resources:
   S3GetObjectPolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
-      ManagedPolicyName: S3GetObjectPolicy
+      ManagedPolicyName: !Join ["", [!Ref Stage, "-S3GetObjectPolicy"]]
       PolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -102,7 +106,7 @@ Resources:
       MemorySize: 128
       CodeUri: register_device/
       Handler: app.lambda_handler
-      FunctionName: RegisterDevice
+      FunctionName: !Join ["", [!Ref Stage, "-RegisterDevice"]]
       Layers:
         - !Ref FMLaaSCoreDependencyLayer
       Policies:
@@ -124,7 +128,7 @@ Resources:
       MemorySize: 128
       CodeUri: start_round/
       Handler: app.lambda_handler
-      FunctionName: StartRound
+      FunctionName: !Join ["", [!Ref Stage, "-StartRound"]]
       Layers:
         - !Ref FMLaaSCoreDependencyLayer
       Policies:
@@ -148,7 +152,7 @@ Resources:
       MemorySize: 128
       CodeUri: get_round/
       Handler: app.lambda_handler
-      FunctionName: GetRound
+      FunctionName: !Join ["", [!Ref Stage, "-GetRound"]]
       Layers:
         - !Ref FMLaaSCoreDependencyLayer
       Policies:
@@ -170,7 +174,7 @@ Resources:
       MemorySize: 128
       CodeUri: get_group/
       Handler: app.lambda_handler
-      FunctionName: GetGroup
+      FunctionName: !Join ["", [!Ref Stage, "-GetGroup"]]
       Layers:
         - !Ref FMLaaSCoreDependencyLayer
       Policies:
@@ -192,7 +196,7 @@ Resources:
       MemorySize: 128
       CodeUri: model_uploaded/
       Handler: app.lambda_handler
-      FunctionName: ModelUploaded
+      FunctionName: !Join ["", [!Ref Stage, "-ModelUploaded"]]
       Layers:
         - !Ref FMLaaSCoreDependencyLayer
       Policies:
@@ -216,7 +220,7 @@ Resources:
       MemorySize: 128
       CodeUri: get_round_aggregate_model/
       Handler: app.lambda_handler
-      FunctionName: GetRoundAggregateModel
+      FunctionName: !Join ["", [!Ref Stage, "-GetRoundAggregateModel"]]
       Layers:
         - !Ref FMLaaSCoreDependencyLayer
       Policies:
@@ -239,7 +243,7 @@ Resources:
       MemorySize: 128
       CodeUri: get_group_initial_model/
       Handler: app.lambda_handler
-      FunctionName: GetGroupInitialModel
+      FunctionName: !Join ["", [!Ref Stage, "-GetGroupInitialModel"]]
       Layers:
         - !Ref FMLaaSCoreDependencyLayer
       Policies:
@@ -262,7 +266,7 @@ Resources:
       MemorySize: 128
       CodeUri: create_group/
       Handler: app.lambda_handler
-      FunctionName: CreateGroup
+      FunctionName: !Join ["", [!Ref Stage, "-CreateGroup"]]
       Layers:
         - !Ref FMLaaSCoreDependencyLayer
       Policies:
@@ -284,7 +288,7 @@ Resources:
       MemorySize: 128
       CodeUri: delete_group/
       Handler: app.lambda_handler
-      FunctionName: DeleteGroup
+      FunctionName: !Join ["", [!Ref Stage, "-DeleteGroup"]]
       Layers:
         - !Ref FMLaaSCoreDependencyLayer
       Policies:
@@ -310,7 +314,7 @@ Resources:
       MemorySize: 128
       CodeUri: is_device_active/
       Handler: app.lambda_handler
-      FunctionName: IsDeviceActive
+      FunctionName: !Join ["", [!Ref Stage, "-IsDeviceActive"]]
       Layers:
         - !Ref FMLaaSCoreDependencyLayer
       Policies:
@@ -332,7 +336,7 @@ Resources:
       MemorySize: 128
       CodeUri: get_group_current_round_id/
       Handler: app.lambda_handler
-      FunctionName: GetGroupCurrentRoundIdFunction
+      FunctionName: !Join ["", [!Ref Stage, "-GetGroupCurrentRoundIdFunction"]]
       Layers:
         - !Ref FMLaaSCoreDependencyLayer
       Policies:
@@ -354,7 +358,7 @@ Resources:
       MemorySize: 128
       CodeUri: submit_model_update/
       Handler: app.lambda_handler
-      FunctionName: SubmitModelUpdate
+      FunctionName: !Join ["", [!Ref Stage, "-SubmitModelUpdate"]]
       Layers:
         - !Ref FMLaaSCoreDependencyLayer
       Policies:
@@ -379,7 +383,7 @@ Resources:
       MemorySize: 128
       CodeUri: submit_group_initial_model/
       Handler: app.lambda_handler
-      FunctionName: SubmitGroupInitialModel
+      FunctionName: !Join ["", [!Ref Stage, "-SubmitGroupInitialModel"]]
       Layers:
         - !Ref FMLaaSCoreDependencyLayer
       Policies:
@@ -402,7 +406,7 @@ Resources:
       MemorySize: 128
       CodeUri: get_round_start_model/
       Handler: app.lambda_handler
-      FunctionName: GetRoundStartModel
+      FunctionName: !Join ["", [!Ref Stage, "-GetRoundStartModel"]]
       Layers:
         - !Ref FMLaaSCoreDependencyLayer
       Policies:
@@ -425,7 +429,7 @@ Resources:
       MemorySize: 256
       CodeUri: aggregate_models/
       Handler: app.lambda_handler
-      FunctionName: AggregateModels
+      FunctionName: !Join ["", [!Ref Stage, "-AggregateModels"]]
       Layers:
         - !Ref FMLaaSCoreDependencyLayer
       Policies:
@@ -436,3 +440,8 @@ Resources:
             TableName: !Ref RoundsTable
         - !Ref S3GetObjectPolicy
         - !Ref S3PutObjectPolicy
+
+Outputs:
+  ApiUrl:
+    Description: URL for endpoint
+    Value: !Sub "https://${FmlaasProdApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
