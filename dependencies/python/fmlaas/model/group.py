@@ -55,6 +55,12 @@ class FLGroup(DBObject):
         """
         return round_id in self.rounds
 
+    def is_initial_model_set(self):
+        """
+        :return: boolean
+        """
+        return Model.is_valid_json(self.initial_model)
+
     def get_initial_model(self):
         return Model.from_json(self.initial_model)
 

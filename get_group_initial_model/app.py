@@ -25,12 +25,18 @@ def lambda_handler(event, context):
     dynamodb_ = DynamoDBInterface(get_group_table_name_from_env())
     group = DBObject.load_from_db(FLGroup, group_id, dynamodb_)
 
-    presigned_url = create_presigned_url(
-        get_models_bucket_name(),
-        group.get_initial_model().get_name().get_name(),
-        expiration=EXPIRATION_SEC)
+    if not group.is_initial_model_set():
+        return {
+            "statusCode" : 500,
+            "body" : "Initial model not set for group"
+        }
+    else:
+        presigned_url = create_presigned_url(
+            get_models_bucket_name(),
+            group.get_initial_model().get_name().get_name(),
+            expiration=EXPIRATION_SEC)
 
-    return {
-        "statusCode" : 200,
-        "body" : json.dumps({"model_url" : presigned_url})
-    }
+        return {
+            "statusCode" : 200,
+            "body" : json.dumps({"model_url" : presigned_url})
+        }
