@@ -21,7 +21,10 @@ def lambda_handler(event, context):
     dynamodb_ = DynamoDBInterface(get_group_table_name_from_env())
     group = DBObject.load_from_db(FLGroup, group_id, dynamodb_)
 
+    group_json = group.to_json()
+    group_json["is_initial_model_set"] = group.is_initial_model_set()
+
     return {
         "statusCode" : 200,
-        "body" : json.dumps(group.to_json())
+        "body" : json.dumps(group_json)
     }

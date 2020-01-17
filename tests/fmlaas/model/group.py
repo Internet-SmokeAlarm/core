@@ -134,3 +134,12 @@ class FLGroupTestCase(unittest.TestCase):
         group.set_current_round_id("4142634852358226")
 
         self.assertEqual(group.current_round_id, "4142634852358226")
+
+    def test_is_initial_model_set_pass(self):
+        group = self.build_default_group()
+
+        self.assertFalse(group.is_initial_model_set())
+
+        group.set_initial_model(Model("1234", "1234/1234", "1234554"))
+
+        self.assertTrue(group.is_initial_model_set())
