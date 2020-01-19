@@ -20,3 +20,5 @@ from .request_processor import *
 from .aws import *
 
 from .controller import *
+
+from .auth import *
