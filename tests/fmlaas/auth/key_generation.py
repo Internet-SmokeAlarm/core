@@ -13,5 +13,5 @@ class KeyGenerationTestCase(unittest.TestCase):
     def test_generate_key_pair(self):
         id, key = generate_key_pair()
 
-        self.assertEqual(24, len(id))
+        self.assertEqual(36, len(id))
         self.assertTrue(id in key)

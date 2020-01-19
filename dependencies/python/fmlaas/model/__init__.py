@@ -8,3 +8,5 @@ from .device import Device
 from .device_builder import DeviceBuilder
 from .group import FLGroup
 from .group_builder import GroupBuilder
+from .api_key import ApiKey
+from .api_key_builder import ApiKeyBuilder
