@@ -6,6 +6,6 @@ def generate_secret():
 
 def generate_key_pair():
     secret = generate_secret()
-    id = secret[:24]
+    id = secret[:AuthConstants.ID_NUM_CHARS]
 
     return id, secret
