@@ -1,4 +1,5 @@
-from .db_object import DBObject
+from ...model.db_object import DBObject
+from ..permission_groups import PermissionsGroupTypeEnum
 
 class ApiKey(DBObject):
 
@@ -29,7 +30,7 @@ class ApiKey(DBObject):
         return self.event_log
 
     def get_permissions_group(self):
-        return self.permissions_group
+        return PermissionsGroupTypeEnum(self.permissions_group)
 
     def to_json(self):
         return {

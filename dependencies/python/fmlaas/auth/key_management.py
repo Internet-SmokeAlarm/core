@@ -9,3 +9,6 @@ def generate_key_pair():
     id = secret[:AuthConstants.ID_NUM_CHARS]
 
     return id, secret
+
+def get_id_from_token(token):
+    return token[:AuthConstants.ID_NUM_CHARS]

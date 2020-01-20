@@ -1,6 +1,6 @@
 import unittest
 
-from dependencies.python.fmlaas.model import ApiKeyBuilder
+from dependencies.python.fmlaas.auth.model import ApiKeyBuilder
 from dependencies.python.fmlaas.auth import PermissionsGroupTypeEnum
 
 class ApiKeyBuilderTestCase(unittest.TestCase):

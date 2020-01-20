@@ -14,6 +14,7 @@ Globals:
         MODELS_BUCKET: !Join ["", [!Ref Stage, "-fedlearn-models"]]
         GROUPS_TABLE_NAME: !Join ["", [!Ref Stage, "-fl-groups"]]
         ROUNDS_TABLE_NAME: !Join ["", [!Ref Stage, "-fl-rounds"]]
+        AUTH_KEY_TABLE_NAME: !Join ["", [!Ref Stage, "-fl-auth-key"]]
         AGGREGATION_LAMBDA_FUNCTION_NAME: !Join ["", [!Ref Stage, "-AggregateModels"]]
 
 Resources:
@@ -22,6 +23,15 @@ Resources:
     Type: AWS::Serverless::Api
     Properties:
       StageName: !Ref Stage
+      Auth:
+        DefaultAuthorizer: LambdaRequestAuthorizer
+        Authorizers:
+          LambdaRequestAuthorizer:
+            FunctionPayloadType: REQUEST
+            FunctionArn: !Ref LambdaAuthFunction
+            Identity:
+              Headers:
+                - Authorization
 
 
   # ------------ DynamoDB ------------
@@ -52,6 +62,20 @@ Resources:
           AttributeName: "ID"
           KeyType: "HASH"
       TableName: !Join ["", [!Ref Stage, "-fl-rounds"]]
+
+  AuthKeyTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        -
+          AttributeName: "ID"
+          AttributeType: "S"
+      KeySchema:
+        -
+          AttributeName: "ID"
+          KeyType: "HASH"
+      TableName: !Join ["", [!Ref Stage, "-fl-auth-key"]]
 
 
   # ------------ S3 ------------
@@ -99,6 +123,21 @@ Resources:
 
 
   # ------------ Lambda ------------
+  LambdaAuthFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 5
+      MemorySize: 128
+      CodeUri: lambda_authorizer/
+      Handler: app.lambda_handler
+      FunctionName: !Join ["", [!Ref Stage, "-LambdaAuthorizer"]]
+      Layers:
+        - !Ref FMLaaSCoreDependencyLayer
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuthKeyTable
+
   RegisterDeviceFunction:
     Type: AWS::Serverless::Function
     Properties:

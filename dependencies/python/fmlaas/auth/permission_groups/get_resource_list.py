@@ -46,7 +46,7 @@ def get_group_admin_resource_list(group_id, round_id, device_id):
         "v1/group/get/initial_model/" + group_id,
         "v1/group/post/initial_model",
 
-        "v1/device/get/active/" + device_id,
+        "v1/device/get/active/*",
         "v1/device/register"
     ]
 
@@ -67,7 +67,7 @@ def get_group_member_resource_list(group_id, round_id, device_id):
         "v1/group/get/initial_model/" + group_id,
         "v1/group/post/initial_model",
 
-        "v1/device/get/active/" + device_id,
+        "v1/device/get/active/*",
         "v1/device/register"
     ]
 
@@ -86,7 +86,7 @@ def get_group_read_only_member_resource_list(group_id, round_id, device_id):
         "v1/group/get/current_round_id/" + group_id,
         "v1/group/get/initial_model/" + group_id,
 
-        "v1/device/get/active/" + device_id
+        "v1/device/get/active/*"
     ]
 
 def get_group_device_resource_list(group_id, round_id, device_id):

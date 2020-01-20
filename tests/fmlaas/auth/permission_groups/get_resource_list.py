@@ -24,7 +24,7 @@ class GetResourceListTestCase(unittest.TestCase):
             "v1/group/get/initial_model/1234",
             "v1/group/post/initial_model",
 
-            "v1/device/get/active/3453453",
+            "v1/device/get/active/*",
             "v1/device/register"
         ]
         self.assertEqual(resources, get_group_admin_resource_list("1234", "*", "3453453"))
@@ -41,7 +41,7 @@ class GetResourceListTestCase(unittest.TestCase):
             "v1/group/get/initial_model/1234",
             "v1/group/post/initial_model",
 
-            "v1/device/get/active/3453453",
+            "v1/device/get/active/*",
             "v1/device/register"
         ]
         self.assertEqual(resources, get_group_member_resource_list("1234", "*", "3453453"))
@@ -56,7 +56,7 @@ class GetResourceListTestCase(unittest.TestCase):
             "v1/group/get/current_round_id/1234",
             "v1/group/get/initial_model/1234",
 
-            "v1/device/get/active/3453453"
+            "v1/device/get/active/*"
         ]
         self.assertEqual(resources, get_group_read_only_member_resource_list("1234", "*", "3453453"))
 
@@ -88,3 +88,4 @@ class GetResourceListTestCase(unittest.TestCase):
         self.assertEqual(get_group_read_only_member_resource_list, get_resource_method(PermissionsGroupTypeEnum.GROUP_READ_ONLY_MEMBER))
         self.assertEqual(get_group_device_resource_list, get_resource_method(PermissionsGroupTypeEnum.GROUP_DEVICE))
         self.assertEqual(get_user_resource_list, get_resource_method(PermissionsGroupTypeEnum.USER))
+        self.assertEqual(get_default_resource_list, get_resource_method(PermissionsGroupTypeEnum.UNAUTHENTICATED))

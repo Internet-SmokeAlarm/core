@@ -1,7 +1,7 @@
 import unittest
 
-from dependencies.python.fmlaas.model import ApiKey
-from dependencies.python.fmlaas.model import ApiKeyBuilder
+from dependencies.python.fmlaas.auth.model import ApiKey
+from dependencies.python.fmlaas.auth.model import ApiKeyBuilder
 from dependencies.python.fmlaas.auth import PermissionsGroupTypeEnum
 
 class ApiKeyTestCase(unittest.TestCase):
@@ -33,3 +33,8 @@ class ApiKeyTestCase(unittest.TestCase):
         self.assertEqual(new_key.get_hash(), api_key.get_hash())
         self.assertEqual(new_key.get_id(), api_key.get_id())
         self.assertEqual(new_key.get_created_on(), api_key.get_created_on())
+
+    def test_get_permissions_group_pass(self):
+        api_key = self._build_default_api_key()
+
+        self.assertEqual(PermissionsGroupTypeEnum.GROUP_ADMIN, api_key.get_permissions_group())
