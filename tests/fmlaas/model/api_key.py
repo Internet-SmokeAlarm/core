@@ -2,11 +2,13 @@ import unittest
 
 from dependencies.python.fmlaas.model import ApiKey
 from dependencies.python.fmlaas.model import ApiKeyBuilder
+from dependencies.python.fmlaas.auth import PermissionsGroupTypeEnum
 
 class ApiKeyTestCase(unittest.TestCase):
 
     def _build_default_api_key(self):
         builder = ApiKeyBuilder()
+        builder.set_permissions_group(PermissionsGroupTypeEnum.GROUP_ADMIN)
 
         return builder.build()
 
