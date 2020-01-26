@@ -7,3 +7,5 @@ from .device import DeviceTestCase
 from .device_builder import DeviceBuilderTestCase
 from .model import ModelTestCase
 from .db_object import DBObjectTestCase
+from .api_key_builder import ApiKeyBuilderTestCase
+from .api_key import ApiKeyTestCase

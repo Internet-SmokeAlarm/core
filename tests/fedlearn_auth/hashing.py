@@ -1,8 +1,8 @@
 import unittest
 
-from dependencies.python.fmlaas.auth import hash_secret
-from dependencies.python.fmlaas.auth import verify_key
-from dependencies.python.fmlaas.auth import generate_key_pair
+from dependencies.python.fedlearn_auth import hash_secret
+from dependencies.python.fedlearn_auth import verify_key
+from dependencies.python.fedlearn_auth import generate_key_pair
 
 class HashingTestCase(unittest.TestCase):
 

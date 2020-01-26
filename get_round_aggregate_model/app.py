@@ -1,6 +1,5 @@
 import json
 
-from fmlaas import generate_device_key_pair
 from fmlaas import get_round_table_name_from_env
 from fmlaas.database import DynamoDBInterface
 from fmlaas.model import Round

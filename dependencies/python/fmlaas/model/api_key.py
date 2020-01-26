@@ -1,21 +1,22 @@
-from ...model.db_object import DBObject
-from ..permission_groups import PermissionsGroupTypeEnum
+from .db_object import DBObject
 
 class ApiKey(DBObject):
 
-    def __init__(self, id, hash, created_on, event_log, permissions_group):
+    def __init__(self, id, hash, created_on, event_log, key_type, entity_id):
         """
         :param id: string
         :param hash: string
         :param created_on: string
         :param event_log: dict
-        :param permissions_group: string
+        :param key_type: string
+        :param entity_id: string
         """
         self.id = id
         self.hash = hash
-        self.permissions_group = permissions_group
         self.created_on = created_on
         self.event_log = event_log
+        self.key_type = key_type
+        self.entity_id = entity_id
 
     def get_id(self):
         return self.id
@@ -29,8 +30,11 @@ class ApiKey(DBObject):
     def get_event_log(self):
         return self.event_log
 
-    def get_permissions_group(self):
-        return PermissionsGroupTypeEnum(self.permissions_group)
+    def get_key_type(self):
+        return self.key_type
+
+    def get_entity_id(self):
+        return self.entity_id
 
     def to_json(self):
         return {
@@ -38,7 +42,8 @@ class ApiKey(DBObject):
             "hash" : self.hash,
             "created_on" : self.created_on,
             "event_log" : self.event_log,
-            "permissions_group" : self.permissions_group
+            "key_type" : self.key_type,
+            "entity_id" : self.entity_id
         }
 
     @staticmethod
@@ -47,4 +52,5 @@ class ApiKey(DBObject):
             json_data["hash"],
             json_data["created_on"],
             json_data["event_log"],
-            json_data["permissions_group"])
+            json_data["key_type"],
+            json_data["entity_id"])

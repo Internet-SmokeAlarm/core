@@ -28,7 +28,7 @@ Resources:
         Authorizers:
           LambdaRequestAuthorizer:
             FunctionPayloadType: REQUEST
-            FunctionArn: !Ref LambdaAuthFunction
+            FunctionArn: !GetAtt LambdaAuthFunction.Arn
             Identity:
               Headers:
                 - Authorization
@@ -126,8 +126,8 @@ Resources:
   LambdaAuthFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Timeout: 5
-      MemorySize: 128
+      Timeout: 10
+      MemorySize: 256
       CodeUri: lambda_authorizer/
       Handler: app.lambda_handler
       FunctionName: !Join ["", [!Ref Stage, "-LambdaAuthorizer"]]
@@ -138,11 +138,33 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref AuthKeyTable
 
+  CreateApiKeyFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 10
+      MemorySize: 256
+      CodeUri: lambda_authorizer/
+      Handler: app.lambda_handler
+      FunctionName: !Join ["", [!Ref Stage, "-CreateApiKey"]]
+      Layers:
+        - !Ref FMLaaSCoreDependencyLayer
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuthKeyTable
+      Events:
+        CreateApiKeyEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FmlaasProdApi
+            Path: /v1/auth/create_key
+            Method: post
+
   RegisterDeviceFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Timeout: 3
-      MemorySize: 128
+      Timeout: 10
+      MemorySize: 256
       CodeUri: register_device/
       Handler: app.lambda_handler
       FunctionName: !Join ["", [!Ref Stage, "-RegisterDevice"]]
@@ -152,6 +174,8 @@ Resources:
         - AWSLambdaBasicExecutionRole
         - DynamoDBCrudPolicy:
             TableName: !Ref GroupsTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuthKeyTable
       Events:
         RegisterDeviceApiEvent:
           Type: Api

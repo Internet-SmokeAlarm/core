@@ -6,7 +6,6 @@ from dependencies.python.fmlaas.model import RoundBuilder
 from dependencies.python.fmlaas.model import Model
 from dependencies.python.fmlaas.model import RoundStatus
 from dependencies.python.fmlaas.model import RoundConfiguration
-from dependencies.python.fmlaas import generate_device_key_pair
 from dependencies.python.fmlaas import generate_unique_id
 from dependencies.python.fmlaas import HierarchicalModelNameStructure
 from dependencies.python.fmlaas.model import GroupBuilder
@@ -24,7 +23,7 @@ class FLGroupTestCase(unittest.TestCase):
     def test_add_device_pass(self):
         group = self.build_default_group()
 
-        device_id, device_api_key = generate_device_key_pair()
+        device_id, device_api_key = "12311213", "1244535231412"
 
         group.add_device(device_id)
 
@@ -33,7 +32,7 @@ class FLGroupTestCase(unittest.TestCase):
     def test_to_json_pass(self):
         group = self.build_default_group()
 
-        device_id, device_api_key = generate_device_key_pair()
+        device_id, device_api_key = "12311213", "1244535231412"
 
         group.add_device(device_id)
 
@@ -47,10 +46,10 @@ class FLGroupTestCase(unittest.TestCase):
     def test_to_json_pass_2(self):
         group = self.build_default_group()
 
-        device_id, device_api_key = generate_device_key_pair()
+        device_id, device_api_key = "12311213", "1244535231412"
         group.add_device(device_id)
 
-        device_id_2, device_api_key = generate_device_key_pair()
+        device_id_2, device_api_key_2 = "54634324535", "324o823uo2ou3o234"
         group.add_device(device_id_2)
 
         json_data = group.to_json()
@@ -117,9 +116,9 @@ class FLGroupTestCase(unittest.TestCase):
 
         self.assertEqual(0, len(group.get_device_list()))
 
-        device_id, device_api_key = generate_device_key_pair()
+        device_id, device_api_key = "12311213", "1244535231412"
         group.add_device(device_id)
-        device_id_2, device_api_key_2 = generate_device_key_pair()
+        device_id_2, device_api_key_2 = "6768564345", "343454efafsdffsdfsfsdfs"
         group.add_device(device_id_2)
 
         self.assertEqual(2, len(group.get_device_list()))

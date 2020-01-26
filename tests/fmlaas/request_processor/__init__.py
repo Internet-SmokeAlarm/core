@@ -1,2 +1,4 @@
 from .id_processor import IDProcessorTestCase
 from .request_processor import RequestProcessorTestCase
+from .key_type_processor import KeyTypeProcessorTestCase
+from .round_config_processor import RoundConfigJSONProcessorTestCase

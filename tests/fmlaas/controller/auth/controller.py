@@ -1,12 +1,13 @@
 import unittest
 
+from dependencies.python.fedlearn_auth import generate_key_pair
+from dependencies.python.fedlearn_auth import hash_secret
 from dependencies.python.fmlaas.controller.auth import auth_controller
-from dependencies.python.fmlaas.auth.model import ApiKey
-from dependencies.python.fmlaas.auth.model import ApiKeyBuilder
+from dependencies.python.fmlaas.model import ApiKey
+from dependencies.python.fmlaas.model import ApiKeyBuilder
 from dependencies.python.fmlaas.aws.event_processor import AuthEventProcessor
 from dependencies.python.fmlaas.model import DBObject
 from dependencies.python.fmlaas.database import InMemoryDBInterface
-from dependencies.python.fmlaas.auth import PermissionsGroupTypeEnum
 
 class AuthControllerTestCase(unittest.TestCase):
 
@@ -69,95 +70,66 @@ class AuthControllerTestCase(unittest.TestCase):
     def test_auth_controller_pass_1(self):
         key_db = InMemoryDBInterface()
 
-        builder = ApiKeyBuilder()
-        builder.set_permissions_group(PermissionsGroupTypeEnum.USER)
+        id, key_plaintext = generate_key_pair()
+        key_hash = hash_secret(key_plaintext)
+        builder = ApiKeyBuilder(id, key_hash)
+        builder.set_entity_id("123123")
+        builder.set_key_type("USER")
         api_key = builder.build()
-        key_string = builder.get_api_key()
 
         api_key.save_to_db(key_db)
 
-        auth_event = self._build_default_event(key_string)
+        auth_event = self._build_default_event(key_plaintext)
         result = auth_controller(auth_event, key_db)
 
+        self.assertEqual(result["context"]["entity_id"], api_key.get_entity_id())
         self.assertEqual(result["policyDocument"]["Statement"][0]["Effect"], "Allow")
-        self.assertEqual(len(result["policyDocument"]["Statement"][0]["Resource"]), 2)
 
     def test_auth_controller_pass_2(self):
         key_db = InMemoryDBInterface()
 
-        builder = ApiKeyBuilder()
-        builder.set_permissions_group(PermissionsGroupTypeEnum.GROUP_ADMIN)
+        id, key_plaintext = generate_key_pair()
+        key_hash = hash_secret(key_plaintext)
+        builder = ApiKeyBuilder(id, key_hash)
+        builder.set_entity_id("123123")
+        builder.set_key_type("USER")
         api_key = builder.build()
-        key_string = builder.get_api_key()
 
         api_key.save_to_db(key_db)
-        auth_event = self._build_default_event(key_string)
+        auth_event = self._build_default_event(key_plaintext)
 
         result = auth_controller(auth_event, key_db)
 
+        self.assertEqual(result["context"]["entity_id"], api_key.get_entity_id())
         self.assertEqual(result["policyDocument"]["Statement"][0]["Effect"], "Allow")
-        self.assertEqual(len(result["policyDocument"]["Statement"][0]["Resource"]), 10)
 
     def test_auth_controller_pass_3(self):
         key_db = InMemoryDBInterface()
 
-        builder = ApiKeyBuilder()
-        builder.set_permissions_group(PermissionsGroupTypeEnum.GROUP_MEMBER)
+        id, key_plaintext = generate_key_pair()
+        key_hash = hash_secret(key_plaintext)
+        builder = ApiKeyBuilder(id, key_hash)
+        builder.set_entity_id("123123")
+        builder.set_key_type("DEVICE")
         api_key = builder.build()
-        key_string = builder.get_api_key()
 
         api_key.save_to_db(key_db)
-        auth_event = self._build_default_event(key_string)
+        auth_event = self._build_default_event(key_plaintext)
 
         result = auth_controller(auth_event, key_db)
 
+        self.assertEqual(result["context"]["entity_id"], api_key.get_entity_id())
+        self.assertEqual(result["context"]["authentication_type"], api_key.get_key_type())
         self.assertEqual(result["policyDocument"]["Statement"][0]["Effect"], "Allow")
-        self.assertEqual(len(result["policyDocument"]["Statement"][0]["Resource"]), 10)
-
-    def test_auth_controller_pass_4(self):
-        key_db = InMemoryDBInterface()
-
-        builder = ApiKeyBuilder()
-        builder.set_permissions_group(PermissionsGroupTypeEnum.GROUP_READ_ONLY_MEMBER)
-        api_key = builder.build()
-        key_string = builder.get_api_key()
-
-        api_key.save_to_db(key_db)
-        auth_event = self._build_default_event(key_string)
-
-        result = auth_controller(auth_event, key_db)
-
-        self.assertEqual(result["policyDocument"]["Statement"][0]["Effect"], "Allow")
-        self.assertEqual(len(result["policyDocument"]["Statement"][0]["Resource"]), 7)
-
-    def test_auth_controller_pass_5(self):
-        key_db = InMemoryDBInterface()
-
-        builder = ApiKeyBuilder()
-        builder.set_permissions_group(PermissionsGroupTypeEnum.GROUP_DEVICE)
-        api_key = builder.build()
-        key_string = builder.get_api_key()
-
-        api_key.save_to_db(key_db)
-        auth_event = self._build_default_event(key_string)
-
-        result = auth_controller(auth_event, key_db)
-
-        self.assertEqual(result["policyDocument"]["Statement"][0]["Effect"], "Allow")
-        self.assertEqual(len(result["policyDocument"]["Statement"][0]["Resource"]), 5)
 
     def test_auth_controller_pass_6(self):
         key_db = InMemoryDBInterface()
 
-        builder = ApiKeyBuilder()
-        builder.set_permissions_group(PermissionsGroupTypeEnum.UNAUTHENTICATED)
-        api_key = builder.build()
-        key_string = builder.get_api_key()
-
-        api_key.save_to_db(key_db)
-        auth_event = self._build_default_event(key_string)
+        id, key_plaintext = generate_key_pair()
+        auth_event = self._build_default_event(key_plaintext)
 
         result = auth_controller(auth_event, key_db)
 
+        self.assertEqual(result["context"]["entity_id"], "UNAUTHENTICATED")
         self.assertEqual(result["policyDocument"]["Statement"][0]["Effect"], "Deny")
-        self.assertEqual(len(result["policyDocument"]["Statement"][0]["Resource"]), 1)
+        self.assertEqual(result["context"]["authentication_type"], "UNAUTHENTICATED")
