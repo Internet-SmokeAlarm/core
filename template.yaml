@@ -16,6 +16,8 @@ Globals:
         ROUNDS_TABLE_NAME: !Join ["", [!Ref Stage, "-fl-rounds"]]
         AUTH_KEY_TABLE_NAME: !Join ["", [!Ref Stage, "-fl-auth-key"]]
         AGGREGATION_LAMBDA_FUNCTION_NAME: !Join ["", [!Ref Stage, "-AggregateModels"]]
+        COGNITO_USER_POOL_CLIENT_ID: !Ref FedLearnCognitoUserPoolClient
+        COGNITO_USER_POOL_ID: !Ref FedLearnCognitoUserPool
 
 Resources:
   # ------------ Api ------------
@@ -76,6 +78,34 @@ Resources:
           AttributeName: "ID"
           KeyType: "HASH"
       TableName: !Join ["", [!Ref Stage, "-fl-auth-key"]]
+
+
+  # ------------ Cognito ------------
+  FedLearnCognitoUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: !Join ["", [!Ref Stage, "-fl-user-pool"]]
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 12
+          RequireLowercase: true
+          RequireNumbers: true
+          RequireSymbols: true
+          RequireUppercase: true
+          TemporaryPasswordValidityDays: 30
+      UsernameAttributes:
+        - email
+      Schema:
+        - AttributeDataType: String
+          Name: email
+          Required: false
+
+  FedLearnCognitoUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      UserPoolId: !Ref FedLearnCognitoUserPool
+      ClientName: !Join ["", [!Ref Stage, "-fl-user-pool-client"]]
+      GenerateSecret: false
 
 
   # ------------ S3 ------------
@@ -505,6 +535,22 @@ Resources:
         - !Ref S3PutObjectPolicy
 
 Outputs:
+  Region:
+    Description: "Region"
+    Value: !Ref AWS::Region
+
+  ApiId:
+    Description: "API ID"
+    Value: !Ref FmlaasProdApi
+
   ApiUrl:
     Description: URL for endpoint
     Value: !Sub "https://${FmlaasProdApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+
+  CognitoUserPoolId:
+    Description: "Cognito User Pool Id"
+    Value: !Ref FedLearnCognitoUserPool
+
+  CognitoUserPoolClientId:
+    Description: "Cognito User Pool Client Id"
+    Value: !Ref FedLearnCognitoUserPoolClient
