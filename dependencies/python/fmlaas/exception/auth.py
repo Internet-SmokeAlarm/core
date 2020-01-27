@@ -1,0 +1,2 @@
+class RequestForbiddenException(Exception):
+    pass
