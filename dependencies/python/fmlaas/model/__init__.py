@@ -1,3 +1,4 @@
+from .group_privilege_types import GroupPrivilegeTypesEnum
 from .builder import Builder
 from .db_object import DBObject
 from .model import Model

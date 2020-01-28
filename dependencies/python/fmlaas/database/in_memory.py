@@ -13,10 +13,7 @@ class InMemoryDBInterface(DB):
         return True
 
     def delete_object(self, id):
-        raise Exception("delete_object() not implemented")
+        del self.data[id]
 
     def get_object(self, id):
-        if id not in self.data:
-            raise Exception("Object not in DB")
-
         return self.data[id]

@@ -3,6 +3,7 @@ from .round_builder import RoundBuilder
 from .round_status import RoundStatus
 from .round import Round
 from .model import Model
+from .group_privilege_types import GroupPrivilegeTypesEnum
 from ..generate_unique_id import generate_unique_id
 from ..device_selection import DeviceSelectorFactory
 
@@ -10,7 +11,7 @@ from .db_object import DBObject
 
 class FLGroup(DBObject):
 
-    def __init__(self, name, id, devices, rounds, current_round_id, initial_model):
+    def __init__(self, name, id, devices, rounds, current_round_id, initial_model, members):
         """
         :param name: string
         :param id: string
@@ -18,6 +19,7 @@ class FLGroup(DBObject):
         :param rounds: dict
         :param current_round_id: string
         :param initial_model: dict
+        :param members: dict
         """
         self.id = id
         self.name = name
@@ -25,6 +27,7 @@ class FLGroup(DBObject):
         self.rounds = rounds
         self.current_round_id = current_round_id
         self.initial_model = initial_model
+        self.members = members
 
     def add_device(self, device_id):
         """
@@ -88,6 +91,38 @@ class FLGroup(DBObject):
     def get_current_round_id(self):
         return self.current_round_id
 
+    def is_member(self, user_id):
+        """
+        :param user_id: string
+        """
+        return user_id in self.members
+
+    def add_or_update_member(self, user_id, permission_level):
+        """
+        :param user_id: string
+        :param permission_level: GroupPrivilegeTypesEnum
+        """
+        self.members[user_id] = {"permission_level" : permission_level.value}
+
+    def get_member_auth_level(self, user_id):
+        """
+        :param user_id: string
+        """
+        return GroupPrivilegeTypesEnum(self.members[user_id]["permission_level"])
+
+    def does_member_have_auth(self, user_id, permission_level):
+        """
+        :param user_id: string
+        :param permission_level: GroupPrivilegeTypesEnum
+        """
+        if not self.is_member(user_id):
+            return False
+        else:
+            return self.get_member_auth_level(user_id).value >= permission_level.value
+
+    def get_members(self):
+        return self.members
+
     def to_json(self):
         return {
             "name" : self.name,
@@ -95,7 +130,8 @@ class FLGroup(DBObject):
             "devices" : self.devices,
             "rounds" : self.rounds,
             "current_round_id" : self.current_round_id,
-            "initial_model" : self.initial_model
+            "initial_model" : self.initial_model,
+            "members" : self.members
         }
 
     @staticmethod
@@ -105,4 +141,5 @@ class FLGroup(DBObject):
             json_data["devices"],
             json_data["rounds"],
             json_data["current_round_id"],
-            json_data["initial_model"])
+            json_data["initial_model"],
+            json_data["members"])

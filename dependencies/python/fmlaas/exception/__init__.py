@@ -1,1 +1,2 @@
 from .auth import RequestForbiddenException
+from .auth import raise_default_request_forbidden_error
