@@ -1,7 +1,7 @@
 from ... import generate_unique_id
 from ...model import GroupBuilder
 from ...request_processor import AuthContextProcessor
-from ...exception import RequestForbiddenException
+from ...exception import raise_default_request_forbidden_error
 from ...model import GroupPrivilegeTypesEnum
 
 def create_group_controller(db_, group_name, auth_json):
@@ -12,7 +12,7 @@ def create_group_controller(db_, group_name, auth_json):
     """
     auth_context_processor = AuthContextProcessor(auth_json)
     if auth_context_processor.is_type_device():
-        raise RequestForbiddenException("You are not authorized to access this resource")
+        raise_default_request_forbidden_error()
 
     group_id = generate_unique_id()
 
