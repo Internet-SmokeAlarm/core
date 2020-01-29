@@ -2,12 +2,13 @@ import json
 
 from fmlaas import get_group_table_name_from_env
 from fmlaas.database import DynamoDBInterface
-from fmlaas.model import FLGroup
-from fmlaas.model import DBObject
 from fmlaas.request_processor import IDProcessor
+from fmlaas.controller.get_group import get_group_controller
+from fmlaas.exception import RequestForbiddenException
 
 def lambda_handler(event, context):
     req_json = event.get("pathParameters")
+    auth_json = event["requestContext"]["authorizer"]
 
     try:
         id_processor = IDProcessor(req_json)
@@ -19,12 +20,16 @@ def lambda_handler(event, context):
         }
 
     dynamodb_ = DynamoDBInterface(get_group_table_name_from_env())
-    group = DBObject.load_from_db(FLGroup, group_id, dynamodb_)
 
-    group_json = group.to_json()
-    group_json["is_initial_model_set"] = group.is_initial_model_set()
+    try:
+        group_json = get_group_controller(dynamodb_, group_id, auth_json)
 
-    return {
-        "statusCode" : 200,
-        "body" : json.dumps(group_json)
-    }
+        return {
+            "statusCode" : 200,
+            "body" : json.dumps(group_json)
+        }
+    except RequestForbiddenException as error:
+        return {
+            "statusCode" : 401,
+            "body" : str(error)
+        }

@@ -8,6 +8,7 @@ from fmlaas.exception import RequestForbiddenException
 
 def lambda_handler(event, context):
     req_json = json.loads(event.get('body'))
+    auth_json = event["requestContext"]["authorizer"]
 
     try:
         id_processor = IDProcessor(req_json)
@@ -21,7 +22,6 @@ def lambda_handler(event, context):
     dynamodb_ = DynamoDBInterface(get_group_table_name_from_env())
 
     try:
-        auth_json = event["requestContext"]["authorizer"]
         group_id = create_group_controller(dynamodb_, group_name, auth_json)
 
         return {
