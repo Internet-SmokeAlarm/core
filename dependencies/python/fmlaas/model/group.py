@@ -39,6 +39,12 @@ class FLGroup(DBObject):
 
         self.devices[device_id] = device.to_json()
 
+    def contains_device(self, device_id):
+        """
+        :param device_id: string
+        """
+        return device_id in self.devices
+
     def add_round(self, round_id):
         """
         :param round_id: string

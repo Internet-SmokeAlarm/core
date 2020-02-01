@@ -2,14 +2,13 @@ import json
 
 from fmlaas import get_group_table_name_from_env
 from fmlaas.database import DynamoDBInterface
-from fmlaas.model import FLGroup
-from fmlaas.model import DBObject
-from fmlaas.model import RoundStatus
-from fmlaas import HierarchicalModelNameStructure
 from fmlaas.request_processor import IDProcessor
+from fmlaas.controller.get_group_current_round_id import get_group_current_round_id_controller
+from fmlaas.exception import RequestForbiddenError
 
 def lambda_handler(event, context):
     req_json = event.get("pathParameters")
+    auth_json = event["requestContext"]["authorizer"]
 
     try:
         id_processor = IDProcessor(req_json)
@@ -21,9 +20,16 @@ def lambda_handler(event, context):
         }
 
     dynamodb_ = DynamoDBInterface(get_group_table_name_from_env())
-    group = DBObject.load_from_db(FLGroup, group_id, dynamodb_)
 
-    return {
-        "statusCode" : 200,
-        "body" : json.dumps({"round_id" : group.get_current_round_id()})
-    }
+    try:
+        current_round_id = get_group_current_round_id_controller(dynamodb_, group_id, auth_json)
+
+        return {
+            "statusCode" : 200,
+            "body" : json.dumps({"round_id" : current_round_id})
+        }
+    except RequestForbiddenError as error:
+        return {
+            "statusCode" : 401,
+            "body" : str(error)
+        }

@@ -2,14 +2,13 @@ import json
 
 from fmlaas import get_group_table_name_from_env
 from fmlaas.database import DynamoDBInterface
-from fmlaas.model import FLGroup
-from fmlaas.model import DBObject
-from fmlaas.aws import create_presigned_url
-from fmlaas.aws import get_models_bucket_name
 from fmlaas.request_processor import IDProcessor
+from fmlaas.exception import RequestForbiddenException
+from fmlaas.controller.get_group_initial_model import get_group_initial_model_controller
 
 def lambda_handler(event, context):
     req_json = event.get("pathParameters")
+    auth_json = event["requestContext"]["authorizer"]
 
     EXPIRATION_SEC = 60 * 5
 
@@ -23,20 +22,22 @@ def lambda_handler(event, context):
         }
 
     dynamodb_ = DynamoDBInterface(get_group_table_name_from_env())
-    group = DBObject.load_from_db(FLGroup, group_id, dynamodb_)
 
-    if not group.is_initial_model_set():
-        return {
-            "statusCode" : 500,
-            "body" : "Initial model not set for group"
-        }
-    else:
-        presigned_url = create_presigned_url(
-            get_models_bucket_name(),
-            group.get_initial_model().get_name().get_name(),
-            expiration=EXPIRATION_SEC)
+    try:
+        is_initial_model_set, presigned_url = get_group_initial_model_controller(dynamodb_, group_id, auth_json)
 
+        if is_initial_model_set:
+            return {
+                "statusCode" : 200,
+                "body" : json.dumps({"model_url" : presigned_url})
+            }
+        else:
+            return {
+                "statusCode" : 500,
+                "body" : "Initial model not set for group"
+            }
+    except RequestForbiddenException as error:
         return {
-            "statusCode" : 200,
-            "body" : json.dumps({"model_url" : presigned_url})
+            "statusCode" : 401,
+            "body" : str(error)
         }

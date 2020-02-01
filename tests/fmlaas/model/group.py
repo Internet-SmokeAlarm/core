@@ -189,3 +189,13 @@ class FLGroupTestCase(unittest.TestCase):
         group.add_or_update_member("user_12344", GroupPrivilegeTypesEnum.READ_ONLY)
 
         self.assertEqual(GroupPrivilegeTypesEnum.READ_ONLY, group.get_member_auth_level("user_12344"))
+
+    def test_contains_device_pass(self):
+        group = self.build_default_group()
+
+        self.assertFalse(group.contains_device("userser123123"))
+
+        group.add_device("sfksdsf")
+
+        self.assertTrue(group.contains_device("sfksdsf"))
+        self.assertFalse(group.contains_device("123123141"))

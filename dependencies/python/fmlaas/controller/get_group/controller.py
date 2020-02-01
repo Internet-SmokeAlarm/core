@@ -4,6 +4,11 @@ from ...model import FLGroup
 from ...model import DBObject
 
 def get_group_controller(db_, group_id, auth_json):
+    """
+    :param db: DB
+    :param group_id: string
+    :param auth_json: dict
+    """
     auth_context_processor = AuthContextProcessor(auth_json)
     if auth_context_processor.is_type_device():
         raise_default_request_forbidden_error()

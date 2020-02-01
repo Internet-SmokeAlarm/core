@@ -5,8 +5,12 @@ from ...request_processor import AuthContextProcessor
 from fedlearn_auth import generate_key_pair
 from fedlearn_auth import hash_secret
 
-def create_api_key_controller(db_, auth_context):
-    auth_context_processor = AuthContextProcessor(auth_context)
+def create_api_key_controller(db_, auth_json):
+    """
+    :param db_: DB
+    :param auth_json: dict
+    """
+    auth_context_processor = AuthContextProcessor(auth_json)
     if auth_context_processor.is_type_device():
         raise_default_request_forbidden_error()
 
