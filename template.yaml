@@ -157,7 +157,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       Timeout: 10
-      MemorySize: 256
+      MemorySize: 1536
       CodeUri: lambda_authorizer/
       Handler: app.lambda_handler
       FunctionName: !Join ["", [!Ref Stage, "-LambdaAuthorizer"]]
@@ -519,7 +519,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       Timeout: 60
-      MemorySize: 256
+      MemorySize: 1536
       CodeUri: aggregate_models/
       Handler: app.lambda_handler
       FunctionName: !Join ["", [!Ref Stage, "-AggregateModels"]]
