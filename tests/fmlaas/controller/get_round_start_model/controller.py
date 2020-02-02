@@ -135,3 +135,21 @@ class GetRoundStartModelControllerTestCase(unittest.TestCase):
             "entity_id" : "12344"
         }
         self.assertRaises(RequestForbiddenException, get_round_start_model_controller, group_db_, round_db_, group.get_id(), round.get_id(), auth_json)
+
+    def test_fail_not_authorized_4(self):
+        group_db_ = InMemoryDBInterface()
+        round_db_ = InMemoryDBInterface()
+
+        round = self._build_default_round()
+        round.save_to_db(round_db_)
+
+        group = self._build_default_group()
+        group.add_round(round.get_id())
+        group.set_current_round_id(round.get_id())
+        group.save_to_db(group_db_)
+
+        auth_json = {
+            "authentication_type" : "DEVICE",
+            "entity_id" : "12344"
+        }
+        self.assertRaises(RequestForbiddenException, get_round_start_model_controller, group_db_, round_db_, group.get_id(), round.get_id(), auth_json)
