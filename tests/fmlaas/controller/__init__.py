@@ -10,3 +10,4 @@ from .get_group_initial_model import *
 from .get_round import *
 from .get_round_aggregate_model import *
 from .get_round_start_model import *
+from .is_device_active import *

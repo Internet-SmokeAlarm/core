@@ -9,9 +9,9 @@ from dependencies.python.fmlaas.model import Model
 from dependencies.python.fmlaas.model import RoundBuilder
 from dependencies.python.fmlaas.model import RoundConfiguration
 from dependencies.python.fmlaas.model import GroupPrivilegeTypesEnum
-from dependencies.python.fmlaas.controller.get_round_start_model import get_round_start_model_controller
+from dependencies.python.fmlaas.controller.is_device_active import is_device_active_controller
 
-class GetRoundStartModelControllerTestCase(unittest.TestCase):
+class IsDeviceActiveControllerTestCase(unittest.TestCase):
 
     def _build_default_group(self):
         group_builder = GroupBuilder()
@@ -32,12 +32,36 @@ class GetRoundStartModelControllerTestCase(unittest.TestCase):
         round_builder.set_configuration(RoundConfiguration("1", "RANDOM").to_json())
         round_builder.set_start_model(Model("12312414", "1234/345345/12312414", "123211").to_json())
         round_builder.set_end_model(Model("1234", "1234/1234", "123211").to_json())
-        round_builder.set_devices(["34553"])
+        round_builder.set_devices(["12344"])
         round = round_builder.build()
 
         return round
 
-    def test_pass_1(self):
+    def test_pass_device(self):
+        group_db_ = InMemoryDBInterface()
+        round_db_ = InMemoryDBInterface()
+
+        round = self._build_default_round()
+        round.save_to_db(round_db_)
+
+        group = self._build_default_group()
+        group.add_round(round.get_id())
+        group.set_current_round_id(round.get_id())
+        group.save_to_db(group_db_)
+
+        auth_json = {
+            "authentication_type" : "DEVICE",
+            "entity_id" : "12344"
+        }
+        is_device_active = is_device_active_controller(group_db_,
+                                                    round_db_,
+                                                    group.get_id(),
+                                                    round.get_id(),
+                                                    "12344",
+                                                    auth_json)
+        self.assertTrue(is_device_active)
+
+    def test_pass_user(self):
         group_db_ = InMemoryDBInterface()
         round_db_ = InMemoryDBInterface()
 
@@ -53,37 +77,23 @@ class GetRoundStartModelControllerTestCase(unittest.TestCase):
             "authentication_type" : "USER",
             "entity_id" : "user_12345"
         }
-        presigned_url = get_round_start_model_controller(group_db_,
-                                                         round_db_,
-                                                         group.get_id(),
-                                                         round.get_id(),
-                                                         auth_json)
-        self.assertIsNotNone(presigned_url)
+        is_device_active = is_device_active_controller(group_db_,
+                                                    round_db_,
+                                                    group.get_id(),
+                                                    round.get_id(),
+                                                    "12344",
+                                                    auth_json)
+        self.assertTrue(is_device_active)
 
-    def test_pass_2(self):
-        group_db_ = InMemoryDBInterface()
-        round_db_ = InMemoryDBInterface()
+        is_device_active = is_device_active_controller(group_db_,
+                                                    round_db_,
+                                                    group.get_id(),
+                                                    round.get_id(),
+                                                    "123445",
+                                                    auth_json)
+        self.assertFalse(is_device_active)
 
-        round = self._build_default_round()
-        round.save_to_db(round_db_)
-
-        group = self._build_default_group()
-        group.add_round(round.get_id())
-        group.set_current_round_id(round.get_id())
-        group.save_to_db(group_db_)
-
-        auth_json = {
-            "authentication_type" : "DEVICE",
-            "entity_id" : "34553"
-        }
-        presigned_url = get_round_start_model_controller(group_db_,
-                                                         round_db_,
-                                                         group.get_id(),
-                                                         round.get_id(),
-                                                         auth_json)
-        self.assertIsNotNone(presigned_url)
-
-    def test_fail_not_authorized_1(self):
+    def test_fail_not_authorized_device(self):
         group_db_ = InMemoryDBInterface()
         round_db_ = InMemoryDBInterface()
 
@@ -99,9 +109,9 @@ class GetRoundStartModelControllerTestCase(unittest.TestCase):
             "authentication_type" : "DEVICE",
             "entity_id" : "123445"
         }
-        self.assertRaises(RequestForbiddenException, get_round_start_model_controller, group_db_, round_db_, group.get_id(), round.get_id(), auth_json)
+        self.assertRaises(RequestForbiddenException, is_device_active_controller, group_db_, round_db_, group.get_id(), round.get_id(), "12344", auth_json)
 
-    def test_fail_not_authorized_2(self):
+    def test_fail_not_authorized_user(self):
         group_db_ = InMemoryDBInterface()
         round_db_ = InMemoryDBInterface()
 
@@ -115,11 +125,11 @@ class GetRoundStartModelControllerTestCase(unittest.TestCase):
 
         auth_json = {
             "authentication_type" : "USER",
-            "entity_id" : "123445"
+            "entity_id" : "user_123456"
         }
-        self.assertRaises(RequestForbiddenException, get_round_start_model_controller, group_db_, round_db_, group.get_id(), round.get_id(), auth_json)
+        self.assertRaises(RequestForbiddenException, is_device_active_controller, group_db_, round_db_, group.get_id(), round.get_id(), "12344", auth_json)
 
-    def test_fail_not_authorized_3(self):
+    def test_fail_not_authorized_round(self):
         group_db_ = InMemoryDBInterface()
         round_db_ = InMemoryDBInterface()
 
@@ -130,12 +140,12 @@ class GetRoundStartModelControllerTestCase(unittest.TestCase):
         group.save_to_db(group_db_)
 
         auth_json = {
-            "authentication_type" : "DEVICE",
-            "entity_id" : "12344"
+            "authentication_type" : "USER",
+            "entity_id" : "user_12345"
         }
-        self.assertRaises(RequestForbiddenException, get_round_start_model_controller, group_db_, round_db_, group.get_id(), round.get_id(), auth_json)
+        self.assertRaises(RequestForbiddenException, is_device_active_controller, group_db_, round_db_, group.get_id(), round.get_id(), "12344", auth_json)
 
-    def test_fail_not_authorized_4(self):
+    def test_fail_not_authorized_device_2(self):
         group_db_ = InMemoryDBInterface()
         round_db_ = InMemoryDBInterface()
 
@@ -151,4 +161,4 @@ class GetRoundStartModelControllerTestCase(unittest.TestCase):
             "authentication_type" : "DEVICE",
             "entity_id" : "12344"
         }
-        self.assertRaises(RequestForbiddenException, get_round_start_model_controller, group_db_, round_db_, group.get_id(), round.get_id(), auth_json)
+        self.assertRaises(RequestForbiddenException, is_device_active_controller, group_db_, round_db_, group.get_id(), round.get_id(), "123445", auth_json)
