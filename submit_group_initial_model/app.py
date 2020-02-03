@@ -5,6 +5,8 @@ from fmlaas.aws import get_models_bucket_name
 from fmlaas import HierarchicalModelNameStructure
 from fmlaas.request_processor import IDProcessor
 from fmlaas.exception import RequestForbiddenException
+from fmlaas import get_group_table_name_from_env
+from fmlaas.database import DynamoDBInterface
 from fmlaas.controller.submit_group_initial_model import submit_group_initial_model_controller
 
 def lambda_handler(event, context):
@@ -19,6 +21,8 @@ def lambda_handler(event, context):
             "statusCode" : 400,
             "body" : str(error)
         }
+
+    group_db = DynamoDBInterface(get_group_table_name_from_env())
 
     try:
         presigned_url = submit_group_initial_model_controller(group_db, group_id, auth_json)
