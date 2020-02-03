@@ -4,13 +4,12 @@ from fmlaas.aws import create_presigned_post
 from fmlaas.aws import get_models_bucket_name
 from fmlaas import HierarchicalModelNameStructure
 from fmlaas.request_processor import IDProcessor
+from fmlaas.exception import RequestForbiddenException
+from fmlaas.controller.submit_group_initial_model import submit_group_initial_model_controller
 
 def lambda_handler(event, context):
     req_json = json.loads(event.get('body'))
-
-    EXPIRATION_SEC = 60 * 10
-    FIELDS = {}
-    CONDITIONS = []
+    auth_json = event["requestContext"]["authorizer"]
 
     try:
         id_processor = IDProcessor(req_json)
@@ -21,17 +20,15 @@ def lambda_handler(event, context):
             "body" : str(error)
         }
 
-    model_name = HierarchicalModelNameStructure()
-    model_name.generate_name(group_id=group_id)
+    try:
+        presigned_url = submit_group_initial_model_controller(group_db, group_id, auth_json)
 
-    presigned_url = create_presigned_post(
-        get_models_bucket_name(),
-        model_name.get_name(),
-        FIELDS,
-        CONDITIONS,
-        expiration=EXPIRATION_SEC)
-
-    return {
-        "statusCode" : 200,
-        "body" : json.dumps({"model_url" : presigned_url})
-    }
+        return {
+            "statusCode" : 200,
+            "body" : json.dumps({"model_url" : presigned_url})
+        }
+    except RequestForbiddenException as error:
+        return {
+            "statusCode" : 401,
+            "body" : str(error)
+        }
