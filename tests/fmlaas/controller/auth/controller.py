@@ -118,7 +118,7 @@ class AuthControllerTestCase(unittest.TestCase):
 
         result = auth_controller(auth_event, key_db)
 
-        self.assertEqual(result["context"]["entity_id"], api_key.get_entity_id())
+        self.assertEqual(result["context"]["entity_id"], api_key.get_id())
         self.assertEqual(result["context"]["authentication_type"], api_key.get_key_type())
         self.assertEqual(result["policyDocument"]["Statement"][0]["Effect"], "Allow")
 

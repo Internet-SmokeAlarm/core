@@ -13,3 +13,4 @@ from .get_round_start_model import *
 from .is_device_active import *
 from .register_device import *
 from .submit_group_initial_model import *
+from .submit_model_update import *
