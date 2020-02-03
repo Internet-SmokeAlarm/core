@@ -3,8 +3,11 @@ from ...model import RoundBuilder
 from ...model import Round
 from ...model import FLGroup
 from ...model import Model
+from ...model import GroupPrivilegeTypesEnum
+from ...exception import raise_default_request_forbidden_error
 from ... import generate_unique_id
 from ...device_selection import DeviceSelectorFactory
+from ...request_processor import AuthContextProcessor
 
 def get_device_selector(round_configuration):
     """
@@ -32,8 +35,21 @@ def create_round(devices, previous_round_id, start_model, round_config):
 
     return builder.build()
 
-def start_round_controller(round_db, group_db, group_id, round_config):
+def start_round_controller(round_db, group_db, group_id, round_config, auth_json):
+    """
+    :param round_db: DB
+    :param group_db: DB
+    :param group_id: string
+    :param round_config: RoundConfiguration
+    :param auth_json: dict
+    """
+    auth_context_processor = AuthContextProcessor(auth_json)
+    if auth_context_processor.is_type_device():
+        raise_default_request_forbidden_error()
+
     group = DBObject.load_from_db(FLGroup, group_id, group_db)
+    if not group.does_member_have_auth(auth_context_processor.get_entity_id(), GroupPrivilegeTypesEnum.READ_WRITE):
+        raise_default_request_forbidden_error()
 
     device_selector = get_device_selector(round_config)
     devices = device_selector.select_devices(group.get_device_list(), round_config)

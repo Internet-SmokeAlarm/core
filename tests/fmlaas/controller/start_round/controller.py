@@ -8,6 +8,8 @@ from dependencies.python.fmlaas.model import Model
 from dependencies.python.fmlaas.model import Round
 from dependencies.python.fmlaas.model import DBObject
 from dependencies.python.fmlaas.model import FLGroup
+from dependencies.python.fmlaas.model import GroupPrivilegeTypesEnum
+from dependencies.python.fmlaas.exception import RequestForbiddenException
 from dependencies.python.fmlaas.database import InMemoryDBInterface
 from dependencies.python.fmlaas.controller.start_round import get_device_selector
 from dependencies.python.fmlaas.controller.start_round import create_round
@@ -48,6 +50,7 @@ class StartRoundControllerTestCase(unittest.TestCase):
         builder.set_name("test_name")
         builder.set_devices({"34553" : {"ID" : "34553", "registered_on" : "213123144.2342"}})
         group = builder.build()
+        group.add_or_update_member("user_12345", GroupPrivilegeTypesEnum.ADMIN)
 
         round_builder = RoundBuilder()
         round_builder.set_id("round_test_id")
@@ -62,7 +65,12 @@ class StartRoundControllerTestCase(unittest.TestCase):
         round.save_to_db(round_db)
         group.save_to_db(group_db)
 
-        new_round_id = start_round_controller(round_db, group_db, group.get_id(), RoundConfiguration("1", "RANDOM"))
+        auth_json = {
+            "authentication_type" : "USER",
+            "entity_id" : "user_12345"
+        }
+
+        new_round_id = start_round_controller(round_db, group_db, group.get_id(), RoundConfiguration("1", "RANDOM"), auth_json)
         new_round = DBObject.load_from_db(Round, new_round_id, round_db)
         previous_round = DBObject.load_from_db(Round, round.get_id(), round_db)
         updated_group = DBObject.load_from_db(FLGroup, group.get_id(), group_db)
@@ -84,10 +92,16 @@ class StartRoundControllerTestCase(unittest.TestCase):
         builder.set_devices({"34553" : {"ID" : "34553", "registered_on" : "213123144.2342"}})
         group = builder.build()
         group.set_initial_model(Model("test_id", "test_id/test_id", "34532"))
+        group.add_or_update_member("user_12345", GroupPrivilegeTypesEnum.ADMIN)
 
         group.save_to_db(group_db)
 
-        new_round_id = start_round_controller(round_db, group_db, group.get_id(), RoundConfiguration("1", "RANDOM"))
+        auth_json = {
+            "authentication_type" : "USER",
+            "entity_id" : "user_12345"
+        }
+
+        new_round_id = start_round_controller(round_db, group_db, group.get_id(), RoundConfiguration("1", "RANDOM"), auth_json)
         new_round = DBObject.load_from_db(Round, new_round_id, round_db)
         updated_group = DBObject.load_from_db(FLGroup, group.get_id(), group_db)
 
@@ -97,3 +111,69 @@ class StartRoundControllerTestCase(unittest.TestCase):
 
         self.assertEqual(updated_group.get_current_round_id(), new_round_id)
         self.assertTrue(updated_group.contains_round(new_round_id))
+
+    def test_start_round_controller_fail(self):
+        group_db = InMemoryDBInterface()
+        round_db = InMemoryDBInterface()
+
+        builder = GroupBuilder()
+        builder.set_id("test_id")
+        builder.set_name("test_name")
+        builder.set_devices({"34553" : {"ID" : "34553", "registered_on" : "213123144.2342"}})
+        group = builder.build()
+        group.set_initial_model(Model("test_id", "test_id/test_id", "34532"))
+        group.add_or_update_member("user_12345", GroupPrivilegeTypesEnum.ADMIN)
+        group.add_or_update_member("user_123456", GroupPrivilegeTypesEnum.READ_ONLY)
+
+        group.save_to_db(group_db)
+
+        auth_json = {
+            "authentication_type" : "USER",
+            "entity_id" : "user_123456"
+        }
+
+        self.assertRaises(RequestForbiddenException, start_round_controller, round_db, group_db, group.get_id(), RoundConfiguration("1", "RANDOM"), auth_json)
+
+    def test_start_round_controller_fail_2(self):
+        group_db = InMemoryDBInterface()
+        round_db = InMemoryDBInterface()
+
+        builder = GroupBuilder()
+        builder.set_id("test_id")
+        builder.set_name("test_name")
+        builder.set_devices({"34553" : {"ID" : "34553", "registered_on" : "213123144.2342"}})
+        group = builder.build()
+        group.set_initial_model(Model("test_id", "test_id/test_id", "34532"))
+        group.add_or_update_member("user_12345", GroupPrivilegeTypesEnum.ADMIN)
+        group.add_or_update_member("user_123456", GroupPrivilegeTypesEnum.READ_ONLY)
+
+        group.save_to_db(group_db)
+
+        auth_json = {
+            "authentication_type" : "USER",
+            "entity_id" : "user_1234567"
+        }
+
+        self.assertRaises(RequestForbiddenException, start_round_controller, round_db, group_db, group.get_id(), RoundConfiguration("1", "RANDOM"), auth_json)
+
+    def test_start_round_controller_fail_3(self):
+        group_db = InMemoryDBInterface()
+        round_db = InMemoryDBInterface()
+
+        builder = GroupBuilder()
+        builder.set_id("test_id")
+        builder.set_name("test_name")
+        builder.set_devices({"34553" : {"ID" : "34553", "registered_on" : "213123144.2342"}})
+        group = builder.build()
+        group.set_initial_model(Model("test_id", "test_id/test_id", "34532"))
+        group.add_or_update_member("user_12345", GroupPrivilegeTypesEnum.ADMIN)
+        group.add_or_update_member("user_123456", GroupPrivilegeTypesEnum.READ_ONLY)
+
+        group.save_to_db(group_db)
+
+        auth_json = {
+            "authentication_type" : "DEVICE",
+            "entity_id" : "34553"
+        }
+
+        self.assertRaises(RequestForbiddenException, start_round_controller, round_db, group_db, group.get_id(), RoundConfiguration("1", "RANDOM"), auth_json)
