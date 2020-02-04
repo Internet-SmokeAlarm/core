@@ -7,9 +7,11 @@ from fmlaas.model import RoundConfiguration
 from fmlaas.controller.start_round import start_round_controller
 from fmlaas.request_processor import IDProcessor
 from fmlaas.request_processor import RoundConfigJSONProcessor
+from fmlaas.exception import RequestForbiddenException
 
 def lambda_handler(event, context):
     req_json = json.loads(event.get('body'))
+    auth_json = event["requestContext"]["authorizer"]
 
     try:
         id_processor = IDProcessor(req_json)
@@ -29,9 +31,15 @@ def lambda_handler(event, context):
 
     round_config = RoundConfiguration(num_devices, device_selection_strategy)
 
-    round_id = start_round_controller(round_db, group_db, group_id, round_config)
+    try:
+        round_id = start_round_controller(round_db, group_db, group_id, round_config, auth_json)
 
-    return {
-        "statusCode" : 200,
-        "body" : json.dumps({"round_id" : round_id})
-    }
+        return {
+            "statusCode" : 200,
+            "body" : json.dumps({"round_id" : round_id})
+        }
+    except RequestForbiddenException as error:
+        return {
+            "statusCode" : 403,
+            "body" : str(error)
+        }

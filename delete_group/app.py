@@ -5,12 +5,13 @@ from fmlaas import get_round_table_name_from_env
 from fmlaas.aws import delete_s3_objects_with_prefix
 from fmlaas.aws import get_models_bucket_name
 from fmlaas.database import DynamoDBInterface
-from fmlaas.model import DBObject
-from fmlaas.model import FLGroup
 from fmlaas.request_processor import IDProcessor
+from fmlaas.exception import RequestForbiddenException
+from fmlaas.controller.delete_group import delete_group_controller
 
 def lambda_handler(event, context):
     req_json = json.loads(event.get('body'))
+    auth_json = event["requestContext"]["authorizer"]
 
     try:
         id_processor = IDProcessor(req_json)
@@ -25,19 +26,15 @@ def lambda_handler(event, context):
     round_db = DynamoDBInterface(get_round_table_name_from_env())
 
     try:
-        group = DBObject.load_from_db(FLGroup, group_id, group_db)
-        round_ids = group.get_rounds().keys()
-
-        for round_id in round_ids:
-            round_db.delete_object(round_id)
-
+        delete_group_controller(group_db, round_db, group_id, auth_json)
         delete_s3_objects_with_prefix(get_models_bucket_name(), group_id)
 
-        success = group_db.delete_object(group_id)
-    except:
-        success = True
-
-    return {
-        "statusCode" : 200,
-        "body" : json.dumps({"success" : success})
-    }
+        return {
+            "statusCode" : 200,
+            "body" : "{}"
+        }
+    except RequestForbiddenException as error:
+        return {
+            "statusCode" : 403,
+            "body" : str(error)
+        }

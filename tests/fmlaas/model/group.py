@@ -6,7 +6,7 @@ from dependencies.python.fmlaas.model import RoundBuilder
 from dependencies.python.fmlaas.model import Model
 from dependencies.python.fmlaas.model import RoundStatus
 from dependencies.python.fmlaas.model import RoundConfiguration
-from dependencies.python.fmlaas import generate_device_key_pair
+from dependencies.python.fmlaas.model import GroupPrivilegeTypesEnum
 from dependencies.python.fmlaas import generate_unique_id
 from dependencies.python.fmlaas import HierarchicalModelNameStructure
 from dependencies.python.fmlaas.model import GroupBuilder
@@ -24,7 +24,7 @@ class FLGroupTestCase(unittest.TestCase):
     def test_add_device_pass(self):
         group = self.build_default_group()
 
-        device_id, device_api_key = generate_device_key_pair()
+        device_id, device_api_key = "12311213", "1244535231412"
 
         group.add_device(device_id)
 
@@ -33,7 +33,7 @@ class FLGroupTestCase(unittest.TestCase):
     def test_to_json_pass(self):
         group = self.build_default_group()
 
-        device_id, device_api_key = generate_device_key_pair()
+        device_id, device_api_key = "12311213", "1244535231412"
 
         group.add_device(device_id)
 
@@ -47,10 +47,10 @@ class FLGroupTestCase(unittest.TestCase):
     def test_to_json_pass_2(self):
         group = self.build_default_group()
 
-        device_id, device_api_key = generate_device_key_pair()
+        device_id, device_api_key = "12311213", "1244535231412"
         group.add_device(device_id)
 
-        device_id_2, device_api_key = generate_device_key_pair()
+        device_id_2, device_api_key_2 = "54634324535", "324o823uo2ou3o234"
         group.add_device(device_id_2)
 
         json_data = group.to_json()
@@ -61,7 +61,7 @@ class FLGroupTestCase(unittest.TestCase):
         self.assertTrue("rounds" in json_data)
 
     def test_from_json_pass(self):
-        json_data = {'name': 'a_different_name', 'current_round_id' : "N/A", 'ID': 'id', 'devices': {'6617961791227642': {'ID': '6617961791227642', 'registered_on': "1576779269.11093"}, '6336011475872533': {'ID': '6336011475872533', 'registered_on': "1576779269.110966"}}, 'rounds': {}, "initial_model" : {}}
+        json_data = {'name': 'a_different_name', 'current_round_id' : "N/A", 'ID': 'id', 'devices': {'6617961791227642': {'ID': '6617961791227642', 'registered_on': "1576779269.11093"}, '6336011475872533': {'ID': '6336011475872533', 'registered_on': "1576779269.110966"}}, 'rounds': {}, "initial_model" : {}, "members" : {}}
 
         group = FLGroup.from_json(json_data)
 
@@ -70,9 +70,10 @@ class FLGroupTestCase(unittest.TestCase):
         self.assertEqual(group.get_rounds(), {})
         self.assertEqual(group.get_devices(), {'6617961791227642': {'ID': '6617961791227642', 'registered_on': "1576779269.11093"}, '6336011475872533': {'ID': '6336011475872533', 'registered_on': "1576779269.110966"}})
         self.assertEqual(group.initial_model, {})
+        self.assertEqual(group.members, {})
 
     def test_from_json_pass_2(self):
-        json_data = {'current_round_id' : "N/A", 'name': 'a_different_name', 'ID': 'id10', 'devices': {'7897956979947357': {'ID': '7897956979947357', 'registered_on': "1576779498.189228"}, '1822867963788927': {'ID': '1822867963788927', 'registered_on': "1576779498.189258"}}, 'rounds': {'4152602852358113': {'ID': '4152602852358113', 'status': 'IN_PROGRESS', 'devices': ['7897956979947357', '1822867963788927'], 'previous_round_id': 'N/A', 'aggregate_model': 'N/A', 'configuration': {'num_devices': "0"}, 'models': {}, 'created_on': "1576779498.189267"}}, "initial_model" : {}}
+        json_data = {'current_round_id' : "N/A", 'name': 'a_different_name', 'ID': 'id10', 'devices': {'7897956979947357': {'ID': '7897956979947357', 'registered_on': "1576779498.189228"}, '1822867963788927': {'ID': '1822867963788927', 'registered_on': "1576779498.189258"}}, 'rounds': {'4152602852358113': {'ID': '4152602852358113', 'status': 'IN_PROGRESS', 'devices': ['7897956979947357', '1822867963788927'], 'previous_round_id': 'N/A', 'aggregate_model': 'N/A', 'configuration': {'num_devices': "0"}, 'models': {}, 'created_on': "1576779498.189267"}}, "initial_model" : {}, "members" : {}}
 
         group = FLGroup.from_json(json_data)
 
@@ -82,6 +83,7 @@ class FLGroupTestCase(unittest.TestCase):
         self.assertEqual(group.get_devices(), {'7897956979947357': {'ID': '7897956979947357', 'registered_on': "1576779498.189228"}, '1822867963788927': {'ID': '1822867963788927', 'registered_on': "1576779498.189258"}})
         self.assertEqual(group.get_current_round_id(), "N/A")
         self.assertEqual(group.initial_model, {})
+        self.assertEqual(group.members, {})
 
     def test_add_round_pass(self):
         group = self.build_default_group()
@@ -117,9 +119,9 @@ class FLGroupTestCase(unittest.TestCase):
 
         self.assertEqual(0, len(group.get_device_list()))
 
-        device_id, device_api_key = generate_device_key_pair()
+        device_id, device_api_key = "12311213", "1244535231412"
         group.add_device(device_id)
-        device_id_2, device_api_key_2 = generate_device_key_pair()
+        device_id_2, device_api_key_2 = "6768564345", "343454efafsdffsdfsfsdfs"
         group.add_device(device_id_2)
 
         self.assertEqual(2, len(group.get_device_list()))
@@ -127,7 +129,7 @@ class FLGroupTestCase(unittest.TestCase):
         self.assertTrue(device_id_2 in group.get_device_list())
 
     def test_set_current_round_pass(self):
-        json_data = {'current_round_id' : "4152602852358113", 'name': 'a_different_name', 'ID': 'id10', 'devices': {'7897956979947357': {'ID': '7897956979947357', 'registered_on': "1576779498"}, '1822867963788927': {'ID': '1822867963788927', 'registered_on': "1576779498"}}, 'rounds': {'4152602852358113': {'ID': '4152602852358113', 'status': 'IN_PROGRESS', 'devices': ['7897956979947357', '1822867963788927'], 'previous_round_id': 'N/A', 'aggregate_model': 'N/A', 'configuration': {'num_devices': "0"}, 'models': {}, 'created_on': "1576779498"}, '4142634852358226': {'ID': '4142634852358226', 'status': 'CANCELLED', 'devices': ['7897956979947357', '1822867963788927'], 'previous_round_id': 'N/A', 'aggregate_model': 'N/A', 'configuration': {'num_devices': "0"}, 'models': {}, 'created_on': "1576779498"}}, "initial_model" : {}}
+        json_data = {'current_round_id' : "4152602852358113", 'name': 'a_different_name', 'ID': 'id10', 'devices': {'7897956979947357': {'ID': '7897956979947357', 'registered_on': "1576779498"}, '1822867963788927': {'ID': '1822867963788927', 'registered_on': "1576779498"}}, 'rounds': {'4152602852358113': {'ID': '4152602852358113', 'status': 'IN_PROGRESS', 'devices': ['7897956979947357', '1822867963788927'], 'previous_round_id': 'N/A', 'aggregate_model': 'N/A', 'configuration': {'num_devices': "0"}, 'models': {}, 'created_on': "1576779498"}, '4142634852358226': {'ID': '4142634852358226', 'status': 'CANCELLED', 'devices': ['7897956979947357', '1822867963788927'], 'previous_round_id': 'N/A', 'aggregate_model': 'N/A', 'configuration': {'num_devices': "0"}, 'models': {}, 'created_on': "1576779498"}}, "initial_model" : {}, "members" : {}}
 
         group = FLGroup.from_json(json_data)
 
@@ -143,3 +145,57 @@ class FLGroupTestCase(unittest.TestCase):
         group.set_initial_model(Model("1234", "1234/1234", "1234554"))
 
         self.assertTrue(group.is_initial_model_set())
+
+    def test_is_member_pass(self):
+        group = self.build_default_group()
+        group.add_or_update_member("user_12344", GroupPrivilegeTypesEnum.ADMIN)
+
+        self.assertTrue(group.is_member("user_12344"))
+        self.assertFalse(group.is_member("user_12345"))
+
+    def test_add_or_update_member_pass(self):
+        group = self.build_default_group()
+
+        group.add_or_update_member("user_12344", GroupPrivilegeTypesEnum.ADMIN)
+
+        self.assertTrue("user_12344" in group.members)
+
+    def test_does_member_have_auth_pass(self):
+        group = self.build_default_group()
+        group.add_or_update_member("user_12344", GroupPrivilegeTypesEnum.ADMIN)
+
+        self.assertTrue(group.does_member_have_auth("user_12344", GroupPrivilegeTypesEnum.ADMIN))
+        self.assertTrue(group.does_member_have_auth("user_12344", GroupPrivilegeTypesEnum.READ_WRITE))
+        self.assertTrue(group.does_member_have_auth("user_12344", GroupPrivilegeTypesEnum.READ_ONLY))
+
+    def test_does_member_have_auth_pass_2(self):
+        group = self.build_default_group()
+        group.add_or_update_member("user_12344", GroupPrivilegeTypesEnum.READ_WRITE)
+
+        self.assertFalse(group.does_member_have_auth("user_12344", GroupPrivilegeTypesEnum.ADMIN))
+        self.assertTrue(group.does_member_have_auth("user_12344", GroupPrivilegeTypesEnum.READ_WRITE))
+        self.assertTrue(group.does_member_have_auth("user_12344", GroupPrivilegeTypesEnum.READ_ONLY))
+
+    def test_does_member_have_auth_pass_3(self):
+        group = self.build_default_group()
+        group.add_or_update_member("user_12344", GroupPrivilegeTypesEnum.READ_ONLY)
+
+        self.assertFalse(group.does_member_have_auth("user_12344", GroupPrivilegeTypesEnum.ADMIN))
+        self.assertFalse(group.does_member_have_auth("user_12344", GroupPrivilegeTypesEnum.READ_WRITE))
+        self.assertTrue(group.does_member_have_auth("user_12344", GroupPrivilegeTypesEnum.READ_ONLY))
+
+    def test_get_member_auth_level_pass(self):
+        group = self.build_default_group()
+        group.add_or_update_member("user_12344", GroupPrivilegeTypesEnum.READ_ONLY)
+
+        self.assertEqual(GroupPrivilegeTypesEnum.READ_ONLY, group.get_member_auth_level("user_12344"))
+
+    def test_contains_device_pass(self):
+        group = self.build_default_group()
+
+        self.assertFalse(group.contains_device("userser123123"))
+
+        group.add_device("sfksdsf")
+
+        self.assertTrue(group.contains_device("sfksdsf"))
+        self.assertFalse(group.contains_device("123123141"))

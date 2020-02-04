@@ -1,18 +1,15 @@
 import json
 
-from fmlaas import generate_device_key_pair
 from fmlaas import get_round_table_name_from_env
+from fmlaas import get_group_table_name_from_env
 from fmlaas.database import DynamoDBInterface
-from fmlaas.model import Round
-from fmlaas.model import DBObject
-from fmlaas.aws import create_presigned_url
-from fmlaas.aws import get_models_bucket_name
 from fmlaas.request_processor import IDProcessor
+from fmlaas.controller.get_round_aggregate_model import get_round_aggregate_model_controller
+from fmlaas.exception import RequestForbiddenException
 
 def lambda_handler(event, context):
     req_json = event.get("pathParameters")
-
-    EXPIRATION_SEC = 60 * 5
+    auth_json = event["requestContext"]["authorizer"]
 
     try:
         id_processor = IDProcessor(req_json)
@@ -24,26 +21,28 @@ def lambda_handler(event, context):
             "body" : str(error)
         }
 
+    group_db = DynamoDBInterface(get_group_table_name_from_env())
+    round_db = DynamoDBInterface(get_round_table_name_from_env())
+
     try:
-        dynamodb_ = DynamoDBInterface(get_round_table_name_from_env())
-        round = DBObject.load_from_db(Round, round_id, dynamodb_)
-    except KeyError:
-        return {
-            "statusCode" : 400,
-            "body" : "Round does not exist"
-        }
+        is_round_complete, presigned_url = get_round_aggregate_model_controller(group_db,
+                                                                                round_db,
+                                                                                group_id,
+                                                                                round_id,
+                                                                                auth_json)
 
-    if round.is_complete():
-        object_name = round.get_aggregate_model().get_name().get_name()
-
-        presigned_url = create_presigned_url(get_models_bucket_name(), object_name, expiration=EXPIRATION_SEC)
-
+        if is_round_complete:
+            return {
+                "statusCode" : 200,
+                "body" : json.dumps({"model_url" : presigned_url})
+            }
+        else:
+            return {
+                "statusCode" : 400,
+                "body" : "Cannot get aggregate model for incomplete round"
+            }
+    except RequestForbiddenException as error:
         return {
-            "statusCode" : 200,
-            "body" : json.dumps({"model_url" : presigned_url})
-        }
-    else:
-        return {
-            "statusCode" : 400,
-            "body" : "Cannot get aggregate model for incomplete round"
+            "statusCode" : 403,
+            "body" : str(error)
         }

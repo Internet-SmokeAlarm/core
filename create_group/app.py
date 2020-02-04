@@ -1,14 +1,14 @@
 import json
 
-from fmlaas import generate_unique_id
 from fmlaas import get_group_table_name_from_env
 from fmlaas.database import DynamoDBInterface
-from fmlaas.model import FLGroup
-from fmlaas.model import GroupBuilder
 from fmlaas.request_processor import IDProcessor
+from fmlaas.controller.create_group import create_group_controller
+from fmlaas.exception import RequestForbiddenException
 
 def lambda_handler(event, context):
     req_json = json.loads(event.get('body'))
+    auth_json = event["requestContext"]["authorizer"]
 
     try:
         id_processor = IDProcessor(req_json)
@@ -21,16 +21,15 @@ def lambda_handler(event, context):
 
     dynamodb_ = DynamoDBInterface(get_group_table_name_from_env())
 
-    group_id = generate_unique_id()
+    try:
+        group_id = create_group_controller(dynamodb_, group_name, auth_json)
 
-    builder = GroupBuilder()
-    builder.set_id(group_id)
-    builder.set_name(group_name)
-    group = builder.build()
-
-    group.save_to_db(dynamodb_)
-
-    return {
-        "statusCode" : 200,
-        "body" : json.dumps({"group_id" : group_id})
-    }
+        return {
+            "statusCode" : 200,
+            "body" : json.dumps({"group_id" : group_id})
+        }
+    except RequestForbiddenException as error:
+        return {
+            "statusCode" : 403,
+            "body" : str(error)
+        }

@@ -16,6 +16,10 @@ class IDProcessorTestCase(unittest.TestCase):
 
         self.assertRaises(ValueError, id_processor.get_group_name)
 
+    def test_get_group_name_fail_3(self):
+        id_processor = IDProcessor({})
+        self.assertIsNone(id_processor.get_group_name(throw_exception=False))
+
     def test_get_round_id_fail(self):
         json_data = {"round_id" : None}
         id_processor = IDProcessor(json_data)
@@ -27,6 +31,10 @@ class IDProcessorTestCase(unittest.TestCase):
         id_processor = IDProcessor(json_data)
 
         self.assertRaises(ValueError, id_processor.get_round_id)
+
+    def test_get_round_id_fail_3(self):
+        id_processor = IDProcessor({})
+        self.assertIsNone(id_processor.get_round_id(throw_exception=False))
 
     def test_get_group_id_fail(self):
         json_data = {"group_id" : None}
@@ -40,6 +48,10 @@ class IDProcessorTestCase(unittest.TestCase):
 
         self.assertRaises(ValueError, id_processor.get_group_id)
 
+    def test_get_group_id_fail_3(self):
+        id_processor = IDProcessor({})
+        self.assertIsNone(id_processor.get_group_id(throw_exception=False))
+
     def test_get_device_id_fail(self):
         json_data = {"device_id" : None}
         id_processor = IDProcessor(json_data)
@@ -51,6 +63,10 @@ class IDProcessorTestCase(unittest.TestCase):
         id_processor = IDProcessor(json_data)
 
         self.assertRaises(ValueError, id_processor.get_device_id)
+
+    def test_get_device_id_fail_3(self):
+        id_processor = IDProcessor({})
+        self.assertIsNone(id_processor.get_device_id(throw_exception=False))
 
     def test_get_group_name_pass(self):
         json_data = {"group_name" : "None"}

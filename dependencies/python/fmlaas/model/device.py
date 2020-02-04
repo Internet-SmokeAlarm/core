@@ -1,6 +1,12 @@
-class Device:
+from .db_object import DBObject
+
+class Device(DBObject):
 
     def __init__(self, id, registered_on):
+        """
+        :param id: string
+        :param registered_on: string
+        """
         self.id = id
         self.registered_on = registered_on
 

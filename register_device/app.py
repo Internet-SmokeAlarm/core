@@ -1,14 +1,15 @@
 import json
 
-from fmlaas import generate_device_key_pair
 from fmlaas import get_group_table_name_from_env
 from fmlaas.database import DynamoDBInterface
-from fmlaas.model import FLGroup
-from fmlaas.model import DBObject
 from fmlaas.request_processor import IDProcessor
+from fmlaas import get_auth_key_table_from_env
+from fmlaas.controller.register_device import register_device_controller
+from fmlaas.exception import RequestForbiddenException
 
 def lambda_handler(event, context):
     req_json = json.loads(event.get('body'))
+    auth_json = event["requestContext"]["authorizer"]
 
     try:
         id_processor = IDProcessor(req_json)
@@ -19,15 +20,18 @@ def lambda_handler(event, context):
             "body" : str(error)
         }
 
-    dynamodb_ = DynamoDBInterface(get_group_table_name_from_env())
-    group = DBObject.load_from_db(FLGroup, group_id, dynamodb_)
+    group_db = DynamoDBInterface(get_group_table_name_from_env())
+    key_db = DynamoDBInterface(get_auth_key_table_from_env())
 
-    device_id, device_api_key = generate_device_key_pair()
-    group.add_device(device_id)
+    try:
+        id, key_plaintext = register_device_controller(group_db, key_db, group_id, auth_json)
 
-    group.save_to_db(dynamodb_)
-
-    return {
-        "statusCode" : 200,
-        "body" : json.dumps({"device_id" : device_id, "device_api_key" : device_api_key})
-    }
+        return {
+            "statusCode" : 200,
+            "body" : json.dumps({"device_id" : id, "device_api_key" : key_plaintext})
+        }
+    except RequestForbiddenException as error:
+        return {
+            "statusCode" : 403,
+            "body" : str(error)
+        }

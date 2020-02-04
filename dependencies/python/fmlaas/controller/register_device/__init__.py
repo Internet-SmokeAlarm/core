@@ -1,0 +1,1 @@
+from .controller import register_device_controller

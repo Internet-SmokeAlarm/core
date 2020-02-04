@@ -2,7 +2,7 @@
 set -e
 
 if [ -z "$1" ]; then
-    echo "Argument 'stage' is required. Ex: 'bash deploy.sh dev'"
+    echo "Argument 'stage' is required. Ex: 'bash run_local.sh dev'"
     exit 1
 fi
 

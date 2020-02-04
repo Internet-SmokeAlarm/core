@@ -14,7 +14,10 @@ Globals:
         MODELS_BUCKET: !Join ["", [!Ref Stage, "-fedlearn-models"]]
         GROUPS_TABLE_NAME: !Join ["", [!Ref Stage, "-fl-groups"]]
         ROUNDS_TABLE_NAME: !Join ["", [!Ref Stage, "-fl-rounds"]]
+        AUTH_KEY_TABLE_NAME: !Join ["", [!Ref Stage, "-fl-auth-key"]]
         AGGREGATION_LAMBDA_FUNCTION_NAME: !Join ["", [!Ref Stage, "-AggregateModels"]]
+        COGNITO_USER_POOL_CLIENT_ID: !Ref FedLearnCognitoUserPoolClient
+        COGNITO_USER_POOL_ID: !Ref FedLearnCognitoUserPool
 
 Resources:
   # ------------ Api ------------
@@ -22,6 +25,15 @@ Resources:
     Type: AWS::Serverless::Api
     Properties:
       StageName: !Ref Stage
+      Auth:
+        DefaultAuthorizer: LambdaRequestAuthorizer
+        Authorizers:
+          LambdaRequestAuthorizer:
+            FunctionPayloadType: REQUEST
+            FunctionArn: !GetAtt LambdaAuthFunction.Arn
+            Identity:
+              Headers:
+                - Authorization
 
 
   # ------------ DynamoDB ------------
@@ -52,6 +64,48 @@ Resources:
           AttributeName: "ID"
           KeyType: "HASH"
       TableName: !Join ["", [!Ref Stage, "-fl-rounds"]]
+
+  AuthKeyTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        -
+          AttributeName: "ID"
+          AttributeType: "S"
+      KeySchema:
+        -
+          AttributeName: "ID"
+          KeyType: "HASH"
+      TableName: !Join ["", [!Ref Stage, "-fl-auth-key"]]
+
+
+  # ------------ Cognito ------------
+  FedLearnCognitoUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: !Join ["", [!Ref Stage, "-fl-user-pool"]]
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 12
+          RequireLowercase: true
+          RequireNumbers: true
+          RequireSymbols: true
+          RequireUppercase: true
+          TemporaryPasswordValidityDays: 30
+      UsernameAttributes:
+        - email
+      Schema:
+        - AttributeDataType: String
+          Name: email
+          Required: false
+
+  FedLearnCognitoUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      UserPoolId: !Ref FedLearnCognitoUserPool
+      ClientName: !Join ["", [!Ref Stage, "-fl-user-pool-client"]]
+      GenerateSecret: false
 
 
   # ------------ S3 ------------
@@ -99,11 +153,48 @@ Resources:
 
 
   # ------------ Lambda ------------
+  LambdaAuthFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 10
+      MemorySize: 1536
+      CodeUri: lambda_authorizer/
+      Handler: app.lambda_handler
+      FunctionName: !Join ["", [!Ref Stage, "-LambdaAuthorizer"]]
+      Layers:
+        - !Ref FMLaaSCoreDependencyLayer
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuthKeyTable
+
+  CreateApiKeyFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 10
+      MemorySize: 1536
+      CodeUri: create_api_key/
+      Handler: app.lambda_handler
+      FunctionName: !Join ["", [!Ref Stage, "-CreateApiKey"]]
+      Layers:
+        - !Ref FMLaaSCoreDependencyLayer
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuthKeyTable
+      Events:
+        CreateApiKeyEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FmlaasProdApi
+            Path: /v1/auth/create_key
+            Method: post
+
   RegisterDeviceFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Timeout: 3
-      MemorySize: 128
+      Timeout: 10
+      MemorySize: 1536
       CodeUri: register_device/
       Handler: app.lambda_handler
       FunctionName: !Join ["", [!Ref Stage, "-RegisterDevice"]]
@@ -113,6 +204,8 @@ Resources:
         - AWSLambdaBasicExecutionRole
         - DynamoDBCrudPolicy:
             TableName: !Ref GroupsTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuthKeyTable
       Events:
         RegisterDeviceApiEvent:
           Type: Api
@@ -159,6 +252,8 @@ Resources:
         - AWSLambdaBasicExecutionRole
         - DynamoDBCrudPolicy:
             TableName: !Ref RoundsTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref GroupsTable
       Events:
         GetRoundApiEvent:
           Type: Api
@@ -227,6 +322,8 @@ Resources:
         - AWSLambdaBasicExecutionRole
         - DynamoDBCrudPolicy:
             TableName: !Ref RoundsTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref GroupsTable
         - !Ref S3GetObjectPolicy
       Events:
         GetRoundAggregateModelApiEvent:
@@ -321,6 +418,8 @@ Resources:
         - AWSLambdaBasicExecutionRole
         - DynamoDBCrudPolicy:
             TableName: !Ref RoundsTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref GroupsTable
       Events:
         IsDeviceActiveApiEvent:
           Type: Api
@@ -413,6 +512,8 @@ Resources:
         - AWSLambdaBasicExecutionRole
         - DynamoDBCrudPolicy:
             TableName: !Ref RoundsTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref GroupsTable
         - !Ref S3GetObjectPolicy
       Events:
         GetRoundStartModelApiEvent:
@@ -426,7 +527,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       Timeout: 60
-      MemorySize: 256
+      MemorySize: 1536
       CodeUri: aggregate_models/
       Handler: app.lambda_handler
       FunctionName: !Join ["", [!Ref Stage, "-AggregateModels"]]
@@ -442,6 +543,22 @@ Resources:
         - !Ref S3PutObjectPolicy
 
 Outputs:
+  Region:
+    Description: "Region"
+    Value: !Ref AWS::Region
+
+  ApiId:
+    Description: "API ID"
+    Value: !Ref FmlaasProdApi
+
   ApiUrl:
     Description: URL for endpoint
     Value: !Sub "https://${FmlaasProdApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+
+  CognitoUserPoolId:
+    Description: "Cognito User Pool Id"
+    Value: !Ref FedLearnCognitoUserPool
+
+  CognitoUserPoolClientId:
+    Description: "Cognito User Pool Client Id"
+    Value: !Ref FedLearnCognitoUserPoolClient

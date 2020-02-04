@@ -1,6 +1,8 @@
-from .device_key import DeviceKeyTestCase
+import sys
+import os
+sys.path.insert(0, os.path.join(os.getcwd(), "dependencies", "python"))
+
 from .generate_unique_id import GenerateUniqueIdTestCase
-from .generate_partial_unique_id import GeneratePartialUniqueIdTestCase
 from .hierarchical_model_naming import HierarchicalModelNameStructureTestCase
 
 from .device_selector import *
@@ -20,3 +22,5 @@ from .request_processor import *
 from .aws import *
 
 from .controller import *
+
+from .auth import *

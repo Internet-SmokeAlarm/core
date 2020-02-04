@@ -10,43 +10,43 @@ class IDProcessor(RequestProcessor):
     def __init__(self, json):
         self.json = json
 
-    def get_group_name(self):
+    def get_group_name(self, throw_exception=True):
         group_name = self.json.get(IDProcessor.GROUP_NAME_KEY, None)
 
-        if not self._is_string_name_valid(group_name):
+        if not self._is_string_name_valid(group_name) and throw_exception:
             raise ValueError("Group name invalid.")
 
         return group_name
 
-    def get_group_id(self):
+    def get_group_id(self, throw_exception=True):
         """
         :return: string
         """
         group_id = self.json.get(IDProcessor.GROUP_ID_KEY, None)
 
-        if not self._is_string_name_valid(group_id):
+        if not self._is_string_name_valid(group_id) and throw_exception:
             raise ValueError("Group id invalid.")
 
         return group_id
 
-    def get_round_id(self):
+    def get_round_id(self, throw_exception=True):
         """
         :return: string
         """
         round_id = self.json.get(IDProcessor.ROUND_ID_KEY, None)
 
-        if not self._is_string_name_valid(round_id):
+        if not self._is_string_name_valid(round_id) and throw_exception:
             raise ValueError("Round id invalid.")
 
         return round_id
 
-    def get_device_id(self):
+    def get_device_id(self, throw_exception=True):
         """
         :return: string
         """
         device_id = self.json.get(IDProcessor.DEVICE_ID_KEY, None)
 
-        if not self._is_string_name_valid(device_id):
+        if not self._is_string_name_valid(device_id) and throw_exception:
             raise ValueError("Device id invalid.")
 
         return device_id
