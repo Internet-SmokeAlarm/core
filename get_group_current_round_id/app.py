@@ -4,7 +4,7 @@ from fmlaas import get_group_table_name_from_env
 from fmlaas.database import DynamoDBInterface
 from fmlaas.request_processor import IDProcessor
 from fmlaas.controller.get_group_current_round_id import get_group_current_round_id_controller
-from fmlaas.exception import RequestForbiddenError
+from fmlaas.exception import RequestForbiddenException
 
 def lambda_handler(event, context):
     req_json = event.get("pathParameters")
@@ -28,7 +28,7 @@ def lambda_handler(event, context):
             "statusCode" : 200,
             "body" : json.dumps({"round_id" : current_round_id})
         }
-    except RequestForbiddenError as error:
+    except RequestForbiddenException as error:
         return {
             "statusCode" : 401,
             "body" : str(error)

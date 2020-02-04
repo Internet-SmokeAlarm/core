@@ -5,6 +5,7 @@ from fmlaas.database import DynamoDBInterface
 from fmlaas.request_processor import IDProcessor
 from fmlaas.controller.get_group import get_group_controller
 from fmlaas.exception import RequestForbiddenException
+from fmlaas import DecimalEncoder
 
 def lambda_handler(event, context):
     req_json = event.get("pathParameters")
@@ -26,7 +27,7 @@ def lambda_handler(event, context):
 
         return {
             "statusCode" : 200,
-            "body" : json.dumps(group_json)
+            "body" : json.dumps(group_json, cls=DecimalEncoder)
         }
     except RequestForbiddenException as error:
         return {

@@ -4,7 +4,8 @@ from fmlaas.request_processor import IDProcessor
 from fmlaas import get_round_table_name_from_env
 from fmlaas import get_group_table_name_from_env
 from fmlaas.database import DynamoDBInterface
-from fmlass.exception import RequestForbiddenException
+from fmlaas.exception import RequestForbiddenException
+from fmlaas.controller.submit_model_update import submit_model_update_controller
 
 def lambda_handler(event, context):
     req_json = json.loads(event.get('body'))

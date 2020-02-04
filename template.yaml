@@ -172,7 +172,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       Timeout: 10
-      MemorySize: 256
+      MemorySize: 1536
       CodeUri: lambda_authorizer/
       Handler: app.lambda_handler
       FunctionName: !Join ["", [!Ref Stage, "-CreateApiKey"]]
@@ -194,7 +194,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       Timeout: 10
-      MemorySize: 256
+      MemorySize: 1536
       CodeUri: register_device/
       Handler: app.lambda_handler
       FunctionName: !Join ["", [!Ref Stage, "-RegisterDevice"]]
@@ -252,6 +252,8 @@ Resources:
         - AWSLambdaBasicExecutionRole
         - DynamoDBCrudPolicy:
             TableName: !Ref RoundsTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref GroupsTable
       Events:
         GetRoundApiEvent:
           Type: Api
@@ -320,6 +322,8 @@ Resources:
         - AWSLambdaBasicExecutionRole
         - DynamoDBCrudPolicy:
             TableName: !Ref RoundsTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref GroupsTable
         - !Ref S3GetObjectPolicy
       Events:
         GetRoundAggregateModelApiEvent:
@@ -414,6 +418,8 @@ Resources:
         - AWSLambdaBasicExecutionRole
         - DynamoDBCrudPolicy:
             TableName: !Ref RoundsTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref GroupsTable
       Events:
         IsDeviceActiveApiEvent:
           Type: Api
@@ -506,6 +512,8 @@ Resources:
         - AWSLambdaBasicExecutionRole
         - DynamoDBCrudPolicy:
             TableName: !Ref RoundsTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref GroupsTable
         - !Ref S3GetObjectPolicy
       Events:
         GetRoundStartModelApiEvent:

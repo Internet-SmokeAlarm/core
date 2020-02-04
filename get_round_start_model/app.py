@@ -5,6 +5,7 @@ from fmlaas import get_group_table_name_from_env
 from fmlaas.database import DynamoDBInterface
 from fmlaas.request_processor import IDProcessor
 from fmlaas.exception import RequestForbiddenException
+from fmlaas.controller.get_round_start_model import get_round_start_model_controller
 
 def lambda_handler(event, context):
     req_json = event.get("pathParameters")

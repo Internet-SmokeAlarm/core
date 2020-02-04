@@ -7,6 +7,7 @@ from fmlaas.aws import get_models_bucket_name
 from fmlaas.database import DynamoDBInterface
 from fmlaas.request_processor import IDProcessor
 from fmlaas.exception import RequestForbiddenException
+from fmlaas.controller.delete_group import delete_group_controller
 
 def lambda_handler(event, context):
     req_json = json.loads(event.get('body'))
