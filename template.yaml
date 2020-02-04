@@ -173,7 +173,7 @@ Resources:
     Properties:
       Timeout: 10
       MemorySize: 1536
-      CodeUri: lambda_authorizer/
+      CodeUri: create_api_key/
       Handler: app.lambda_handler
       FunctionName: !Join ["", [!Ref Stage, "-CreateApiKey"]]
       Layers:

@@ -33,6 +33,6 @@ def lambda_handler(event, context):
         }
     except RequestForbiddenException as error:
         return {
-            "statusCode" : 401,
+            "statusCode" : 403,
             "body" : str(error)
         }
