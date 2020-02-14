@@ -91,7 +91,6 @@ class StartRoundControllerTestCase(unittest.TestCase):
         builder.set_name("test_name")
         builder.set_devices({"34553" : {"ID" : "34553", "registered_on" : "213123144.2342"}})
         group = builder.build()
-        group.set_initial_model(Model("test_id", "test_id/test_id", "34532"))
         group.add_or_update_member("user_12345", GroupPrivilegeTypesEnum.ADMIN)
 
         group.save_to_db(group_db)
@@ -106,7 +105,6 @@ class StartRoundControllerTestCase(unittest.TestCase):
         updated_group = DBObject.load_from_db(FLGroup, group.get_id(), group_db)
 
         self.assertEqual(new_round.get_previous_round_id(), "N/A")
-        self.assertEqual(new_round.get_start_model().to_json(), updated_group.get_initial_model().to_json())
         self.assertEqual(new_round.get_devices(), ["34553"])
 
         self.assertEqual(updated_group.get_current_round_id(), new_round_id)
@@ -121,7 +119,6 @@ class StartRoundControllerTestCase(unittest.TestCase):
         builder.set_name("test_name")
         builder.set_devices({"34553" : {"ID" : "34553", "registered_on" : "213123144.2342"}})
         group = builder.build()
-        group.set_initial_model(Model("test_id", "test_id/test_id", "34532"))
         group.add_or_update_member("user_12345", GroupPrivilegeTypesEnum.ADMIN)
         group.add_or_update_member("user_123456", GroupPrivilegeTypesEnum.READ_ONLY)
 
@@ -143,7 +140,6 @@ class StartRoundControllerTestCase(unittest.TestCase):
         builder.set_name("test_name")
         builder.set_devices({"34553" : {"ID" : "34553", "registered_on" : "213123144.2342"}})
         group = builder.build()
-        group.set_initial_model(Model("test_id", "test_id/test_id", "34532"))
         group.add_or_update_member("user_12345", GroupPrivilegeTypesEnum.ADMIN)
         group.add_or_update_member("user_123456", GroupPrivilegeTypesEnum.READ_ONLY)
 
@@ -165,7 +161,6 @@ class StartRoundControllerTestCase(unittest.TestCase):
         builder.set_name("test_name")
         builder.set_devices({"34553" : {"ID" : "34553", "registered_on" : "213123144.2342"}})
         group = builder.build()
-        group.set_initial_model(Model("test_id", "test_id/test_id", "34532"))
         group.add_or_update_member("user_12345", GroupPrivilegeTypesEnum.ADMIN)
         group.add_or_update_member("user_123456", GroupPrivilegeTypesEnum.READ_ONLY)
 

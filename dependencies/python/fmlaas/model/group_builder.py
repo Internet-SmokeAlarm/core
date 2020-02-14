@@ -9,7 +9,6 @@ class GroupBuilder(Builder):
         self.devices = {}
         self.rounds = {}
         self.current_round_id = "N/A"
-        self.initial_model = {}
         self.members = {}
 
     def set_name(self, name):
@@ -45,7 +44,7 @@ class GroupBuilder(Builder):
     def build(self):
         self._validate_paramaters()
 
-        return FLGroup(self.name, self.id, self.devices, self.rounds, self.current_round_id, self.initial_model, self.members)
+        return FLGroup(self.name, self.id, self.devices, self.rounds, self.current_round_id, self.members)
 
     def _validate_paramaters(self):
         if self.id is None:
