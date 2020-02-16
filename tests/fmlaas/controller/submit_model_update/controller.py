@@ -29,9 +29,10 @@ class SubmitModelUpdateControllerTestCase(unittest.TestCase):
     def _build_default_round(self):
         round_builder = RoundBuilder()
         round_builder.set_id("round_test_id")
+        round_builder.set_parent_group_id("test_id")
         round_builder.set_configuration(RoundConfiguration("1", "RANDOM").to_json())
-        round_builder.set_start_model(Model("12312414", "1234/345345/12312414", "123211").to_json())
-        round_builder.set_end_model(Model("1234", "1234/1234", "123211").to_json())
+        round_builder.set_start_model(Model("12312414", "12312414/start_model", "123211").to_json())
+        round_builder.set_aggregate_model(Model("1234", "1234/aggregate_model", "123211").to_json())
         round_builder.set_devices(["12344"])
         round = round_builder.build()
 
@@ -45,8 +46,8 @@ class SubmitModelUpdateControllerTestCase(unittest.TestCase):
         round.save_to_db(round_db_)
 
         group = self._build_default_group()
-        group.add_round(round.get_id())
-        group.set_current_round_id(round.get_id())
+        group.create_round_path(round.get_id())
+        group.add_current_round_id(round.get_id())
         group.save_to_db(group_db_)
 
         auth_json = {
@@ -69,8 +70,8 @@ class SubmitModelUpdateControllerTestCase(unittest.TestCase):
         round.save_to_db(round_db_)
 
         group = self._build_default_group()
-        group.add_round(round.get_id())
-        group.set_current_round_id(round.get_id())
+        group.create_round_path(round.get_id())
+        group.add_current_round_id(round.get_id())
         group.save_to_db(group_db_)
 
         auth_json = {
@@ -87,8 +88,8 @@ class SubmitModelUpdateControllerTestCase(unittest.TestCase):
         round.save_to_db(round_db_)
 
         group = self._build_default_group()
-        group.add_round(round.get_id())
-        group.set_current_round_id(round.get_id())
+        group.create_round_path(round.get_id())
+        group.add_current_round_id(round.get_id())
         group.save_to_db(group_db_)
 
         auth_json = {

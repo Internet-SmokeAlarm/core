@@ -20,8 +20,8 @@ class GetRoundStartModelControllerTestCase(unittest.TestCase):
 
         group = group_builder.build()
         group.add_device("12344")
-        group.add_round("1234432414")
-        group.set_current_round_id("1234432414")
+        group.create_round_path("1234432414")
+        group.add_current_round_id("1234432414")
         group.add_or_update_member("user_12345", GroupPrivilegeTypesEnum.READ_ONLY)
 
         return group
@@ -29,9 +29,10 @@ class GetRoundStartModelControllerTestCase(unittest.TestCase):
     def _build_default_round(self):
         round_builder = RoundBuilder()
         round_builder.set_id("round_test_id")
+        round_builder.set_parent_group_id("test_id")
         round_builder.set_configuration(RoundConfiguration("1", "RANDOM").to_json())
-        round_builder.set_start_model(Model("12312414", "1234/345345/12312414", "123211").to_json())
-        round_builder.set_end_model(Model("1234", "1234/1234", "123211").to_json())
+        round_builder.set_start_model(Model("12312414", "12312414/start_model", "123211").to_json())
+        round_builder.set_aggregate_model(Model("1234", "1234/aggregate_model", "123211").to_json())
         round_builder.set_devices(["34553"])
         round = round_builder.build()
 
@@ -45,8 +46,8 @@ class GetRoundStartModelControllerTestCase(unittest.TestCase):
         round.save_to_db(round_db_)
 
         group = self._build_default_group()
-        group.add_round(round.get_id())
-        group.set_current_round_id(round.get_id())
+        group.create_round_path(round.get_id())
+        group.add_current_round_id(round.get_id())
         group.save_to_db(group_db_)
 
         auth_json = {
@@ -68,8 +69,8 @@ class GetRoundStartModelControllerTestCase(unittest.TestCase):
         round.save_to_db(round_db_)
 
         group = self._build_default_group()
-        group.add_round(round.get_id())
-        group.set_current_round_id(round.get_id())
+        group.create_round_path(round.get_id())
+        group.add_current_round_id(round.get_id())
         group.save_to_db(group_db_)
 
         auth_json = {
@@ -91,8 +92,8 @@ class GetRoundStartModelControllerTestCase(unittest.TestCase):
         round.save_to_db(round_db_)
 
         group = self._build_default_group()
-        group.add_round(round.get_id())
-        group.set_current_round_id(round.get_id())
+        group.create_round_path(round.get_id())
+        group.add_current_round_id(round.get_id())
         group.save_to_db(group_db_)
 
         auth_json = {
@@ -109,8 +110,8 @@ class GetRoundStartModelControllerTestCase(unittest.TestCase):
         round.save_to_db(round_db_)
 
         group = self._build_default_group()
-        group.add_round(round.get_id())
-        group.set_current_round_id(round.get_id())
+        group.create_round_path(round.get_id())
+        group.add_current_round_id(round.get_id())
         group.save_to_db(group_db_)
 
         auth_json = {
@@ -143,8 +144,8 @@ class GetRoundStartModelControllerTestCase(unittest.TestCase):
         round.save_to_db(round_db_)
 
         group = self._build_default_group()
-        group.add_round(round.get_id())
-        group.set_current_round_id(round.get_id())
+        group.create_round_path(round.get_id())
+        group.add_current_round_id(round.get_id())
         group.save_to_db(group_db_)
 
         auth_json = {
