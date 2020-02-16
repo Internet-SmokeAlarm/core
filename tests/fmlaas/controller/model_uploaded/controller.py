@@ -165,6 +165,52 @@ class ModelUploadedControllerTestCase(unittest.TestCase):
         round_from_db = DBObject.load_from_db(Round, round.get_id(), round_db)
         self.assertEqual(round_from_db.get_aggregate_model().to_json(), round_2_from_db.get_start_model().to_json())
 
+    def test_handle_round_aggregate_model_pass_3(self):
+        group_db = InMemoryDBInterface()
+        round_db = InMemoryDBInterface()
+
+        round = self._build_default_round()
+        round.save_to_db(round_db)
+
+        round_builder = RoundBuilder()
+        round_builder.set_id("12341")
+        round_builder.set_parent_group_id("test_id")
+        configuration = RoundConfiguration("1", "RANDOM")
+        round_builder.set_configuration(configuration.to_json())
+        round_builder.set_devices(["3456"])
+        round_2 = round_builder.build()
+        round_2.cancel()
+        round_2.save_to_db(round_db)
+
+        round_builder = RoundBuilder()
+        round_builder.set_id("12342")
+        round_builder.set_parent_group_id("test_id")
+        configuration = RoundConfiguration("1", "RANDOM")
+        round_builder.set_configuration(configuration.to_json())
+        round_builder.set_devices(["3456"])
+        round_3 = round_builder.build()
+        round_3.save_to_db(round_db)
+
+        group = self._build_default_group()
+        group.create_round_path(round.get_id())
+        group.add_current_round_id(round.get_id())
+        group.add_round_to_path_prev_id(round.get_id(), round_2.get_id())
+        group.add_round_to_path_prev_id(round_2.get_id(), round_3.get_id())
+        group.save_to_db(group_db)
+
+        model = Model(None, "1234/device_models/3456", "1232131")
+        handle_device_model_update(model, None, round_db)
+        aggregate_model = Model(None, "1234/device_models/2345", "435345")
+        handle_round_aggregate_model(aggregate_model, group_db, round_db)
+
+        group_from_db = DBObject.load_from_db(FLGroup, group.get_id(), group_db)
+        self.assertEqual(1, len(group_from_db.get_current_round_ids()))
+        self.assertEqual(round_3.get_id(), group_from_db.get_current_round_ids()[0])
+
+        round_3_from_db = DBObject.load_from_db(Round, round_3.get_id(), round_db)
+        round_from_db = DBObject.load_from_db(Round, round.get_id(), round_db)
+        self.assertEqual(round_from_db.get_aggregate_model().to_json(), round_3_from_db.get_start_model().to_json())
+
     def test_handle_round_start_model_pass(self):
         db_ = InMemoryDBInterface()
 

@@ -18,7 +18,4 @@ def get_group_controller(db_, group_id, auth_json):
     if not group.is_member(auth_context_processor.get_entity_id()):
         raise_default_request_forbidden_error()
 
-    group_json = group.to_json()
-    group_json["is_initial_model_set"] = group.is_initial_model_set()
-
-    return group_json
+    return group.to_json()

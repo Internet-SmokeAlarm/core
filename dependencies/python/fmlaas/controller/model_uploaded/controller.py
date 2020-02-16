@@ -65,12 +65,20 @@ def handle_round_aggregate_model(model, group_db, round_db):
     group = DBObject.load_from_db(FLGroup, round.get_parent_group_id(), group_db)
     group.remove_current_round_id(round.get_id())
 
-    next_round_id = group.get_next_round_in_sequence(round.get_id())
-    if next_round_id is not None:
-        group.add_current_round_id(next_round_id)
+    current_round_id = round.get_id()
+    while True:
+        next_round_id = group.get_next_round_in_sequence(current_round_id)
+        if next_round_id is not None:
+            next_round = DBObject.load_from_db(Round, next_round_id, round_db)
+            if not next_round.is_cancelled():
+                group.add_current_round_id(next_round_id)
+                group.save_to_db(group_db)
 
-        next_round = DBObject.load_from_db(Round, next_round_id, round_db)
-        next_round.set_start_model(round.get_aggregate_model())
-        next_round.save_to_db(round_db)
+                next_round.set_start_model(round.get_aggregate_model())
+                next_round.save_to_db(round_db)
 
-    return False
+                return False
+            else:
+                current_round_id = next_round_id
+        else:
+            return False
