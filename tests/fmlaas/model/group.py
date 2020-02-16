@@ -263,3 +263,16 @@ class FLGroupTestCase(unittest.TestCase):
 
         self.assertTrue(group.contains_device("sfksdsf"))
         self.assertFalse(group.contains_device("123123141"))
+
+    def test_get_next_round_in_sequence_pass(self):
+        group = self.build_default_group()
+
+        group.create_round_path("123343412")
+        group.add_round_to_path_prev_id("123343412", "23423234")
+        group.create_round_path("345234242")
+        group.add_round_to_path_prev_id("23423234", "6345234242")
+        group.create_round_path("84839222")
+
+        self.assertEqual("6345234242", group.get_next_round_in_sequence("23423234"))
+        self.assertEqual(None, group.get_next_round_in_sequence("84839222"))
+        self.assertEqual(None, group.get_next_round_in_sequence("6345234242"))

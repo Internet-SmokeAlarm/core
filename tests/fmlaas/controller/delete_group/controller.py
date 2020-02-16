@@ -25,6 +25,7 @@ class DeleteGroupControllerTestCase(unittest.TestCase):
     def _build_default_round(self):
         round_builder = RoundBuilder()
         round_builder.set_id("2345")
+        round_builder.set_parent_group_id("test_id")
         configuration = RoundConfiguration("1", "RANDOM")
         round_builder.set_configuration(configuration.to_json())
         round_builder.set_devices(["3456"])
@@ -38,7 +39,7 @@ class DeleteGroupControllerTestCase(unittest.TestCase):
 
         group = self._build_default_group()
         round = self._build_default_round()
-        group.add_round("2345")
+        group.create_round_path("2345")
         group.add_or_update_member("user12344", GroupPrivilegeTypesEnum.OWNER)
         group.save_to_db(group_db)
         round.save_to_db(round_db)
@@ -62,7 +63,7 @@ class DeleteGroupControllerTestCase(unittest.TestCase):
 
         group = self._build_default_group()
         round = self._build_default_round()
-        group.add_round("2345")
+        group.create_round_path("2345")
         group.add_or_update_member("user12344", GroupPrivilegeTypesEnum.OWNER)
         group.save_to_db(group_db)
         round.save_to_db(round_db)
@@ -80,7 +81,7 @@ class DeleteGroupControllerTestCase(unittest.TestCase):
 
         group = self._build_default_group()
         round = self._build_default_round()
-        group.add_round("2345")
+        group.create_round_path("2345")
         group.add_or_update_member("user12344", GroupPrivilegeTypesEnum.OWNER)
         group.save_to_db(group_db)
         round.save_to_db(round_db)

@@ -108,6 +108,17 @@ class FLGroup(DBObject):
         """
         return round_id in self.round_info
 
+    def get_next_round_in_sequence(self, round_id):
+        """
+        :param round_id: string
+        """
+        for round_path in self.round_paths:
+            for idx in range(0, len(round_path) - 1):
+                if round_path[idx] == round_id:
+                    return round_path[idx + 1]
+
+        return None
+
     def get_id(self):
         return self.id
 
@@ -119,9 +130,6 @@ class FLGroup(DBObject):
 
     def get_device_list(self):
         return list(self.devices.keys())
-
-    def get_rounds(self):
-        return self.rounds
 
     def get_current_round_ids(self):
         return self.current_round_ids

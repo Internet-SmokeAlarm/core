@@ -3,3 +3,4 @@ from .controller import models_uploaded_controller
 from .controller import get_model_process_function
 from .controller import handle_device_model_update
 from .controller import handle_round_aggregate_model
+from .controller import handle_round_start_model

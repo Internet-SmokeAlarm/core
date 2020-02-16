@@ -23,7 +23,7 @@ def delete_group_controller(group_db, round_db, group_id, auth_json):
     if not group.does_member_have_auth(auth_context_processor.get_entity_id(), GroupPrivilegeTypesEnum.ADMIN):
         raise_default_request_forbidden_error()
 
-    round_ids = group.get_rounds().keys()
+    round_ids = group.get_round_info().keys()
     for round_id in round_ids:
         round_db.delete_object(round_id)
 

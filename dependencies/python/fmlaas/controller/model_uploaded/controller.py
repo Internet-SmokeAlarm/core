@@ -24,10 +24,21 @@ def models_uploaded_controller(group_db, round_db, models_uploaded):
             trigger_lambda_function(get_aggregation_lambda_func_name(), payload)
 
 def get_model_process_function(model_name):
-    if model_name.is_device_model_update():
+    if model_name.is_round_start_model():
+        return handle_round_start_model
+    elif model_name.is_device_model_update():
         return handle_device_model_update
     elif model_name.is_round_aggregate_model():
         return handle_round_aggregate_model
+
+def handle_round_start_model(model, group_db, round_db):
+    model.set_entity_id(model.get_name().get_round_id())
+
+    round = DBObject.load_from_db(Round, model.get_entity_id(), round_db)
+    round.set_start_model(model)
+    round.save_to_db(round_db)
+
+    return False
 
 def handle_device_model_update(model, group_db, round_db):
     model.set_entity_id(model.get_name().get_device_id())
@@ -50,5 +61,16 @@ def handle_round_aggregate_model(model, group_db, round_db):
     round.set_aggregate_model(model)
     round.complete()
     round.save_to_db(round_db)
+
+    group = DBObject.load_from_db(FLGroup, round.get_parent_group_id(), group_db)
+    group.remove_current_round_id(round.get_id())
+
+    next_round_id = group.get_next_round_in_sequence(round.get_id())
+    if next_round_id is not None:
+        group.add_current_round_id(next_round_id)
+
+        next_round = DBObject.load_from_db(Round, next_round_id, round_db)
+        next_round.set_start_model(round.get_aggregate_model())
+        next_round.save_to_db(round_db)
 
     return False
