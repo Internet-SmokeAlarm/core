@@ -20,8 +20,8 @@ class SubmitModelUpdateControllerTestCase(unittest.TestCase):
 
         group = group_builder.build()
         group.add_device("12344")
-        group.add_round("1234432414")
-        group.set_current_round_id("1234432414")
+        group.create_round_path("1234432414")
+        group.add_current_round_id("1234432414")
         group.add_or_update_member("user_123456", GroupPrivilegeTypesEnum.OWNER)
 
         return group

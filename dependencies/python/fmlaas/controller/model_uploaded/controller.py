@@ -24,21 +24,10 @@ def models_uploaded_controller(group_db, round_db, models_uploaded):
             trigger_lambda_function(get_aggregation_lambda_func_name(), payload)
 
 def get_model_process_function(model_name):
-    if model_name.is_initial_group_model():
-        return handle_group_initial_model
-    elif model_name.is_device_model_update():
+    if model_name.is_device_model_update():
         return handle_device_model_update
     elif model_name.is_round_aggregate_model():
         return handle_round_aggregate_model
-
-def handle_group_initial_model(model, group_db, round_db):
-    model.set_entity_id(model.get_name().get_group_id())
-
-    group = DBObject.load_from_db(FLGroup, model.get_name().get_group_id(), group_db)
-    group.set_initial_model(model)
-    group.save_to_db(group_db)
-
-    return False
 
 def handle_device_model_update(model, group_db, round_db):
     model.set_entity_id(model.get_name().get_device_id())

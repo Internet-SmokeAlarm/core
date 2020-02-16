@@ -10,7 +10,6 @@ from dependencies.python.fmlaas.model import DBObject
 from dependencies.python.fmlaas.database import InMemoryDBInterface
 from dependencies.python.fmlaas.controller.model_uploaded import models_uploaded_controller
 from dependencies.python.fmlaas.controller.model_uploaded import get_model_process_function
-from dependencies.python.fmlaas.controller.model_uploaded import handle_group_initial_model
 from dependencies.python.fmlaas.controller.model_uploaded import handle_device_model_update
 from dependencies.python.fmlaas.controller.model_uploaded import handle_round_aggregate_model
 
@@ -43,11 +42,6 @@ class ModelUploadedControllerTestCase(unittest.TestCase):
 
         self.assertEqual(handle_round_aggregate_model, get_model_process_function(model.get_name()))
 
-    def test_get_model_process_function_pass_3(self):
-        model = Model("1234", "1234/1234", "923843287")
-
-        self.assertEqual(handle_group_initial_model, get_model_process_function(model.get_name()))
-
     def test_handle_device_model_update_pass(self):
         db_ = InMemoryDBInterface()
         model = Model(None, "1234/2345/3456", "1232131")
@@ -63,20 +57,6 @@ class ModelUploadedControllerTestCase(unittest.TestCase):
         round_2 = DBObject.load_from_db(Round, round.get_id(), db_)
 
         self.assertTrue(round_2.is_device_model_submitted("3456"))
-
-    def test_handle_group_initial_model_pass(self):
-        db_ = InMemoryDBInterface()
-        model = Model(None, "test_id/test_id", "1232131")
-
-        group = self._build_default_group()
-        group.save_to_db(db_)
-
-        should_aggregate = handle_group_initial_model(model, db_, None)
-
-        group_2 = DBObject.load_from_db(FLGroup, group.get_id(), db_)
-
-        self.assertFalse(should_aggregate)
-        self.assertEqual(group_2.get_initial_model().to_json(), model.to_json())
 
     def test_handle_device_model_update_pass_no_aggregation(self):
         db_ = InMemoryDBInterface()

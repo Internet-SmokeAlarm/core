@@ -11,21 +11,33 @@ from .db_object import DBObject
 
 class FLGroup(DBObject):
 
-    def __init__(self, name, id, devices, rounds, current_round_id, members):
+    def __init__(self,
+                 name,
+                 id,
+                 devices,
+                 round_info,
+                 round_paths,
+                 current_round_ids,
+                 members,
+                 billing):
         """
         :param name: string
         :param id: string
         :param devices: dict
-        :param rounds: dict
-        :param current_round_id: string
+        :param round_info: dict
+        :param round_paths: list(list(string))
+        :param current_round_ids: list(string)
         :param members: dict
+        :param billing: dict
         """
         self.id = id
         self.name = name
         self.devices = devices
-        self.rounds = rounds
-        self.current_round_id = current_round_id
+        self.round_info = round_info
+        self.round_paths = round_paths
+        self.current_round_ids = current_round_ids
         self.members = members
+        self.billing = billing
 
     def add_device(self, device_id):
         """
@@ -43,24 +55,58 @@ class FLGroup(DBObject):
         """
         return device_id in self.devices
 
-    def add_round(self, round_id):
+    def add_round_to_path_prev_id(self, prev_round_id, round_id):
         """
-        :param round_id: string
-        """
-        self.rounds[round_id] = True
+        Add a round to a path using the last round ID of that path.
 
-    def set_current_round_id(self, round_id):
+        :param previous_round_id: string
+        :param round_id: string
+        """
+        for path_idx in range(len(self.round_paths)):
+            if self.round_paths[path_idx][-1] == prev_round_id:
+                self.round_paths[path_idx].append(round_id)
+                self._add_round_info(round_id)
+
+                return
+
+    def create_round_path(self, round_id):
         """
         :param round_id: string
         """
-        self.current_round_id = round_id
+        if self.contains_round(round_id):
+            return
+
+        self.round_paths.append([round_id])
+        self._add_round_info(round_id)
+
+    def _add_round_info(self, round_id):
+        """
+        :param round_id: string
+        """
+        self.round_info[round_id] = {}
+
+    def add_current_round_id(self, round_id):
+        """
+        Adds a round ID to active rounds.
+
+        :param round_id: string
+        """
+        self.current_round_ids.append(round_id)
+
+    def remove_current_round_id(self, round_id):
+        """
+        Remove a round ID from active rounds.
+
+        :param round_id: string
+        """
+        self.current_round_ids.remove(round_id)
 
     def contains_round(self, round_id):
         """
         :param round_id: string
         :return: boolean
         """
-        return round_id in self.rounds
+        return round_id in self.round_info
 
     def get_id(self):
         return self.id
@@ -77,8 +123,17 @@ class FLGroup(DBObject):
     def get_rounds(self):
         return self.rounds
 
-    def get_current_round_id(self):
-        return self.current_round_id
+    def get_current_round_ids(self):
+        return self.current_round_ids
+
+    def get_round_paths(self):
+        return self.round_paths
+
+    def get_round_info(self):
+        return self.round_info
+
+    def get_billing(self):
+        return self.billing
 
     def is_member(self, user_id):
         """
@@ -117,9 +172,11 @@ class FLGroup(DBObject):
             "name" : self.name,
             "ID" : self.id,
             "devices" : self.devices,
-            "rounds" : self.rounds,
-            "current_round_id" : self.current_round_id,
-            "members" : self.members
+            "round_info" : self.round_info,
+            "round_paths" : self.round_paths,
+            "current_round_ids" : self.current_round_ids,
+            "members" : self.members,
+            "billing" : self.billing
         }
 
     @staticmethod
@@ -127,6 +184,8 @@ class FLGroup(DBObject):
         return FLGroup(json_data["name"],
             json_data["ID"],
             json_data["devices"],
-            json_data["rounds"],
-            json_data["current_round_id"],
-            json_data["members"])
+            json_data["round_info"],
+            json_data["round_paths"],
+            json_data["current_round_ids"],
+            json_data["members"],
+            json_data["billing"])

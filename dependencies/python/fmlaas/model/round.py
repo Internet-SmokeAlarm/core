@@ -10,10 +10,8 @@ class Round(DBObject):
                  id,
                  devices,
                  status,
-                 previous_round_id,
                  aggregate_model,
                  start_model,
-                 end_model,
                  configuration,
                  models,
                  created_on,
@@ -22,10 +20,8 @@ class Round(DBObject):
         :param id: string
         :param devices: list(string)
         :param status: string
-        :param previous_round_id: string
         :param aggregate_model: dict
         :param start_model: dict
-        :param end_model: dict
         :param configuration: dict
         :param models: dict
         :param created_on: string
@@ -34,10 +30,8 @@ class Round(DBObject):
         self.id = id
         self.devices = devices
         self.status = status
-        self.previous_round_id = previous_round_id
         self.aggregate_model = aggregate_model
         self.start_model = start_model
-        self.end_model = end_model
         self.configuration = configuration
         self.models = models
         self.created_on = created_on
@@ -52,9 +46,6 @@ class Round(DBObject):
     def get_status(self):
         return RoundStatus(self.status)
 
-    def get_previous_round_id(self):
-        return self.previous_round_id
-
     def get_aggregate_model(self):
         return Model.from_json(self.aggregate_model)
 
@@ -62,7 +53,10 @@ class Round(DBObject):
         return Model.from_json(self.start_model)
 
     def get_end_model(self):
-        return Model.from_json(self.end_model)
+        if self.is_aggregate_model_set():
+            return self.get_aggregate_model()
+        else:
+            return self.get_start_model()
 
     def get_configuration(self):
         return RoundConfiguration.from_json(self.configuration)
@@ -101,6 +95,9 @@ class Round(DBObject):
         """
         return Model.is_valid_json(self.aggregate_model)
 
+    def is_start_model_set(self):
+        return Model.is_valid_json(self.start_model)
+
     def set_aggregate_model(self, aggregate_model):
         """
         :param aggregate_model: Model
@@ -118,6 +115,12 @@ class Round(DBObject):
         :return: boolean
         """
         return self.is_in_progress() or self.is_aggregation_in_progress()
+
+    def is_initialized(self):
+        """
+        :return: boolean
+        """
+        return self.get_status() == RoundStatus.INITIALIZED
 
     def is_in_progress(self):
         """
@@ -160,6 +163,18 @@ class Round(DBObject):
             return not self.is_device_model_submitted(device_id)
 
         return False
+
+    def set_start_model(self, start_model):
+        """
+        :param start_model: Model
+        """
+        if not self.is_initialized():
+            return
+
+        self.start_model = start_model.to_json()
+
+        if self.is_initialized():
+            self.set_status(RoundStatus.IN_PROGRESS)
 
     def set_status(self, status):
         """
@@ -204,23 +219,24 @@ class Round(DBObject):
         for device_id, model in self.get_models().items():
             billable_size += int(model.get_size())
 
-        if Model.is_valid_json(self.aggregate_model):
+        if self.is_aggregate_model_set():
             billable_size += int(self.get_aggregate_model().get_size())
+
+        if self.is_start_model_set():
+            billable_size += int(self.get_start_model().get_size())
 
         return str(billable_size)
 
     def get_billable_size(self):
-        return self.billable_size
+        return int(self.billable_size)
 
     def to_json(self):
         return {
             "ID" : self.id,
             "status" : self.status,
             "devices" : self.devices,
-            "previous_round_id" : self.previous_round_id,
             "aggregate_model" : self.aggregate_model,
             "start_model" : self.start_model,
-            "end_model" : self.end_model,
             "configuration" : self.configuration,
             "models" : self.models,
             "created_on" : self.created_on,
@@ -232,10 +248,8 @@ class Round(DBObject):
         return Round(json_data["ID"],
             json_data["devices"],
             json_data["status"],
-            json_data["previous_round_id"],
             json_data["aggregate_model"],
             json_data["start_model"],
-            json_data["end_model"],
             json_data["configuration"],
             json_data["models"],
             json_data["created_on"],
