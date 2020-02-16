@@ -11,6 +11,7 @@ class RoundTestCase(unittest.TestCase):
     def _build_default_round(self):
         builder = RoundBuilder()
         builder.set_id("test_id")
+        builder.set_parent_group_id("fl_group_1232234")
         builder.set_devices(["123", "234"])
         configuration = RoundConfiguration("50", "RANDOM")
         builder.set_configuration(configuration.to_json())
@@ -26,7 +27,8 @@ class RoundTestCase(unittest.TestCase):
             {"config info" : "here"},
             {"test1" : {"size" : "123300"}},
             "December 19th, 2019",
-            "1234345")
+            "1234345",
+            "fl_group_12312313")
 
         round_json = round.to_json()
 
@@ -39,9 +41,10 @@ class RoundTestCase(unittest.TestCase):
         self.assertEqual({"test1" : {"size" : "123300"}}, round_json["models"])
         self.assertEqual("December 19th, 2019", round_json["created_on"])
         self.assertEqual("1234345", round_json["billable_size"])
+        self.assertEqual("fl_group_12312313", round_json["parent_group_id"])
 
     def test_from_json_pass(self):
-        round_json = {'ID': 'my_id', 'status': 'COMPLETED', 'devices': ['test1', 'test2'], 'aggregate_model': {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : "2134235"}, 'start_model': {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : "2134235"}, 'configuration': {'num_devices' : "5", "device_selection_strategy" : "RANDOM"}, 'models': {"123235345" : {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : "2134235"}}, 'created_on': 'December 19th, 2019', "billable_size" : "0"}
+        round_json = {'ID': 'my_id', 'status': 'COMPLETED', 'devices': ['test1', 'test2'], 'aggregate_model': {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : "2134235"}, 'start_model': {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : "2134235"}, 'configuration': {'num_devices' : "5", "device_selection_strategy" : "RANDOM"}, 'models': {"123235345" : {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : "2134235"}}, 'created_on': 'December 19th, 2019', "billable_size" : "0", "parent_group_id" : "fl_group_12312313"}
 
         round = Round.from_json(round_json)
 
@@ -54,6 +57,7 @@ class RoundTestCase(unittest.TestCase):
         self.assertEqual(round.get_created_on(), round_json["created_on"])
         self.assertEqual(round.get_start_model().to_json(), round_json["start_model"])
         self.assertEqual(round.get_billable_size(), int(round_json["billable_size"]))
+        self.assertEqual(round.get_parent_group_id(), round_json["parent_group_id"])
 
     def test_add_model_pass(self):
         round = self._build_default_round()
@@ -75,7 +79,8 @@ class RoundTestCase(unittest.TestCase):
             {"config info" : "here"},
             {"123235345" : {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : "2134235"}, "1232353465" : {"name" : "21313124/123123/1232353465", "entity_id" : "1232353465", "size" : "2134235"}},
             "December 19th, 2019",
-            "0")
+            "0",
+            "fl_group_12312313")
 
         models = round.get_models()
 
@@ -312,6 +317,7 @@ class RoundTestCase(unittest.TestCase):
     def test_calculate_billable_size_pass_1(self):
         builder = RoundBuilder()
         builder.set_id("test_id")
+        builder.set_parent_group_id("fl_group_1232234")
         builder.set_devices(["123", "234"])
         configuration = RoundConfiguration("50", "RANDOM")
         builder.set_configuration(configuration.to_json())

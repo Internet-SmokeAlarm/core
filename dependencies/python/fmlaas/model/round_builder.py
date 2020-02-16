@@ -17,6 +17,7 @@ class RoundBuilder(Builder):
         self.models = {}
         self.created_on = get_epoch_time()
         self.billable_size = "0"
+        self.parent_group_id = None
 
     def set_id(self, id):
         """
@@ -67,6 +68,12 @@ class RoundBuilder(Builder):
         """
         self.status = status.value
 
+    def set_parent_group_id(self, parent_group_id):
+        """
+        :param parent_group_id: string
+        """
+        self.parent_group_id = parent_group_id
+
     def build(self):
         self._validate_parameters()
 
@@ -78,7 +85,8 @@ class RoundBuilder(Builder):
             self.configuration,
             self.models,
             self.created_on,
-            self.billable_size)
+            self.billable_size,
+            self.parent_group_id)
 
     def _validate_parameters(self):
         if self.id is None:
@@ -90,3 +98,8 @@ class RoundBuilder(Builder):
             raise ValueError("configuration must not be none")
         elif type(self.configuration) is not type({}):
             raise ValueError("configuration must be type dict")
+
+        if self.parent_group_id is None:
+            raise ValueError("Parent Group ID must not be none")
+        elif type(self.parent_group_id) is not type("str"):
+            raise ValueError("Parent Group ID must be type string")

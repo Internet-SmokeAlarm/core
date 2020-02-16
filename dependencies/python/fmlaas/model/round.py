@@ -15,7 +15,8 @@ class Round(DBObject):
                  configuration,
                  models,
                  created_on,
-                 billable_size):
+                 billable_size,
+                 parent_group_id):
         """
         :param id: string
         :param devices: list(string)
@@ -26,6 +27,7 @@ class Round(DBObject):
         :param models: dict
         :param created_on: string
         :param billable_size: string
+        :param parent_group_id: string
         """
         self.id = id
         self.devices = devices
@@ -36,6 +38,7 @@ class Round(DBObject):
         self.models = models
         self.created_on = created_on
         self.billable_size = billable_size
+        self.parent_group_id = parent_group_id
 
     def get_id(self):
         return self.id
@@ -230,6 +233,9 @@ class Round(DBObject):
     def get_billable_size(self):
         return int(self.billable_size)
 
+    def get_parent_group_id(self):
+        return self.parent_group_id
+
     def to_json(self):
         return {
             "ID" : self.id,
@@ -240,7 +246,8 @@ class Round(DBObject):
             "configuration" : self.configuration,
             "models" : self.models,
             "created_on" : self.created_on,
-            "billable_size" : self.billable_size
+            "billable_size" : self.billable_size,
+            "parent_group_id" : self.parent_group_id
         }
 
     @staticmethod
@@ -253,4 +260,5 @@ class Round(DBObject):
             json_data["configuration"],
             json_data["models"],
             json_data["created_on"],
-            json_data["billable_size"])
+            json_data["billable_size"],
+            json_data["parent_group_id"])
