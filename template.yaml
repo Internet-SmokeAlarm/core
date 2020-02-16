@@ -214,6 +214,30 @@ Resources:
             Path: /v1/device/register
             Method: post
 
+  CancelRoundFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 3
+      MemorySize: 128
+      CodeUri: cancel_round/
+      Handler: app.lambda_handler
+      FunctionName: !Join ["", [!Ref Stage, "-CancelRound"]]
+      Layers:
+        - !Ref FMLaaSCoreDependencyLayer
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref GroupsTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref RoundsTable
+      Events:
+        CancelRoundApiEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FmlaasProdApi
+            Path: /v1/round/cancel
+            Method: post
+
   StartRoundFunction:
     Type: AWS::Serverless::Function
     Properties:
