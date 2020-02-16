@@ -74,7 +74,7 @@ def handle_round_aggregate_model(model, group_db, round_db):
                 group.add_current_round_id(next_round_id)
                 group.save_to_db(group_db)
 
-                next_round.set_start_model(round.get_aggregate_model())
+                next_round.set_start_model(round.get_end_model())
                 next_round.save_to_db(round_db)
 
                 return False
