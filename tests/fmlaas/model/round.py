@@ -199,18 +199,18 @@ class RoundTestCase(unittest.TestCase):
         self.assertFalse(round.is_ready_for_aggregation())
         self.assertEqual(round.get_status(), RoundStatus.INITIALIZED)
 
-    def test_is_initialized_pass_1(self):
+    def test_is_in_initialization_pass_1(self):
         round = self._build_default_round()
 
-        self.assertTrue(round.is_initialized())
+        self.assertTrue(round.is_in_initialization())
         self.assertEqual(round.get_status(), RoundStatus.INITIALIZED)
 
-    def test_is_initialized_pass_2(self):
+    def test_is_in_initialization_pass_2(self):
         round = self._build_default_round()
 
         round.set_start_model(Model("1234", "1234/start_model", "1234345"))
 
-        self.assertFalse(round.is_initialized())
+        self.assertFalse(round.is_in_initialization())
         self.assertEqual(round.get_status(), RoundStatus.IN_PROGRESS)
 
     def test_set_start_model_pass_1(self):

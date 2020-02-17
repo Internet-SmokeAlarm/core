@@ -238,6 +238,30 @@ Resources:
             Path: /v1/round/cancel
             Method: post
 
+  SubmitRoundStartModelFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 3
+      MemorySize: 128
+      CodeUri: cancel_round/
+      Handler: app.lambda_handler
+      FunctionName: !Join ["", [!Ref Stage, "-SubmitRoundStartModel"]]
+      Layers:
+        - !Ref FMLaaSCoreDependencyLayer
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref GroupsTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref RoundsTable
+      Events:
+        SubmitRoundStartModelApiEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FmlaasProdApi
+            Path: /v1/round/submit_start_model
+            Method: post
+
   StartRoundFunction:
     Type: AWS::Serverless::Function
     Properties:

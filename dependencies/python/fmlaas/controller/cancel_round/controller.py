@@ -6,10 +6,10 @@ from ...request_processor import AuthContextProcessor
 from ...exception import raise_default_request_forbidden_error
 from ...model import GroupPrivilegeTypesEnum
 
-def cancel_round_controller(round_db, group_db, round_id, auth_json):
+def cancel_round_controller(group_db, round_db, round_id, auth_json):
     """
-    :param round_db: DB
     :param group_db: DB
+    :param round_db: DB
     :param round_id: string
     :param auth_json: dict
     """

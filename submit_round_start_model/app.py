@@ -1,11 +1,11 @@
 import json
 
-from fmlaas import get_group_table_name_from_env
-from fmlaas import get_round_table_name_from_env
-from fmlaas.database import DynamoDBInterface
 from fmlaas.request_processor import IDProcessor
-from fmlaas.controller.cancel_round import cancel_round_controller
+from fmlaas import get_round_table_name_from_env
+from fmlaas import get_group_table_name_from_env
+from fmlaas.database import DynamoDBInterface
 from fmlaas.exception import RequestForbiddenException
+from fmlaas.controller.submit_round_start_model import submit_round_start_model_controller
 
 def lambda_handler(event, context):
     req_json = json.loads(event.get('body'))
@@ -24,12 +24,18 @@ def lambda_handler(event, context):
     round_db = DynamoDBInterface(get_round_table_name_from_env())
 
     try:
-        cancel_round_controller(group_db, round_db, round_id, auth_json)
+        can_submit_start_model, presigned_url = submit_round_start_model_controller(group_db, round_db, round_id, auth_json)
 
-        return {
-            "statusCode" : 200,
-            "body" : "{}"
-        }
+        if not can_submit_start_model:
+            return {
+                "statusCode" : 400,
+                "body" : "Cannot submit model to this round because it is not in initialization state"
+            }
+        else:
+            return {
+                "statusCode" : 200,
+                "body" : json.dumps({"model_url" : presigned_url})
+            }
     except RequestForbiddenException as error:
         return {
             "statusCode" : 403,

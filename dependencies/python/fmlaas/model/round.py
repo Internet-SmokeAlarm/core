@@ -119,7 +119,7 @@ class Round(DBObject):
         """
         return self.is_in_progress() or self.is_aggregation_in_progress()
 
-    def is_initialized(self):
+    def is_in_initialization(self):
         """
         :return: boolean
         """
@@ -171,13 +171,11 @@ class Round(DBObject):
         """
         :param start_model: Model
         """
-        if not self.is_initialized():
+        if not self.is_in_initialization():
             return
 
         self.start_model = start_model.to_json()
-
-        if self.is_initialized():
-            self.set_status(RoundStatus.IN_PROGRESS)
+        self.set_status(RoundStatus.IN_PROGRESS)
 
     def set_status(self, status):
         """

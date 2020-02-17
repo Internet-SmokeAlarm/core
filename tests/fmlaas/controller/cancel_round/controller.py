@@ -45,7 +45,7 @@ class CancelRoundControllerTestCase(unittest.TestCase):
         group.save_to_db(group_db)
         round.save_to_db(round_db)
 
-        cancel_round_controller(round_db, group_db, round.get_id(), auth_json)
+        cancel_round_controller(group_db, round_db, round.get_id(), auth_json)
 
         db_group = DBObject.load_from_db(FLGroup, group.get_id(), group_db)
         db_round = DBObject.load_from_db(Round, round.get_id(), round_db)
@@ -103,7 +103,7 @@ class CancelRoundControllerTestCase(unittest.TestCase):
         round_2.save_to_db(round_db)
         round_3.save_to_db(round_db)
 
-        cancel_round_controller(round_db, group_db, round.get_id(), auth_json)
+        cancel_round_controller(group_db, round_db, round.get_id(), auth_json)
 
         db_group = DBObject.load_from_db(FLGroup, group.get_id(), group_db)
         db_round = DBObject.load_from_db(Round, round.get_id(), round_db)
@@ -144,7 +144,7 @@ class CancelRoundControllerTestCase(unittest.TestCase):
             "entity_id" : "user_123456"
         }
 
-        self.assertRaises(RequestForbiddenException, cancel_round_controller, round_db, group_db, "round_test_id", auth_json)
+        self.assertRaises(RequestForbiddenException, cancel_round_controller, group_db, round_db, "round_test_id", auth_json)
 
     def test_fail_not_authorized_device(self):
         group_db = InMemoryDBInterface()
@@ -174,7 +174,7 @@ class CancelRoundControllerTestCase(unittest.TestCase):
             "entity_id" : "34553"
         }
 
-        self.assertRaises(RequestForbiddenException, cancel_round_controller, round_db, group_db, "round_test_id", auth_json)
+        self.assertRaises(RequestForbiddenException, cancel_round_controller, group_db, round_db, "round_test_id", auth_json)
 
     def test_fail_not_authorized(self):
         group_db = InMemoryDBInterface()
