@@ -28,7 +28,8 @@ class RoundTestCase(unittest.TestCase):
             {"test1" : {"size" : "123300"}},
             "December 19th, 2019",
             "1234345",
-            "fl_group_12312313")
+            "fl_group_12312313",
+            [])
 
         round_json = round.to_json()
 
@@ -44,7 +45,7 @@ class RoundTestCase(unittest.TestCase):
         self.assertEqual("fl_group_12312313", round_json["parent_group_id"])
 
     def test_from_json_pass(self):
-        round_json = {'ID': 'my_id', 'status': 'COMPLETED', 'devices': ['test1', 'test2'], 'aggregate_model': {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : "2134235"}, 'start_model': {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : "2134235"}, 'configuration': {'num_devices' : "5", "device_selection_strategy" : "RANDOM"}, 'models': {"123235345" : {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : "2134235"}}, 'created_on': 'December 19th, 2019', "billable_size" : "0", "parent_group_id" : "fl_group_12312313"}
+        round_json = {'ID': 'my_id', 'status': 'COMPLETED', 'devices': ['test1', 'test2'], 'aggregate_model': {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : "2134235"}, 'start_model': {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : "2134235"}, 'configuration': {'num_devices' : "5", "device_selection_strategy" : "RANDOM"}, 'models': {"123235345" : {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : "2134235"}}, 'created_on': 'December 19th, 2019', "billable_size" : "0", "parent_group_id" : "fl_group_12312313", "termination_criteria" : []}
 
         round = Round.from_json(round_json)
 
@@ -58,6 +59,7 @@ class RoundTestCase(unittest.TestCase):
         self.assertEqual(round.get_start_model().to_json(), round_json["start_model"])
         self.assertEqual(round.get_billable_size(), int(round_json["billable_size"]))
         self.assertEqual(round.get_parent_group_id(), round_json["parent_group_id"])
+        self.assertEqual(round.get_termination_criteria(), round_json["termination_criteria"])
 
     def test_add_model_pass(self):
         round = self._build_default_round()
@@ -80,7 +82,8 @@ class RoundTestCase(unittest.TestCase):
             {"123235345" : {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : "2134235"}, "1232353465" : {"name" : "21313124/123123/1232353465", "entity_id" : "1232353465", "size" : "2134235"}},
             "December 19th, 2019",
             "0",
-            "fl_group_12312313")
+            "fl_group_12312313",
+            [])
 
         models = round.get_models()
 

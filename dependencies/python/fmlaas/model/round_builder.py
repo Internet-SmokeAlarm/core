@@ -18,6 +18,7 @@ class RoundBuilder(Builder):
         self.created_on = get_epoch_time()
         self.billable_size = "0"
         self.parent_group_id = None
+        self.termination_criteria = []
 
     def set_id(self, id):
         """
@@ -74,6 +75,18 @@ class RoundBuilder(Builder):
         """
         self.parent_group_id = parent_group_id
 
+    def add_termination_criteria(self, termination_criteria):
+        """
+        :param termination_criteria: TerminationCriteria
+        """
+        self.termination_criteria.append(termination_criteria.to_json())
+
+    def set_termination_criteria(self, termination_criteria):
+        """
+        :param termination_criteria: list(dict)
+        """
+        self.termination_criteria = termination_criteria
+
     def build(self):
         self._validate_parameters()
 
@@ -86,7 +99,8 @@ class RoundBuilder(Builder):
             self.models,
             self.created_on,
             self.billable_size,
-            self.parent_group_id)
+            self.parent_group_id,
+            self.termination_criteria)
 
     def _validate_parameters(self):
         if self.id is None:

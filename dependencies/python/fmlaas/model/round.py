@@ -1,6 +1,7 @@
 from .round_status import RoundStatus
 from .round_configuration import RoundConfiguration
 from .model import Model
+from .termination_criteria import get_termination_criteria_from_json
 
 from .db_object import DBObject
 
@@ -16,7 +17,8 @@ class Round(DBObject):
                  models,
                  created_on,
                  billable_size,
-                 parent_group_id):
+                 parent_group_id,
+                 termination_criteria):
         """
         :param id: string
         :param devices: list(string)
@@ -28,6 +30,7 @@ class Round(DBObject):
         :param created_on: string
         :param billable_size: string
         :param parent_group_id: string
+        :param termination_criteria: list(dict)
         """
         self.id = id
         self.devices = devices
@@ -39,6 +42,7 @@ class Round(DBObject):
         self.created_on = created_on
         self.billable_size = billable_size
         self.parent_group_id = parent_group_id
+        self.termination_criteria = termination_criteria
 
     def get_id(self):
         return self.id
@@ -54,6 +58,9 @@ class Round(DBObject):
 
     def get_start_model(self):
         return Model.from_json(self.start_model)
+
+    def get_termination_criteria(self):
+        return [get_termination_criteria_from_json(x) for x in self.termination_criteria]
 
     def get_end_model(self):
         if self.is_aggregate_model_set():
@@ -245,7 +252,8 @@ class Round(DBObject):
             "models" : self.models,
             "created_on" : self.created_on,
             "billable_size" : self.billable_size,
-            "parent_group_id" : self.parent_group_id
+            "parent_group_id" : self.parent_group_id,
+            "termination_criteria" : self.termination_criteria
         }
 
     @staticmethod
@@ -259,4 +267,5 @@ class Round(DBObject):
             json_data["models"],
             json_data["created_on"],
             json_data["billable_size"],
-            json_data["parent_group_id"])
+            json_data["parent_group_id"],
+            json_data["termination_criteria"])
