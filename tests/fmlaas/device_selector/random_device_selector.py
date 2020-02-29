@@ -8,7 +8,7 @@ class RandomDeviceSelectorTestCase(unittest.TestCase):
     def test_select_devices_pass(self):
         selector = RandomDeviceSelector()
 
-        configuration = RoundConfiguration("3", "RANDOM")
+        configuration = RoundConfiguration("3", "RANDOM", [])
 
         devices_to_pick = ["123", "456", "789", "101"]
 
@@ -22,7 +22,7 @@ class RandomDeviceSelectorTestCase(unittest.TestCase):
     def test_select_devices_fail_too_many_devices(self):
         selector = RandomDeviceSelector()
 
-        configuration = RoundConfiguration("10", "RANDOM")
+        configuration = RoundConfiguration("10", "RANDOM", [])
 
         devices_to_pick = ["123", "456", "789", "101"]
 

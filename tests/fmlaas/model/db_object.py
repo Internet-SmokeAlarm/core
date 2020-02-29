@@ -15,7 +15,7 @@ class DBObjectTestCase(unittest.TestCase):
         builder.set_parent_group_id("fl_group_12312313")
         builder.set_start_model(Model("123", "123/123", "34353").to_json())
         builder.set_devices(["123", "234"])
-        configuration = RoundConfiguration("50", "RANDOM")
+        configuration = RoundConfiguration("50", "RANDOM", [])
         builder.set_configuration(configuration.to_json())
 
         return builder.build()

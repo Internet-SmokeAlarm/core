@@ -30,7 +30,7 @@ class IsDeviceActiveControllerTestCase(unittest.TestCase):
         round_builder = RoundBuilder()
         round_builder.set_id("round_test_id")
         round_builder.set_parent_group_id("test_id")
-        round_builder.set_configuration(RoundConfiguration("1", "RANDOM").to_json())
+        round_builder.set_configuration(RoundConfiguration("1", "RANDOM", []).to_json())
         round_builder.set_start_model(Model("12312414", "12312414/start_model", "123211").to_json())
         round_builder.set_aggregate_model(Model("1234", "1234/aggregate_model", "123211").to_json())
         round_builder.set_devices(["12344"])

@@ -33,7 +33,12 @@ def create_round(devices, parent_group_id, round_config):
 
     return builder.build()
 
-def start_round_controller(round_db, group_db, group_id, round_config, previous_round_id, auth_json):
+def start_round_controller(round_db,
+                           group_db,
+                           group_id,
+                           round_config,
+                           previous_round_id,
+                           auth_json):
     """
     :param round_db: DB
     :param group_db: DB

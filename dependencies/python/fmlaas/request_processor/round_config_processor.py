@@ -1,4 +1,5 @@
 from .request_processor import RequestProcessor
+from ..model import RoundConfiguration
 
 class RoundConfigJSONProcessor(RequestProcessor):
 
@@ -19,7 +20,14 @@ class RoundConfigJSONProcessor(RequestProcessor):
     def get_num_devices(self):
         num_devices = self.json.get(RoundConfigJSONProcessor.NUM_DEVICES_KEY, None)
 
-        if not self._is_string_name_valid(num_devices):
+        if not self._is_int_name_valid(num_devices):
             raise ValueError("Num devices invalid.")
 
         return num_devices
+
+    def get_termination_criteria(self):
+        # TODO
+        return []
+
+    def generate_round_config(self):
+        return RoundConfiguration(self.get_num_devices(), self.get_device_selection_strategy(), self.get_termination_criteria())
