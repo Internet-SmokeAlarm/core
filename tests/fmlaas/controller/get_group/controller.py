@@ -8,6 +8,7 @@ from dependencies.python.fmlaas.model import DBObject
 from dependencies.python.fmlaas.model import GroupBuilder
 from dependencies.python.fmlaas.model import Model
 from dependencies.python.fmlaas.model import GroupPrivilegeTypesEnum
+from dependencies.python.fmlaas.request_processor import AuthContextProcessor
 
 class GetGroupControllerTestCase(unittest.TestCase):
 
@@ -28,8 +29,9 @@ class GetGroupControllerTestCase(unittest.TestCase):
             "authentication_type" : "JWT",
             "entity_id" : "user123"
         }
+        auth_context_processor = AuthContextProcessor(auth_json)
 
-        group_json = get_group_controller(db, group.get_id(), auth_json)
+        group_json = get_group_controller(db, group.get_id(), auth_context_processor)
 
         self.assertEqual(group_json, {'name': 'test_name', 'ID': 'test_id', 'devices': {}, 'round_paths': [], 'current_round_ids': [], 'members': {'user123': {'permission_level': 10}}, "round_info" : {}, "billing" : {}})
 
@@ -43,8 +45,9 @@ class GetGroupControllerTestCase(unittest.TestCase):
             "authentication_type" : "DEVICE",
             "entity_id" : "user123"
         }
+        auth_context_processor = AuthContextProcessor(auth_json)
 
-        self.assertRaises(RequestForbiddenException, get_group_controller, db, group.get_id(), auth_json)
+        self.assertRaises(RequestForbiddenException, get_group_controller, db, group.get_id(), auth_context_processor)
 
     def test_not_authorized_2(self):
         db = InMemoryDBInterface()
@@ -56,5 +59,6 @@ class GetGroupControllerTestCase(unittest.TestCase):
             "authentication_type" : "JWT",
             "entity_id" : "user1234"
         }
+        auth_context_processor = AuthContextProcessor(auth_json)
 
-        self.assertRaises(RequestForbiddenException, get_group_controller, db, group.get_id(), auth_json)
+        self.assertRaises(RequestForbiddenException, get_group_controller, db, group.get_id(), auth_context_processor)

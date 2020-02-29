@@ -2,16 +2,14 @@ from ...model import FLGroup
 from ...model import DBObject
 from ...model import GroupPrivilegeTypesEnum
 from ...exception import raise_default_request_forbidden_error
-from ...request_processor import AuthContextProcessor
 
-def delete_group_controller(group_db, round_db, group_id, auth_json):
+def delete_group_controller(group_db, round_db, group_id, auth_context_processor):
     """
     :param group_db: DB
     :param round_db: DB
     :param group_id: string
-    :param auth_json: dict
+    :param auth_context_processor: AuthContextProcessor
     """
-    auth_context_processor = AuthContextProcessor(auth_json)
     if auth_context_processor.is_type_device():
         raise_default_request_forbidden_error()
 

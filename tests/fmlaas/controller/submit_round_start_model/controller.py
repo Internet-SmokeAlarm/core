@@ -12,6 +12,7 @@ from dependencies.python.fmlaas.model import GroupPrivilegeTypesEnum
 from dependencies.python.fmlaas.exception import RequestForbiddenException
 from dependencies.python.fmlaas.database import InMemoryDBInterface
 from dependencies.python.fmlaas.controller.submit_round_start_model import submit_round_start_model_controller
+from dependencies.python.fmlaas.request_processor import AuthContextProcessor
 
 class SubmitRoundStartModelControllerTestCase(unittest.TestCase):
 
@@ -51,8 +52,9 @@ class SubmitRoundStartModelControllerTestCase(unittest.TestCase):
             "authentication_type" : "USER",
             "entity_id" : "user_12345"
         }
+        auth_context_processor = AuthContextProcessor(auth_json)
 
-        can_submit_start_model, presigned_url = submit_round_start_model_controller(group_db, round_db, round.get_id(), auth_json)
+        can_submit_start_model, presigned_url = submit_round_start_model_controller(group_db, round_db, round.get_id(), auth_context_processor)
 
         self.assertTrue(can_submit_start_model)
         self.assertIsNotNone(presigned_url)
@@ -71,8 +73,9 @@ class SubmitRoundStartModelControllerTestCase(unittest.TestCase):
             "authentication_type" : "USER",
             "entity_id" : "user_123456"
         }
+        auth_context_processor = AuthContextProcessor(auth_json)
 
-        self.assertRaises(RequestForbiddenException, submit_round_start_model_controller, group_db, round_db, "round_test_id", auth_json)
+        self.assertRaises(RequestForbiddenException, submit_round_start_model_controller, group_db, round_db, "round_test_id", auth_context_processor)
 
     def test_fail_not_authorized_device(self):
         group_db = InMemoryDBInterface()
@@ -88,8 +91,9 @@ class SubmitRoundStartModelControllerTestCase(unittest.TestCase):
             "authentication_type" : "DEVICE",
             "entity_id" : "34553"
         }
+        auth_context_processor = AuthContextProcessor(auth_json)
 
-        self.assertRaises(RequestForbiddenException, submit_round_start_model_controller, group_db, round_db, "round_test_id", auth_json)
+        self.assertRaises(RequestForbiddenException, submit_round_start_model_controller, group_db, round_db, "round_test_id", auth_context_processor)
 
     def test_fail_not_authorized_round(self):
         group_db = InMemoryDBInterface()
@@ -99,5 +103,6 @@ class SubmitRoundStartModelControllerTestCase(unittest.TestCase):
             "authentication_type" : "USER",
             "entity_id" : "user_123456"
         }
+        auth_context_processor = AuthContextProcessor(auth_json)
 
-        self.assertRaises(RequestForbiddenException, submit_round_start_model_controller, round_db, group_db, "woot", auth_json)
+        self.assertRaises(RequestForbiddenException, submit_round_start_model_controller, round_db, group_db, "woot", auth_context_processor)

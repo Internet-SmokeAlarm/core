@@ -10,6 +10,7 @@ from dependencies.python.fmlaas.model import RoundBuilder
 from dependencies.python.fmlaas.model import RoundConfiguration
 from dependencies.python.fmlaas.model import GroupPrivilegeTypesEnum
 from dependencies.python.fmlaas.controller.get_round_aggregate_model import get_round_aggregate_model_controller
+from dependencies.python.fmlaas.request_processor import AuthContextProcessor
 
 class GetRoundAggregateModelControllerTestCase(unittest.TestCase):
 
@@ -56,11 +57,12 @@ class GetRoundAggregateModelControllerTestCase(unittest.TestCase):
             "authentication_type" : "USER",
             "entity_id" : "user_12345"
         }
+        auth_context_processor = AuthContextProcessor(auth_json)
         is_round_complete, presigned_url = get_round_aggregate_model_controller(group_db_,
                                                                                 round_db_,
                                                                                 group.get_id(),
                                                                                 round.get_id(),
-                                                                                auth_json)
+                                                                                auth_context_processor)
         self.assertTrue(is_round_complete)
         self.assertIsNotNone(presigned_url)
 
@@ -80,11 +82,12 @@ class GetRoundAggregateModelControllerTestCase(unittest.TestCase):
             "authentication_type" : "USER",
             "entity_id" : "user_12345"
         }
+        auth_context_processor = AuthContextProcessor(auth_json)
         is_round_complete, presigned_url = get_round_aggregate_model_controller(group_db_,
                                                                                 round_db_,
                                                                                 group.get_id(),
                                                                                 round.get_id(),
-                                                                                auth_json)
+                                                                                auth_context_processor)
         self.assertFalse(is_round_complete)
         self.assertIsNone(presigned_url)
 
@@ -106,7 +109,8 @@ class GetRoundAggregateModelControllerTestCase(unittest.TestCase):
             "authentication_type" : "DEVICE",
             "entity_id" : "user_12345"
         }
-        self.assertRaises(RequestForbiddenException, get_round_aggregate_model_controller, group_db_, round_db_, group.get_id(), round.get_id(), auth_json)
+        auth_context_processor = AuthContextProcessor(auth_json)
+        self.assertRaises(RequestForbiddenException, get_round_aggregate_model_controller, group_db_, round_db_, group.get_id(), round.get_id(), auth_context_processor)
 
     def test_fail_not_authorized_2(self):
         group_db_ = InMemoryDBInterface()
@@ -124,7 +128,8 @@ class GetRoundAggregateModelControllerTestCase(unittest.TestCase):
             "authentication_type" : "USER",
             "entity_id" : "user_12345"
         }
-        self.assertRaises(RequestForbiddenException, get_round_aggregate_model_controller, group_db_, round_db_, group.get_id(), round.get_id(), auth_json)
+        auth_context_processor = AuthContextProcessor(auth_json)
+        self.assertRaises(RequestForbiddenException, get_round_aggregate_model_controller, group_db_, round_db_, group.get_id(), round.get_id(), auth_context_processor)
 
     def test_fail_not_authorized_3(self):
         group_db_ = InMemoryDBInterface()
@@ -144,4 +149,5 @@ class GetRoundAggregateModelControllerTestCase(unittest.TestCase):
             "authentication_type" : "USER",
             "entity_id" : "user_123456"
         }
-        self.assertRaises(RequestForbiddenException, get_round_aggregate_model_controller, group_db_, round_db_, group.get_id(), round.get_id(), auth_json)
+        auth_context_processor = AuthContextProcessor(auth_json)
+        self.assertRaises(RequestForbiddenException, get_round_aggregate_model_controller, group_db_, round_db_, group.get_id(), round.get_id(), auth_context_processor)

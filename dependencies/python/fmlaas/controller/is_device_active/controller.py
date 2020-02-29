@@ -1,21 +1,18 @@
 from ...model import DBObject
 from ...model import FLGroup
 from ...model import Round
-from ...request_processor import AuthContextProcessor
 from ...model import GroupPrivilegeTypesEnum
 from ...exception import raise_default_request_forbidden_error
 
-def is_device_active_controller(group_db, round_db, group_id, round_id, device_id, auth_json):
+def is_device_active_controller(group_db, round_db, group_id, round_id, device_id, auth_context_processor):
     """
     :param group_db: DB
     :param round_db: DB
     :param group_id: string
     :param round_id: string
     :param device_id: string
-    :param auth_json: dict
+    :param auth_context_processor: AuthContextProcessor
     """
-    auth_context_processor = AuthContextProcessor(auth_json)
-
     group = DBObject.load_from_db(FLGroup, group_id, group_db)
     if not group.contains_round(round_id):
         raise_default_request_forbidden_error()

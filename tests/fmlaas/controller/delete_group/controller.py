@@ -12,6 +12,7 @@ from dependencies.python.fmlaas.model import RoundBuilder
 from dependencies.python.fmlaas.model import Model
 from dependencies.python.fmlaas.model import RoundConfiguration
 from dependencies.python.fmlaas.model import GroupPrivilegeTypesEnum
+from dependencies.python.fmlaas.request_processor import AuthContextProcessor
 
 class DeleteGroupControllerTestCase(unittest.TestCase):
 
@@ -48,8 +49,9 @@ class DeleteGroupControllerTestCase(unittest.TestCase):
             "authentication_type" : "JWT",
             "entity_id" : "user12344"
         }
+        auth_context_processor = AuthContextProcessor(auth_json)
 
-        delete_group_controller(group_db, round_db, group.get_id(), auth_json)
+        delete_group_controller(group_db, round_db, group.get_id(), auth_context_processor)
 
         self.assertRaises(KeyError, DBObject.load_from_db, FLGroup, group.get_id(), group_db)
         self.assertRaises(KeyError, DBObject.load_from_db, Round, round.get_id(), round_db)
@@ -72,8 +74,9 @@ class DeleteGroupControllerTestCase(unittest.TestCase):
             "authentication_type" : "DEVICE",
             "entity_id" : "user12344"
         }
+        auth_context_processor = AuthContextProcessor(auth_json)
 
-        self.assertRaises(RequestForbiddenException, delete_group_controller, group_db, round_db, group.get_id(), auth_json)
+        self.assertRaises(RequestForbiddenException, delete_group_controller, group_db, round_db, group.get_id(), auth_context_processor)
 
     def test_fail_not_authorized_to_access_group(self):
         group_db = InMemoryDBInterface()
@@ -90,5 +93,6 @@ class DeleteGroupControllerTestCase(unittest.TestCase):
             "authentication_type" : "JWT",
             "entity_id" : "user123445"
         }
+        auth_context_processor = AuthContextProcessor(auth_json)
 
-        self.assertRaises(RequestForbiddenException, delete_group_controller, group_db, round_db, group.get_id(), auth_json)
+        self.assertRaises(RequestForbiddenException, delete_group_controller, group_db, round_db, group.get_id(), auth_context_processor)

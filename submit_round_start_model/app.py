@@ -5,6 +5,7 @@ from fmlaas import get_round_table_name_from_env
 from fmlaas import get_group_table_name_from_env
 from fmlaas.database import DynamoDBInterface
 from fmlaas.exception import RequestForbiddenException
+from fmlaas.request_processor import AuthContextProcessor
 from fmlaas.controller.submit_round_start_model import submit_round_start_model_controller
 
 def lambda_handler(event, context):
@@ -14,6 +15,8 @@ def lambda_handler(event, context):
     try:
         id_processor = IDProcessor(req_json)
         round_id = id_processor.get_round_id()
+
+        auth_context_processor = AuthContextProcessor(auth_json)
     except ValueError as error:
         return {
             "statusCode" : 400,
@@ -24,7 +27,10 @@ def lambda_handler(event, context):
     round_db = DynamoDBInterface(get_round_table_name_from_env())
 
     try:
-        can_submit_start_model, presigned_url = submit_round_start_model_controller(group_db, round_db, round_id, auth_json)
+        can_submit_start_model, presigned_url = submit_round_start_model_controller(group_db,
+                                                                                    round_db,
+                                                                                    round_id,
+                                                                                    auth_context_processor)
 
         if not can_submit_start_model:
             return {

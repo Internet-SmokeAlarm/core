@@ -1,15 +1,13 @@
 from ...exception import raise_default_request_forbidden_error
-from ...request_processor import AuthContextProcessor
 from ...model import FLGroup
 from ...model import DBObject
 
-def get_group_controller(db_, group_id, auth_json):
+def get_group_controller(db_, group_id, auth_context_processor):
     """
     :param db: DB
     :param group_id: string
-    :param auth_json: dict
+    :param auth_context_processor: AuthContextProcessor
     """
-    auth_context_processor = AuthContextProcessor(auth_json)
     if auth_context_processor.is_type_device():
         raise_default_request_forbidden_error()
 

@@ -7,7 +7,6 @@ from ...model import GroupPrivilegeTypesEnum
 from ...exception import raise_default_request_forbidden_error
 from ... import generate_unique_id
 from ...device_selection import DeviceSelectorFactory
-from ...request_processor import AuthContextProcessor
 
 def get_device_selector(round_configuration):
     """
@@ -38,16 +37,15 @@ def start_round_controller(round_db,
                            group_id,
                            round_config,
                            previous_round_id,
-                           auth_json):
+                           auth_context_processor):
     """
     :param round_db: DB
     :param group_db: DB
     :param group_id: string
     :param round_config: RoundConfiguration
     :param previous_round_id: string
-    :param auth_json: dict
+    :param auth_context_processor: AuthContextProcessor
     """
-    auth_context_processor = AuthContextProcessor(auth_json)
     if auth_context_processor.is_type_device():
         raise_default_request_forbidden_error()
 

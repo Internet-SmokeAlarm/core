@@ -14,6 +14,7 @@ from dependencies.python.fmlaas.database import InMemoryDBInterface
 from dependencies.python.fmlaas.controller.start_round import get_device_selector
 from dependencies.python.fmlaas.controller.start_round import create_round
 from dependencies.python.fmlaas.controller.start_round import start_round_controller
+from dependencies.python.fmlaas.request_processor import AuthContextProcessor
 
 class StartRoundControllerTestCase(unittest.TestCase):
 
@@ -62,8 +63,9 @@ class StartRoundControllerTestCase(unittest.TestCase):
             "authentication_type" : "USER",
             "entity_id" : "user_12345"
         }
+        auth_context_processor = AuthContextProcessor(auth_json)
 
-        new_round_id = start_round_controller(round_db, group_db, group.get_id(), RoundConfiguration("1", "RANDOM", []), round.get_id(), auth_json)
+        new_round_id = start_round_controller(round_db, group_db, group.get_id(), RoundConfiguration("1", "RANDOM", []), round.get_id(), auth_context_processor)
         new_round = DBObject.load_from_db(Round, new_round_id, round_db)
 
         updated_group = DBObject.load_from_db(FLGroup, group.get_id(), group_db)
@@ -88,8 +90,9 @@ class StartRoundControllerTestCase(unittest.TestCase):
             "authentication_type" : "USER",
             "entity_id" : "user_12345"
         }
+        auth_context_processor = AuthContextProcessor(auth_json)
 
-        new_round_id = start_round_controller(round_db, group_db, group.get_id(), RoundConfiguration("1", "RANDOM", []), None, auth_json)
+        new_round_id = start_round_controller(round_db, group_db, group.get_id(), RoundConfiguration("1", "RANDOM", []), None, auth_context_processor)
         new_round = DBObject.load_from_db(Round, new_round_id, round_db)
         updated_group = DBObject.load_from_db(FLGroup, group.get_id(), group_db)
 
@@ -117,8 +120,9 @@ class StartRoundControllerTestCase(unittest.TestCase):
             "authentication_type" : "USER",
             "entity_id" : "user_123456"
         }
+        auth_context_processor = AuthContextProcessor(auth_json)
 
-        self.assertRaises(RequestForbiddenException, start_round_controller, round_db, group_db, group.get_id(), RoundConfiguration("1", "RANDOM", []), None, auth_json)
+        self.assertRaises(RequestForbiddenException, start_round_controller, round_db, group_db, group.get_id(), RoundConfiguration("1", "RANDOM", []), None, auth_context_processor)
 
     def test_start_round_controller_fail_2(self):
         group_db = InMemoryDBInterface()
@@ -138,8 +142,9 @@ class StartRoundControllerTestCase(unittest.TestCase):
             "authentication_type" : "USER",
             "entity_id" : "user_1234567"
         }
+        auth_context_processor = AuthContextProcessor(auth_json)
 
-        self.assertRaises(RequestForbiddenException, start_round_controller, round_db, group_db, group.get_id(), RoundConfiguration("1", "RANDOM", []), None, auth_json)
+        self.assertRaises(RequestForbiddenException, start_round_controller, round_db, group_db, group.get_id(), RoundConfiguration("1", "RANDOM", []), None, auth_context_processor)
 
     def test_start_round_controller_fail_3(self):
         group_db = InMemoryDBInterface()
@@ -159,5 +164,6 @@ class StartRoundControllerTestCase(unittest.TestCase):
             "authentication_type" : "DEVICE",
             "entity_id" : "34553"
         }
+        auth_context_processor = AuthContextProcessor(auth_json)
 
-        self.assertRaises(RequestForbiddenException, start_round_controller, round_db, group_db, group.get_id(), RoundConfiguration("1", "RANDOM", []), None, auth_json)
+        self.assertRaises(RequestForbiddenException, start_round_controller, round_db, group_db, group.get_id(), RoundConfiguration("1", "RANDOM", []), None, auth_context_processor)

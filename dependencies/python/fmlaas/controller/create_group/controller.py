@@ -1,16 +1,14 @@
 from ... import generate_unique_id
 from ...model import GroupBuilder
-from ...request_processor import AuthContextProcessor
 from ...exception import raise_default_request_forbidden_error
 from ...model import GroupPrivilegeTypesEnum
 
-def create_group_controller(db_, group_name, auth_json):
+def create_group_controller(db_, group_name, auth_context_processor):
     """
     :param db_: DB
     :param group_name: string
-    :param auth_json: dict
+    :param auth_context_processor: AuthContextProcessor
     """
-    auth_context_processor = AuthContextProcessor(auth_json)
     if auth_context_processor.is_type_device():
         raise_default_request_forbidden_error()
 

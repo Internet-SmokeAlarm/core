@@ -10,6 +10,7 @@ from dependencies.python.fmlaas.model import RoundBuilder
 from dependencies.python.fmlaas.model import RoundConfiguration
 from dependencies.python.fmlaas.model import GroupPrivilegeTypesEnum
 from dependencies.python.fmlaas.controller.get_round import get_round_controller
+from dependencies.python.fmlaas.request_processor import AuthContextProcessor
 
 class GetRoundControllerTestCase(unittest.TestCase):
 
@@ -54,7 +55,8 @@ class GetRoundControllerTestCase(unittest.TestCase):
             "authentication_type" : "USER",
             "entity_id" : "user_12345"
         }
-        retrieved_round = get_round_controller(group_db_, round_db_, group.get_id(), round.get_id(), auth_json)
+        auth_context_processor = AuthContextProcessor(auth_json)
+        retrieved_round = get_round_controller(group_db_, round_db_, group.get_id(), round.get_id(), auth_context_processor)
         self.assertEqual(retrieved_round.get_id(), round.get_id())
 
     def test_fail_not_authorized_1(self):
@@ -71,7 +73,8 @@ class GetRoundControllerTestCase(unittest.TestCase):
             "authentication_type" : "USER",
             "entity_id" : "user_12345"
         }
-        self.assertRaises(RequestForbiddenException, get_round_controller, group_db_, round_db_, group.get_id(), round.get_id(), auth_json)
+        auth_context_processor = AuthContextProcessor(auth_json)
+        self.assertRaises(RequestForbiddenException, get_round_controller, group_db_, round_db_, group.get_id(), round.get_id(), auth_context_processor)
 
     def test_fail_not_authorized_2(self):
         group_db_ = InMemoryDBInterface()
@@ -89,7 +92,8 @@ class GetRoundControllerTestCase(unittest.TestCase):
             "authentication_type" : "DEVICE",
             "entity_id" : "12344"
         }
-        self.assertRaises(RequestForbiddenException, get_round_controller, group_db_, round_db_, group.get_id(), round.get_id(), auth_json)
+        auth_context_processor = AuthContextProcessor(auth_json)
+        self.assertRaises(RequestForbiddenException, get_round_controller, group_db_, round_db_, group.get_id(), round.get_id(), auth_context_processor)
 
     def test_fail_not_authorized_3(self):
         group_db_ = InMemoryDBInterface()
@@ -107,4 +111,5 @@ class GetRoundControllerTestCase(unittest.TestCase):
             "authentication_type" : "USER",
             "entity_id" : "user_123456"
         }
-        self.assertRaises(RequestForbiddenException, get_round_controller, group_db_, round_db_, group.get_id(), round.get_id(), auth_json)
+        auth_context_processor = AuthContextProcessor(auth_json)
+        self.assertRaises(RequestForbiddenException, get_round_controller, group_db_, round_db_, group.get_id(), round.get_id(), auth_context_processor)

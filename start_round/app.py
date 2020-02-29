@@ -5,6 +5,7 @@ from fmlaas import get_group_table_name_from_env
 from fmlaas.database import DynamoDBInterface
 from fmlaas.controller.start_round import start_round_controller
 from fmlaas.request_processor import IDProcessor
+from fmlaas.request_processor import AuthContextProcessor
 from fmlaas.request_processor import RoundConfigJSONProcessor
 from fmlaas.exception import RequestForbiddenException
 
@@ -31,6 +32,8 @@ def lambda_handler(event, context):
 
         round_config_processor = RoundConfigJSONProcessor(req_json)
         round_config = round_config_processor.generate_round_config()
+
+        auth_context_processor = AuthContextProcessor(auth_json)
     except ValueError as error:
         return {
             "statusCode" : 400,
@@ -45,7 +48,7 @@ def lambda_handler(event, context):
                                           group_db,
                                           group_id,
                                           round_config,
-                                          auth_json)
+                                          auth_context_processor)
 
         return {
             "statusCode" : 200,

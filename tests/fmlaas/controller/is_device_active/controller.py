@@ -10,6 +10,7 @@ from dependencies.python.fmlaas.model import RoundBuilder
 from dependencies.python.fmlaas.model import RoundConfiguration
 from dependencies.python.fmlaas.model import GroupPrivilegeTypesEnum
 from dependencies.python.fmlaas.controller.is_device_active import is_device_active_controller
+from dependencies.python.fmlaas.request_processor import AuthContextProcessor
 
 class IsDeviceActiveControllerTestCase(unittest.TestCase):
 
@@ -54,12 +55,13 @@ class IsDeviceActiveControllerTestCase(unittest.TestCase):
             "authentication_type" : "DEVICE",
             "entity_id" : "12344"
         }
+        auth_context_processor = AuthContextProcessor(auth_json)
         is_device_active = is_device_active_controller(group_db_,
                                                     round_db_,
                                                     group.get_id(),
                                                     round.get_id(),
                                                     "12344",
-                                                    auth_json)
+                                                    auth_context_processor)
         self.assertTrue(is_device_active)
 
     def test_pass_user(self):
@@ -78,12 +80,13 @@ class IsDeviceActiveControllerTestCase(unittest.TestCase):
             "authentication_type" : "USER",
             "entity_id" : "user_12345"
         }
+        auth_context_processor = AuthContextProcessor(auth_json)
         is_device_active = is_device_active_controller(group_db_,
                                                     round_db_,
                                                     group.get_id(),
                                                     round.get_id(),
                                                     "12344",
-                                                    auth_json)
+                                                    auth_context_processor)
         self.assertTrue(is_device_active)
 
         is_device_active = is_device_active_controller(group_db_,
@@ -91,7 +94,7 @@ class IsDeviceActiveControllerTestCase(unittest.TestCase):
                                                     group.get_id(),
                                                     round.get_id(),
                                                     "123445",
-                                                    auth_json)
+                                                    auth_context_processor)
         self.assertFalse(is_device_active)
 
     def test_fail_not_authorized_device(self):
@@ -110,7 +113,8 @@ class IsDeviceActiveControllerTestCase(unittest.TestCase):
             "authentication_type" : "DEVICE",
             "entity_id" : "123445"
         }
-        self.assertRaises(RequestForbiddenException, is_device_active_controller, group_db_, round_db_, group.get_id(), round.get_id(), "12344", auth_json)
+        auth_context_processor = AuthContextProcessor(auth_json)
+        self.assertRaises(RequestForbiddenException, is_device_active_controller, group_db_, round_db_, group.get_id(), round.get_id(), "12344", auth_context_processor)
 
     def test_fail_not_authorized_user(self):
         group_db_ = InMemoryDBInterface()
@@ -128,7 +132,8 @@ class IsDeviceActiveControllerTestCase(unittest.TestCase):
             "authentication_type" : "USER",
             "entity_id" : "user_123456"
         }
-        self.assertRaises(RequestForbiddenException, is_device_active_controller, group_db_, round_db_, group.get_id(), round.get_id(), "12344", auth_json)
+        auth_context_processor = AuthContextProcessor(auth_json)
+        self.assertRaises(RequestForbiddenException, is_device_active_controller, group_db_, round_db_, group.get_id(), round.get_id(), "12344", auth_context_processor)
 
     def test_fail_not_authorized_round(self):
         group_db_ = InMemoryDBInterface()
@@ -144,7 +149,8 @@ class IsDeviceActiveControllerTestCase(unittest.TestCase):
             "authentication_type" : "USER",
             "entity_id" : "user_12345"
         }
-        self.assertRaises(RequestForbiddenException, is_device_active_controller, group_db_, round_db_, group.get_id(), round.get_id(), "12344", auth_json)
+        auth_context_processor = AuthContextProcessor(auth_json)
+        self.assertRaises(RequestForbiddenException, is_device_active_controller, group_db_, round_db_, group.get_id(), round.get_id(), "12344", auth_context_processor)
 
     def test_fail_not_authorized_device_2(self):
         group_db_ = InMemoryDBInterface()
@@ -162,4 +168,5 @@ class IsDeviceActiveControllerTestCase(unittest.TestCase):
             "authentication_type" : "DEVICE",
             "entity_id" : "12344"
         }
-        self.assertRaises(RequestForbiddenException, is_device_active_controller, group_db_, round_db_, group.get_id(), round.get_id(), "123445", auth_json)
+        auth_context_processor = AuthContextProcessor(auth_json)
+        self.assertRaises(RequestForbiddenException, is_device_active_controller, group_db_, round_db_, group.get_id(), round.get_id(), "123445", auth_context_processor)
