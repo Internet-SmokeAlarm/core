@@ -73,3 +73,27 @@ class IDProcessorTestCase(unittest.TestCase):
         id_processor = IDProcessor(json_data)
 
         self.assertEqual("None", id_processor.get_group_name())
+
+    def test_get_previous_round_id_pass(self):
+        json_data = {"previous_round_id" : "None"}
+        id_processor = IDProcessor(json_data)
+
+        self.assertEqual("None", id_processor.get_previous_round_id())
+
+    def test_get_previous_round_id_fail_1(self):
+        json_data = {"previous_round_id" : None}
+        id_processor = IDProcessor(json_data)
+
+        self.assertRaises(ValueError, id_processor.get_previous_round_id)
+
+    def test_get_previous_round_id_fail_2(self):
+        json_data = {"previous_round_id" : 10}
+        id_processor = IDProcessor(json_data)
+
+        self.assertRaises(ValueError, id_processor.get_previous_round_id)
+
+    def test_get_previous_round_id_fail_3(self):
+        json_data = {"previous_round_id" : None}
+        id_processor = IDProcessor(json_data)
+
+        self.assertIsNone(id_processor.get_previous_round_id(throw_exception=False))

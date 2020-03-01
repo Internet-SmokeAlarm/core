@@ -15,6 +15,7 @@ def lambda_handler(event, context):
         "group_id" : "group id",
         "device_selection_strategy" : "device selection strategy",
         "num_devices" : int_number_of_devices,
+        "previous_round_id" : "previous round id",
         "termination_criteria" : [
             {
                 "type" : "Duration",
@@ -29,6 +30,7 @@ def lambda_handler(event, context):
     try:
         id_processor = IDProcessor(req_json)
         group_id = id_processor.get_group_id()
+        previous_round_id = id_processor.get_previous_round_id()
 
         round_config_processor = RoundConfigJSONProcessor(req_json)
         round_config = round_config_processor.generate_round_config()
@@ -48,6 +50,7 @@ def lambda_handler(event, context):
                                           group_db,
                                           group_id,
                                           round_config,
+                                          previous_round_id,
                                           auth_context_processor)
 
         return {

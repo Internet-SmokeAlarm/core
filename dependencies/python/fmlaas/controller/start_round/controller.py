@@ -62,6 +62,12 @@ def start_round_controller(round_db,
         group.create_round_path(new_round.get_id())
         group.add_current_round_id(new_round.get_id())
     else:
+        if not previous_round_id in group.get_current_round_ids():
+            previous_round = DBObject.load_from_db(Round, previous_round_id, round_db)
+            new_round.set_start_model(previous_round.get_end_model())
+
+            group.add_current_round_id(new_round.get_id())
+
         group.add_round_to_path_prev_id(previous_round_id, new_round.get_id())
 
     new_round.save_to_db(round_db)

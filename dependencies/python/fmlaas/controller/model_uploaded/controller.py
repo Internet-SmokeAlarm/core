@@ -4,7 +4,7 @@ from ...model import Round
 from ...model import RoundStatus
 from ...aws import trigger_lambda_function
 from ...utils import get_aggregation_lambda_func_name
-
+from ..utils import update_round_path
 from .lambda_trigger_helper import generate_aggregation_func_payload
 
 def models_uploaded_controller(group_db, round_db, models_uploaded):
@@ -62,23 +62,4 @@ def handle_round_aggregate_model(model, group_db, round_db):
     round.complete()
     round.save_to_db(round_db)
 
-    group = DBObject.load_from_db(FLGroup, round.get_parent_group_id(), group_db)
-    group.remove_current_round_id(round.get_id())
-
-    current_round_id = round.get_id()
-    while True:
-        next_round_id = group.get_next_round_in_sequence(current_round_id)
-        if next_round_id is not None:
-            next_round = DBObject.load_from_db(Round, next_round_id, round_db)
-            if not next_round.is_cancelled():
-                group.add_current_round_id(next_round_id)
-                group.save_to_db(group_db)
-
-                next_round.set_start_model(round.get_end_model())
-                next_round.save_to_db(round_db)
-
-                return False
-            else:
-                current_round_id = next_round_id
-        else:
-            return False
+    update_round_path(round, round_db, group_db)
