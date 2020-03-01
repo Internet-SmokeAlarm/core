@@ -5,6 +5,8 @@ from dependencies.python.fmlaas.model import RoundBuilder
 from dependencies.python.fmlaas.model import RoundConfiguration
 from dependencies.python.fmlaas.model import RoundStatus
 from dependencies.python.fmlaas.model import Model
+from dependencies.python.fmlaas.model.termination_criteria import DurationTerminationCriteria
+from dependencies.python.fmlaas.utils import get_epoch_time
 
 class RoundTestCase(unittest.TestCase):
 
@@ -334,3 +336,29 @@ class RoundTestCase(unittest.TestCase):
         round.set_aggregate_model(Model("sefsljkdf", "123123", "12324"))
 
         self.assertEqual(round.calculate_billable_size(), "67867")
+
+    def test_should_terminate_pass(self):
+        builder = RoundBuilder()
+        builder.set_id("test_id")
+        builder.set_parent_group_id("fl_group_1232234")
+        builder.set_devices(["123", "234"])
+        configuration = RoundConfiguration("50", "RANDOM", [
+            DurationTerminationCriteria(0, 2313123.1231).to_json()
+        ])
+        builder.set_configuration(configuration.to_json())
+        round = builder.build()
+
+        self.assertTrue(round.should_terminate())
+
+    def test_should_terminate_pass_2(self):
+        builder = RoundBuilder()
+        builder.set_id("test_id")
+        builder.set_parent_group_id("fl_group_1232234")
+        builder.set_devices(["123", "234"])
+        configuration = RoundConfiguration("50", "RANDOM", [
+            DurationTerminationCriteria(10, get_epoch_time()).to_json()
+        ])
+        builder.set_configuration(configuration.to_json())
+        round = builder.build()
+
+        self.assertFalse(round.should_terminate())

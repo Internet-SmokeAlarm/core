@@ -233,6 +233,21 @@ class Round(DBObject):
     def get_parent_group_id(self):
         return self.parent_group_id
 
+    def should_terminate(self):
+        """
+        Returns True if the round should be terminated, false if not. "should be" is determined
+        by termination criteria in round configuration.
+
+        :return: boolean
+        """
+        config = self.get_configuration()
+        termination_criteria = config.get_termination_criteria()
+        for criteria in termination_criteria:
+            if criteria.is_criteria_satisfied(self):
+                return True
+
+        return False
+
     def to_json(self):
         return {
             "ID" : self.id,
