@@ -1,10 +1,13 @@
 from .request_processor import RequestProcessor
 from ..model import RoundConfiguration
+from ..model.termination_criteria import DurationTerminationCriteria
+from ..utils import get_epoch_time
 
 class RoundConfigJSONProcessor(RequestProcessor):
 
     DEVICE_SELECTION_STRATEGY_KEY = "device_selection_strategy"
     NUM_DEVICES_KEY = "num_devices"
+    TERMINATION_CRITERIA_KEY = "termination_criteria"
 
     def __init__(self, json):
         self.json = json
@@ -26,8 +29,29 @@ class RoundConfigJSONProcessor(RequestProcessor):
         return num_devices
 
     def get_termination_criteria(self):
-        # TODO
-        return []
+        termination_criteria = self.json.get(RoundConfigJSONProcessor.TERMINATION_CRITERIA_KEY, None)
+
+        if termination_criteria is None:
+            raise ValueError("Termination criteria invalid.")
+
+        converted_termination_criteria = []
+        for criteria in termination_criteria:
+            converted_termination_criteria.append(self._load_termination_criteria(criteria["type"], criteria))
+
+        return converted_termination_criteria
+
+    def _load_termination_criteria(self, criteria_type, criteria):
+        """
+        :param criteria_type: string
+        :param criteria: dict
+        """
+        if criteria_type == "duration":
+            return DurationTerminationCriteria(criteria["max_duration_sec"],
+                                               get_epoch_time())
+
+        raise ValueError("Unknown termination criteria type")
 
     def generate_round_config(self):
-        return RoundConfiguration(self.get_num_devices(), self.get_device_selection_strategy(), self.get_termination_criteria())
+        return RoundConfiguration(self.get_num_devices(),
+                                  self.get_device_selection_strategy(),
+                                  [x.to_json() for x in self.get_termination_criteria()])
