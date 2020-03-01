@@ -5,6 +5,7 @@ from ...model import GroupPrivilegeTypesEnum
 from ...aws import create_presigned_url
 from ...aws import get_models_bucket_name
 from ...exception import raise_default_request_forbidden_error
+from ..utils import termination_check
 
 def get_round_start_model_controller(group_db, round_db, group_id, round_id, auth_context_processor):
     """
@@ -32,5 +33,10 @@ def get_round_start_model_controller(group_db, round_db, group_id, round_id, aut
         get_models_bucket_name(),
         round.get_start_model().get_name().get_name(),
         expiration=EXPIRATION_SEC)
+
+    try:
+        termination_check(round, round_db, group_db)
+    except:
+        pass
 
     return presigned_url

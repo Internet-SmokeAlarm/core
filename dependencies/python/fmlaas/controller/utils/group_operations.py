@@ -19,7 +19,6 @@ def update_round_path(current_round, round_db, group_db):
         round = DBObject.load_from_db(Round, round_id, round_db)
         if not round.is_cancelled():
             group.add_current_round_id(round_id)
-            group.save_to_db(group_db)
 
             round.set_start_model(current_round.get_end_model())
             round.save_to_db(round_db)
@@ -28,4 +27,22 @@ def update_round_path(current_round, round_db, group_db):
 
         round_id = group.get_next_round_in_sequence(round_id)
 
+    group.save_to_db(group_db)
+
     return
+
+def termination_check(current_round, round_db, group_db):
+    """
+    Checks to see whether or not the current round should be terminated. If so,
+    handle termination, and update.
+
+    :param current_round: Round
+    :param round_db: DB
+    :param group_db: DB
+    """
+    if current_round.should_terminate():
+        current_round.cancel()
+
+        update_round_path(current_round, round_db, group_db)
+
+        current_round.save_to_db(round_db)

@@ -3,6 +3,7 @@ from ...model import FLGroup
 from ...model import Round
 from ...model import GroupPrivilegeTypesEnum
 from ...exception import raise_default_request_forbidden_error
+from ..utils import termination_check
 
 def is_device_active_controller(group_db, round_db, group_id, round_id, device_id, auth_context_processor):
     """
@@ -27,5 +28,10 @@ def is_device_active_controller(group_db, round_db, group_id, round_id, device_i
         device_to_check = auth_context_processor.get_entity_id()
     elif not group.does_member_have_auth(auth_context_processor.get_entity_id(), GroupPrivilegeTypesEnum.READ_ONLY):
         raise_default_request_forbidden_error()
+
+    try:
+        termination_check(round, round_db, group_db)
+    except:
+        pass
 
     return round.is_device_active(device_to_check)

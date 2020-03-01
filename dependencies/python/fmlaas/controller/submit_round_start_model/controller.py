@@ -7,6 +7,7 @@ from ...model import FLGroup
 from ...model import DBObject
 from ...model import GroupPrivilegeTypesEnum
 from ...exception import raise_default_request_forbidden_error
+from ..utils import termination_check
 
 def submit_round_start_model_controller(group_db, round_db, round_id, auth_context_processor):
     """
@@ -44,5 +45,10 @@ def submit_round_start_model_controller(group_db, round_db, round_id, auth_conte
             expiration=EXPIRATION_SEC)
     else:
         presigned_url = None
+
+    try:
+        termination_check(round, round_db, group_db)
+    except:
+        can_submit_model_to_round = False
 
     return can_submit_model_to_round, presigned_url

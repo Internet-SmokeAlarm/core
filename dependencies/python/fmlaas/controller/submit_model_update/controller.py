@@ -6,6 +6,7 @@ from ...model import Round
 from ...model import FLGroup
 from ...model import DBObject
 from ...exception import raise_default_request_forbidden_error
+from ..utils import termination_check
 
 def submit_model_update_controller(group_db, round_db, group_id, round_id, auth_context_processor):
     """
@@ -41,5 +42,10 @@ def submit_model_update_controller(group_db, round_db, group_id, round_id, auth_
             expiration=EXPIRATION_SEC)
     else:
         presigned_url = None
+
+    try:
+        termination_check(round, round_db, group_db)
+    except:
+        can_submit_model_to_round = False
 
     return can_submit_model_to_round, presigned_url
