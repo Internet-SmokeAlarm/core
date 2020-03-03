@@ -5,159 +5,132 @@ from dependencies.python.fmlaas import ModelNameType
 
 class HierarchicalModelNameStructureTestCase(unittest.TestCase):
 
-    def test_generate_name(self):
-        group_id = "1234"
+    def test_generate_name_pass(self):
         round_id = "44563"
         device_id = "6665"
 
         name = HierarchicalModelNameStructure()
-        name.generate_name(group_id=group_id, round_id=round_id, device_id=device_id)
+        name.generate_name(is_start_model=False, round_id=round_id, device_id=device_id)
 
-        self.assertEqual("1234/44563/6665", name.get_name())
+        self.assertEqual("44563/device_models/6665", name.get_name())
 
-    def test_generate_name_2(self):
-        group_id = "1234"
-
+    def test_generate_name_2_pass(self):
         name = HierarchicalModelNameStructure()
-        name.generate_name(group_id=group_id)
+        name.generate_name(is_start_model=True, round_id="1234")
 
-        self.assertEqual("1234/1234", name.get_name())
+        self.assertEqual("1234/start_model", name.get_name())
 
-    def test_generate_name_3(self):
-        group_id = "1234"
-        round_id = "4456"
-
+    def test_generate_name_3_pass(self):
         name = HierarchicalModelNameStructure()
-        name.generate_name(group_id=group_id, round_id=round_id)
+        name.generate_name(is_start_model=False, round_id="12353")
 
-        self.assertEqual("1234/4456/4456", name.get_name())
+        self.assertEqual("12353/aggregate_model", name.get_name())
 
-    def test_generate_device_model_update_name(self):
-        group_id = "1234"
+    def test_generate_device_model_update_name_pass(self):
         round_id = "445634"
         device_id = "6665"
 
         name = HierarchicalModelNameStructure()
-        generated_name = name._generate_device_model_update_name(group_id, round_id, device_id)
+        generated_name = name._generate_device_model_update_name(round_id, device_id)
 
-        self.assertEqual("1234/445634/6665", generated_name)
+        self.assertEqual("445634/device_models/6665", generated_name)
 
-    def test_generate_initial_group_model_name(self):
-        group_id = "1234"
-
+    def test_generate_round_start_model_name_pass(self):
         name = HierarchicalModelNameStructure()
-        generated_name = name._generate_initial_group_model_name(group_id=group_id)
+        generated_name = name._generate_round_start_model_name(round_id="1234554")
 
-        self.assertEqual("1234/1234", generated_name)
+        self.assertEqual("1234554/start_model", generated_name)
 
-    def test_generate_aggregate_round_model_name(self):
-        group_id = "1234"
-        round_id = "44563"
-
+    def test_generate_round_aggregate_model_name_pass(self):
         name = HierarchicalModelNameStructure()
-        generated_name = name._generate_aggregate_round_model_name(group_id=group_id, round_id=round_id)
+        generated_name = name._generate_round_aggregate_model_name(round_id="44563")
 
-        self.assertEqual("1234/44563/44563", generated_name)
+        self.assertEqual("44563/aggregate_model", generated_name)
 
-    def test_get_group_id(self):
-        name_txt = "1234/5678/9999"
+    def test_get_round_id_pass(self):
+        name_txt = "44563/aggregate_model"
 
         name = HierarchicalModelNameStructure()
         name.load_name(name_txt)
 
-        self.assertEqual(name.get_group_id(), "1234")
+        self.assertEqual(name.get_round_id(), "44563")
 
-    def test_get_round_id(self):
-        name_txt = "1234/5678/9999"
-
-        name = HierarchicalModelNameStructure()
-        name.load_name(name_txt)
-
-        self.assertEqual(name.get_round_id(), "5678")
-
-    def test_get_device_id(self):
-        name_txt = "1234/5678/9999"
+    def test_get_device_id_pass(self):
+        name_txt = "445634/device_models/6665"
 
         name = HierarchicalModelNameStructure()
         name.load_name(name_txt)
 
-        self.assertEqual(name.get_device_id(), "9999")
+        self.assertEqual(name.get_device_id(), "6665")
 
-    def test_identify_name_type_1(self):
-        name_txt = "1234/5678/5678"
-
-        name = HierarchicalModelNameStructure()
-        name.load_name(name_txt)
-
-        self.assertTrue(name._identify_name_type(), ModelNameType.ROUND_AGGREGATE_MODEL)
-
-    def test_identify_name_type_2(self):
-        name_txt = "1234/1234"
-
-        name = HierarchicalModelNameStructure()
-        name.load_name(name_txt)
-
-        self.assertTrue(name._identify_name_type(), ModelNameType.INITIAL_GROUP_MODEL)
-
-    def test_identify_name_type_2_fail(self):
-        name_txt = "1234/5678"
-
-        name = HierarchicalModelNameStructure()
-
-        self.assertRaises(ValueError, name.load_name, name_txt)
-
-    def test_identify_name_type_3(self):
-        name_txt = "1234/5678/9999"
+    def test_identify_name_type_1_pass(self):
+        name_txt = "445634/device_models/6665"
 
         name = HierarchicalModelNameStructure()
         name.load_name(name_txt)
 
         self.assertTrue(name._identify_name_type(), ModelNameType.DEVICE_MODEL_UPDATE)
 
-    def test_is_round_aggregate_model_1(self):
-        name_txt = "1234/5678/9999"
+    def test_identify_name_type_2_pass(self):
+        name_txt = "445634/aggregate_model"
 
         name = HierarchicalModelNameStructure()
         name.load_name(name_txt)
 
-        self.assertFalse(name.is_round_aggregate_model())
+        self.assertTrue(name._identify_name_type(), ModelNameType.ROUND_AGGREGATE_MODEL)
 
-    def test_is_round_aggregate_model_2(self):
-        name_txt = "1234/5678/5678"
+    def test_identify_name_type_3_pass(self):
+        name_txt = "445634/start_model"
+
+        name = HierarchicalModelNameStructure()
+        name.load_name(name_txt)
+
+        self.assertTrue(name._identify_name_type(), ModelNameType.ROUND_START_MODEL)
+
+    def test_is_round_aggregate_model_1_pass(self):
+        name_txt = "445634/aggregate_model"
 
         name = HierarchicalModelNameStructure()
         name.load_name(name_txt)
 
         self.assertTrue(name.is_round_aggregate_model())
 
-    def test_is_initial_group_model_1(self):
-        name_txt = "1234/5678/9999"
+    def test_is_round_aggregate_model_2_pass(self):
+        name_txt = "445634/start_model"
 
         name = HierarchicalModelNameStructure()
         name.load_name(name_txt)
 
-        self.assertFalse(name.is_initial_group_model())
+        self.assertFalse(name.is_round_aggregate_model())
 
-    def test_is_initial_group_model_2(self):
-        name_txt = "1234/1234"
-
-        name = HierarchicalModelNameStructure()
-        name.load_name(name_txt)
-
-        self.assertTrue(name.is_initial_group_model())
-
-    def test_is_device_model_update_1(self):
-        name_txt = "1234/5678/9999"
+    def test_is_device_model_update_1_pass(self):
+        name_txt = "445634/device_models/1235234"
 
         name = HierarchicalModelNameStructure()
         name.load_name(name_txt)
 
         self.assertTrue(name.is_device_model_update())
 
-    def test_is_device_model_update_2(self):
-        name_txt = "1234/5678/5678"
+    def test_is_device_model_update_2_pass(self):
+        name_txt = "445634/aggregate_model"
 
         name = HierarchicalModelNameStructure()
         name.load_name(name_txt)
 
         self.assertFalse(name.is_device_model_update())
+
+    def test_is_round_start_model_1_pass(self):
+        name_txt = "445634/aggregate_model"
+
+        name = HierarchicalModelNameStructure()
+        name.load_name(name_txt)
+
+        self.assertFalse(name.is_round_start_model())
+
+    def test_is_round_start_model_2_pass(self):
+        name_txt = "445634/start_model"
+
+        name = HierarchicalModelNameStructure()
+        name.load_name(name_txt)
+
+        self.assertTrue(name.is_round_start_model())

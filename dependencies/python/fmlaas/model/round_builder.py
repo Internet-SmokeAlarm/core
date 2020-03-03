@@ -10,15 +10,14 @@ class RoundBuilder(Builder):
     def __init__(self):
         self.id = None
         self.devices = []
-        self.status = RoundStatus.IN_PROGRESS.value
-        self.previous_round_id = "N/A"
+        self.status = RoundStatus.INITIALIZED.value
         self.aggregate_model = {}
-        self.start_model = None
-        self.end_model = None
+        self.start_model = {}
         self.configuration = None
         self.models = {}
         self.created_on = get_epoch_time()
         self.billable_size = "0"
+        self.parent_group_id = None
 
     def set_id(self, id):
         """
@@ -32,23 +31,11 @@ class RoundBuilder(Builder):
         """
         self.devices = devices
 
-    def set_previous_round_id(self, previous_round_id):
-        """
-        :param previous_round_id: string
-        """
-        self.previous_round_id = previous_round_id
-
     def set_aggregate_model(self, aggregate_model):
         """
         :param aggregate_model: dict
         """
         self.aggregate_model = aggregate_model
-
-    def set_end_model(self, end_model):
-        """
-        :param end_model: dict
-        """
-        self.end_model = end_model
 
     def set_configuration(self, configuration):
         """
@@ -67,6 +54,7 @@ class RoundBuilder(Builder):
         :param start_model: dict
         """
         self.start_model = start_model
+        self.set_status(RoundStatus.IN_PROGRESS)
 
     def set_billable_size(self, billable_size):
         """
@@ -74,27 +62,33 @@ class RoundBuilder(Builder):
         """
         self.billable_size = billable_size
 
+    def set_status(self, status):
+        """
+        :param status: RoundStatus
+        """
+        self.status = status.value
+
+    def set_parent_group_id(self, parent_group_id):
+        """
+        :param parent_group_id: string
+        """
+        self.parent_group_id = parent_group_id
+
     def build(self):
         self._validate_parameters()
 
         return Round(self.id,
             self.devices,
             self.status,
-            self.previous_round_id,
             self.aggregate_model,
             self.start_model,
-            self.end_model,
             self.configuration,
             self.models,
             self.created_on,
-            self.billable_size)
+            self.billable_size,
+            self.parent_group_id)
 
     def _validate_parameters(self):
-        if self.start_model is None:
-            raise ValueError("Start model must not be none")
-        elif type(self.start_model) is not type({}):
-            raise ValueError("Start model must be type dict")
-
         if self.id is None:
             raise ValueError("ID must not be none")
         elif type(self.id) is not type("str"):
@@ -104,3 +98,8 @@ class RoundBuilder(Builder):
             raise ValueError("configuration must not be none")
         elif type(self.configuration) is not type({}):
             raise ValueError("configuration must be type dict")
+
+        if self.parent_group_id is None:
+            raise ValueError("Parent Group ID must not be none")
+        elif type(self.parent_group_id) is not type("str"):
+            raise ValueError("Parent Group ID must be type string")

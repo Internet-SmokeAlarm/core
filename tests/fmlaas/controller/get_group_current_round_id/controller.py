@@ -8,6 +8,7 @@ from dependencies.python.fmlaas.model import DBObject
 from dependencies.python.fmlaas.model import GroupBuilder
 from dependencies.python.fmlaas.model import Model
 from dependencies.python.fmlaas.model import GroupPrivilegeTypesEnum
+from dependencies.python.fmlaas.request_processor import AuthContextProcessor
 
 class GetGroupCurrentRoundIdControllerTestCase(unittest.TestCase):
 
@@ -18,8 +19,8 @@ class GetGroupCurrentRoundIdControllerTestCase(unittest.TestCase):
 
         group = group_builder.build()
         group.add_device("12344")
-        group.add_round("1234432414")
-        group.set_current_round_id("1234432414")
+        group.create_round_path("1234432414")
+        group.add_current_round_id("1234432414")
         group.add_or_update_member("user_12345", GroupPrivilegeTypesEnum.OWNER)
 
         return group
@@ -33,15 +34,17 @@ class GetGroupCurrentRoundIdControllerTestCase(unittest.TestCase):
             "authentication_type" : "DEVICE",
             "entity_id" : "12344"
         }
-        current_round_id = get_group_current_round_id_controller(db_, group.get_id(), auth_json)
-        self.assertEqual("1234432414", current_round_id)
+        auth_context_processor = AuthContextProcessor(auth_json)
+        current_round_id = get_group_current_round_id_controller(db_, group.get_id(), auth_context_processor)
+        self.assertEqual("1234432414", current_round_id[0])
 
         auth_json = {
             "authentication_type" : "USER",
             "entity_id" : "user_12345"
         }
-        current_round_id_2 = get_group_current_round_id_controller(db_, group.get_id(), auth_json)
-        self.assertEqual("1234432414", current_round_id_2)
+        auth_context_processor = AuthContextProcessor(auth_json)
+        current_round_id_2 = get_group_current_round_id_controller(db_, group.get_id(), auth_context_processor)
+        self.assertEqual("1234432414", current_round_id_2[0])
 
     def test_not_authorized_1(self):
         db_ = InMemoryDBInterface()
@@ -52,7 +55,8 @@ class GetGroupCurrentRoundIdControllerTestCase(unittest.TestCase):
             "authentication_type" : "DEVICE",
             "entity_id" : "34"
         }
-        self.assertRaises(RequestForbiddenException, get_group_current_round_id_controller, db_, group.get_id(), auth_json)
+        auth_context_processor = AuthContextProcessor(auth_json)
+        self.assertRaises(RequestForbiddenException, get_group_current_round_id_controller, db_, group.get_id(), auth_context_processor)
 
     def test_not_authorized_2(self):
         db_ = InMemoryDBInterface()
@@ -63,4 +67,5 @@ class GetGroupCurrentRoundIdControllerTestCase(unittest.TestCase):
             "authentication_type" : "USER",
             "entity_id" : "user_1234"
         }
-        self.assertRaises(RequestForbiddenException, get_group_current_round_id_controller, db_, group.get_id(), auth_json)
+        auth_context_processor = AuthContextProcessor(auth_json)
+        self.assertRaises(RequestForbiddenException, get_group_current_round_id_controller, db_, group.get_id(), auth_context_processor)

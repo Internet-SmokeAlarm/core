@@ -3,56 +3,48 @@ from .model_name_type import ModelNameType
 
 class HierarchicalModelNameStructure(ModelNameStructure):
 
-    def _generate_model_object_name(self, group_id=None, round_id=None, device_id=None):
+    def _generate_name(self, is_start_model=False, round_id=None, device_id=None):
         """
-        :param group_id: string
+        :param is_start_model: boolean
         :param round_id: string
         :param device_id: string
         """
-        if round_id == None and device_id == None:
-            return self._generate_initial_group_model_name(group_id)
+        if is_start_model:
+            return self._generate_round_start_model_name(round_id)
         elif device_id == None:
-            return self._generate_aggregate_round_model_name(group_id, round_id)
+            return self._generate_round_aggregate_model_name(round_id)
         else:
-            return self._generate_device_model_update_name(group_id, round_id, device_id)
+            return self._generate_device_model_update_name(round_id, device_id)
 
-    def _generate_device_model_update_name(self, group_id, round_id, device_id):
+    def _generate_device_model_update_name(self, round_id, device_id):
         """
-        :param group_id: string
         :param round_id: string
         :param device_id: string
         """
-        return group_id + "/" + round_id + "/" + device_id
+        return round_id + "/device_models/" + device_id
 
-    def _generate_initial_group_model_name(self, group_id):
+    def _generate_round_aggregate_model_name(self, round_id):
         """
-        :param group_id: string
-        """
-        return group_id + "/" + group_id
-
-    def _generate_aggregate_round_model_name(self, group_id, round_id):
-        """
-        :param group_id: string
         :param ronud_id: string
         """
-        return group_id + "/" + round_id + "/" + round_id
+        return round_id + "/aggregate_model"
 
-    def get_group_id(self):
-        return self.get_name().split("/")[0]
+    def _generate_round_start_model_name(self, round_id):
+        """
+        :param ronud_id: string
+        """
+        return round_id + "/start_model"
 
     def get_round_id(self):
-        return self.get_name().split("/")[1]
+        return self.get_name().split("/")[0]
 
     def get_device_id(self):
         return self.get_name().split("/")[2]
 
     def _identify_name_type(self):
-        if len(self.get_name().split("/")) == 2:
-            if self.get_group_id() == self.get_round_id():
-                return ModelNameType.INITIAL_GROUP_MODEL
-        elif self.get_device_id() == self.get_round_id():
+        if "aggregate_model" in self.get_name():
             return ModelNameType.ROUND_AGGREGATE_MODEL
+        elif "start_model" in self.get_name():
+            return ModelNameType.ROUND_START_MODEL
         else:
             return ModelNameType.DEVICE_MODEL_UPDATE
-
-        raise ValueError("Could not parse model name to identify type: {}".format(self.get_name()))

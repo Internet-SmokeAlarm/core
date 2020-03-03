@@ -5,15 +5,17 @@ from dependencies.python.fmlaas.model import RoundBuilder
 from dependencies.python.fmlaas.model import RoundConfiguration
 from dependencies.python.fmlaas.model import RoundStatus
 from dependencies.python.fmlaas.model import Model
+from dependencies.python.fmlaas.model.termination_criteria import DurationTerminationCriteria
+from dependencies.python.fmlaas.utils import get_epoch_time
 
 class RoundTestCase(unittest.TestCase):
 
     def _build_default_round(self):
         builder = RoundBuilder()
         builder.set_id("test_id")
-        builder.set_start_model(Model("123", "123/123", "34353").to_json())
+        builder.set_parent_group_id("fl_group_1232234")
         builder.set_devices(["123", "234"])
-        configuration = RoundConfiguration("50", "RANDOM")
+        configuration = RoundConfiguration("50", "RANDOM", [])
         builder.set_configuration(configuration.to_json())
 
         return builder.build()
@@ -22,50 +24,47 @@ class RoundTestCase(unittest.TestCase):
         round = Round("my_id",
             ["test1", "test2"],
             RoundStatus.COMPLETED.value,
-            "previous_round_id",
             {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : "2134235"},
-            {"name" : "21313124/21313124", "entity_id" : "21313124", "size" : "21313124"},
             {"name" : "21313124/21313124", "entity_id" : "21313124", "size" : "21313124"},
             {"config info" : "here"},
             {"test1" : {"size" : "123300"}},
             "December 19th, 2019",
-            "1234345")
+            "1234345",
+            "fl_group_12312313")
 
         round_json = round.to_json()
 
         self.assertEqual("my_id", round_json["ID"])
         self.assertEqual("COMPLETED", round_json["status"])
         self.assertEqual(["test1", "test2"], round_json["devices"])
-        self.assertEqual("previous_round_id", round_json["previous_round_id"])
         self.assertEqual({"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : "2134235"}, round_json["aggregate_model"])
         self.assertEqual({"name" : "21313124/21313124", "entity_id" : "21313124", "size" : "21313124"}, round_json["start_model"])
-        self.assertEqual({"name" : "21313124/21313124", "entity_id" : "21313124", "size" : "21313124"}, round_json["end_model"])
         self.assertEqual({"config info" : "here"}, round_json["configuration"])
         self.assertEqual({"test1" : {"size" : "123300"}}, round_json["models"])
         self.assertEqual("December 19th, 2019", round_json["created_on"])
         self.assertEqual("1234345", round_json["billable_size"])
+        self.assertEqual("fl_group_12312313", round_json["parent_group_id"])
 
     def test_from_json_pass(self):
-        round_json = {'ID': 'my_id', 'status': 'COMPLETED', 'devices': ['test1', 'test2'], 'previous_round_id': 'previous_round_id', 'aggregate_model': {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : "2134235"}, 'start_model': {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : "2134235"}, 'end_model' : {"name" : "21313124/21313124", "entity_id" : "21313124", "size" : "21313124"}, 'configuration': {'num_devices' : "5", "device_selection_strategy" : "RANDOM"}, 'models': {"123235345" : {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : "2134235"}}, 'created_on': 'December 19th, 2019', "billable_size" : "0"}
+        round_json = {'ID': 'my_id', 'status': 'COMPLETED', 'devices': ['test1', 'test2'], 'aggregate_model': {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : "2134235"}, 'start_model': {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : "2134235"}, 'configuration': {'num_devices' : "5", "device_selection_strategy" : "RANDOM", "termination_criteria" : []}, 'models': {"123235345" : {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : "2134235"}}, 'created_on': 'December 19th, 2019', "billable_size" : "0", "parent_group_id" : "fl_group_12312313"}
 
         round = Round.from_json(round_json)
 
         self.assertEqual(round.get_id(), round_json["ID"])
         self.assertEqual(round.get_status(), RoundStatus.COMPLETED)
         self.assertEqual(round.get_devices(), round_json["devices"])
-        self.assertEqual(round.get_previous_round_id(), round_json["previous_round_id"])
         self.assertEqual(round.get_aggregate_model().to_json(), round_json["aggregate_model"])
         self.assertEqual(round.get_configuration().to_json(), round_json["configuration"])
         self.assertEqual(round.get_models()["123235345"].to_json(), round_json["models"]["123235345"])
         self.assertEqual(round.get_created_on(), round_json["created_on"])
         self.assertEqual(round.get_start_model().to_json(), round_json["start_model"])
-        self.assertEqual(round.get_end_model().to_json(), round_json["end_model"])
-        self.assertEqual(round.get_billable_size(), round_json["billable_size"])
+        self.assertEqual(round.get_billable_size(), int(round_json["billable_size"]))
+        self.assertEqual(round.get_parent_group_id(), round_json["parent_group_id"])
 
     def test_add_model_pass(self):
         round = self._build_default_round()
 
-        model = Model("12312312", "1234/2345/12312312", "234342324")
+        model = Model("12312312", "2345/device_models/12312312", "234342324")
 
         round.add_model(model)
 
@@ -77,14 +76,13 @@ class RoundTestCase(unittest.TestCase):
         round = Round("my_id",
             ["test1", "test2"],
             RoundStatus.COMPLETED,
-            "previous_round_id",
-            {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : "2134235"},
             {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : "2134235"},
             {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : "2134235"},
             {"config info" : "here"},
             {"123235345" : {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : "2134235"}, "1232353465" : {"name" : "21313124/123123/1232353465", "entity_id" : "1232353465", "size" : "2134235"}},
             "December 19th, 2019",
-            "0")
+            "0",
+            "fl_group_12312313")
 
         models = round.get_models()
 
@@ -168,10 +166,12 @@ class RoundTestCase(unittest.TestCase):
     def test_is_device_active_pass(self):
         round = self._build_default_round()
 
+        round.set_start_model(Model("34234342", "34234342/start_model", "234514"))
+
         self.assertTrue(round.is_device_active("123"))
         self.assertTrue(round.is_device_active("234"))
 
-        round.add_model(Model("123", "34234342/213434523/123", "12355"))
+        round.add_model(Model("123", "34234342/device_models/123", "12355"))
 
         self.assertFalse(round.is_device_active("123"))
         self.assertTrue(round.is_device_active("234"))
@@ -199,6 +199,39 @@ class RoundTestCase(unittest.TestCase):
         round = self._build_default_round()
 
         self.assertFalse(round.is_ready_for_aggregation())
+        self.assertEqual(round.get_status(), RoundStatus.INITIALIZED)
+
+    def test_is_in_initialization_pass_1(self):
+        round = self._build_default_round()
+
+        self.assertTrue(round.is_in_initialization())
+        self.assertEqual(round.get_status(), RoundStatus.INITIALIZED)
+
+    def test_is_in_initialization_pass_2(self):
+        round = self._build_default_round()
+
+        round.set_start_model(Model("1234", "1234/start_model", "1234345"))
+
+        self.assertFalse(round.is_in_initialization())
+        self.assertEqual(round.get_status(), RoundStatus.IN_PROGRESS)
+
+    def test_set_start_model_pass_1(self):
+        round = self._build_default_round()
+
+        start_model = Model("1234", "1234/start_model", "1234345")
+        round.set_start_model(start_model)
+
+        self.assertEqual(start_model.to_json(), round.get_start_model().to_json())
+        self.assertEqual(round.get_status(), RoundStatus.IN_PROGRESS)
+
+    def test_set_start_model_pass_2(self):
+        round = self._build_default_round()
+
+        start_model = Model("1234", "1234/start_model", "1234345")
+        round.set_start_model(start_model)
+        round.set_start_model(Model("123445645", "123445645/start_model", "6435453"))
+
+        self.assertEqual(start_model.to_json(), round.get_start_model().to_json())
         self.assertEqual(round.get_status(), RoundStatus.IN_PROGRESS)
 
     def test_is_ready_for_aggregation_pass_2(self):
@@ -213,11 +246,12 @@ class RoundTestCase(unittest.TestCase):
         round = self._build_default_round()
 
         self.assertFalse(round.should_aggregate())
-        self.assertEqual(round.get_status(), RoundStatus.IN_PROGRESS)
+        self.assertEqual(round.get_status(), RoundStatus.INITIALIZED)
 
     def test_should_aggregate_pass_2(self):
         round = self._build_default_round()
 
+        round.set_start_model(Model("123456", "123456/start_model", "12321"))
         round.add_model(Model("123", "fdldasf", "1231231"))
         round.add_model(Model("234", "fdldasf", "1231231"))
 
@@ -252,28 +286,44 @@ class RoundTestCase(unittest.TestCase):
     def test_cancel_pass(self):
         round = self._build_default_round()
 
+        round.set_start_model(Model("1234", "1234/start_model", "231241"))
+
         self.assertEqual(round.get_status(), RoundStatus.IN_PROGRESS)
 
         round.cancel()
 
         self.assertEqual(round.get_status(), RoundStatus.CANCELLED)
         self.assertEqual(round.get_start_model().to_json(), round.get_end_model().to_json())
-        self.assertEqual(round.get_billable_size(), "0")
+        self.assertEqual(round.get_billable_size(), 231241)
+
+    def test_cancel_pass_2(self):
+        round = self._build_default_round()
+
+        round.cancel()
+
+        self.assertEqual(round.get_status(), RoundStatus.CANCELLED)
+        self.assertEqual(round.get_billable_size(), 0)
 
     def test_complete_pass(self):
         round = self._build_default_round()
 
-        self.assertEqual(round.get_status(), RoundStatus.IN_PROGRESS)
+        round.set_start_model(Model("1234", "1234/start_model", "231241"))
 
         round.set_aggregate_model(Model("sefsljkdf", "123123", "12324"))
         round.complete()
 
         self.assertEqual(round.get_status(), RoundStatus.COMPLETED)
         self.assertEqual(round.get_aggregate_model().to_json(), round.get_end_model().to_json())
-        self.assertEqual(round.get_billable_size(), "12324")
+        self.assertEqual(round.get_billable_size(), 243565)
 
     def test_calculate_billable_size_pass_1(self):
-        round = self._build_default_round()
+        builder = RoundBuilder()
+        builder.set_id("test_id")
+        builder.set_parent_group_id("fl_group_1232234")
+        builder.set_devices(["123", "234"])
+        configuration = RoundConfiguration("50", "RANDOM", [])
+        builder.set_configuration(configuration.to_json())
+        round = builder.build()
 
         round.set_aggregate_model(Model("sefsljkdf", "123123", "12324"))
 
@@ -286,3 +336,29 @@ class RoundTestCase(unittest.TestCase):
         round.set_aggregate_model(Model("sefsljkdf", "123123", "12324"))
 
         self.assertEqual(round.calculate_billable_size(), "67867")
+
+    def test_should_terminate_pass(self):
+        builder = RoundBuilder()
+        builder.set_id("test_id")
+        builder.set_parent_group_id("fl_group_1232234")
+        builder.set_devices(["123", "234"])
+        configuration = RoundConfiguration("50", "RANDOM", [
+            DurationTerminationCriteria(0, 2313123.1231).to_json()
+        ])
+        builder.set_configuration(configuration.to_json())
+        round = builder.build()
+
+        self.assertTrue(round.should_terminate())
+
+    def test_should_terminate_pass_2(self):
+        builder = RoundBuilder()
+        builder.set_id("test_id")
+        builder.set_parent_group_id("fl_group_1232234")
+        builder.set_devices(["123", "234"])
+        configuration = RoundConfiguration("50", "RANDOM", [
+            DurationTerminationCriteria(10, get_epoch_time()).to_json()
+        ])
+        builder.set_configuration(configuration.to_json())
+        round = builder.build()
+
+        self.assertFalse(round.should_terminate())

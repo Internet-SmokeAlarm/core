@@ -16,13 +16,13 @@ class ModelNameStructure:
 
         return self
 
-    def generate_name(self, group_id=None, round_id=None, device_id=None):
+    def generate_name(self, is_start_model=False, round_id=None, device_id=None):
         """
+        :param is_start_model: boolean
         :param device_id: string
         :param round_id: string
-        :param group_id: string
         """
-        self.name = self._generate_model_object_name(group_id=group_id, round_id=round_id, device_id=device_id)
+        self.name = self._generate_name(is_start_model=is_start_model, round_id=round_id, device_id=device_id)
         self.name_type = self._identify_name_type()
 
     @abstractmethod
@@ -35,8 +35,8 @@ class ModelNameStructure:
     def is_round_aggregate_model(self):
         return self.get_name_type() == ModelNameType.ROUND_AGGREGATE_MODEL
 
-    def is_initial_group_model(self):
-        return self.get_name_type() == ModelNameType.INITIAL_GROUP_MODEL
+    def is_round_start_model(self):
+        return self.get_name_type() == ModelNameType.ROUND_START_MODEL
 
     def is_device_model_update(self):
         return self.get_name_type() == ModelNameType.DEVICE_MODEL_UPDATE
@@ -49,13 +49,6 @@ class ModelNameStructure:
 
     def get_name(self):
         return self.name
-
-    @abstractmethod
-    def get_group_id(self):
-        """
-        :returns: int
-        """
-        raise NotImplementedError("get_group_id() not implemented")
 
     @abstractmethod
     def get_round_id(self):
@@ -72,12 +65,12 @@ class ModelNameStructure:
         raise NotImplementedError("get_device_id() not implemented")
 
     @abstractmethod
-    def _generate_model_object_name(self, group_id=None, round_id=None, device_id=None):
+    def _generate_name(self, is_start_model=False, round_id=None, device_id=None):
         """
         Generates appropriate S3 object name given information.
 
         :param device_id: string
         :param round_id: string
-        :param group_id: string
+        :param is_start_model: boolean
         """
-        raise NotImplementedError("_generate_model_object_name() not implemented")
+        raise NotImplementedError("_generate_name() not implemented")

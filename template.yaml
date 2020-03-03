@@ -214,6 +214,54 @@ Resources:
             Path: /v1/device/register
             Method: post
 
+  CancelRoundFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 3
+      MemorySize: 128
+      CodeUri: cancel_round/
+      Handler: app.lambda_handler
+      FunctionName: !Join ["", [!Ref Stage, "-CancelRound"]]
+      Layers:
+        - !Ref FMLaaSCoreDependencyLayer
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref GroupsTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref RoundsTable
+      Events:
+        CancelRoundApiEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FmlaasProdApi
+            Path: /v1/round/cancel
+            Method: post
+
+  SubmitRoundStartModelFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 3
+      MemorySize: 128
+      CodeUri: cancel_round/
+      Handler: app.lambda_handler
+      FunctionName: !Join ["", [!Ref Stage, "-SubmitRoundStartModel"]]
+      Layers:
+        - !Ref FMLaaSCoreDependencyLayer
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref GroupsTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref RoundsTable
+      Events:
+        SubmitRoundStartModelApiEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref FmlaasProdApi
+            Path: /v1/round/submit_start_model
+            Method: post
+
   StartRoundFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -333,29 +381,6 @@ Resources:
             Path: /v1/round/get/aggregate_model/{group_id}/{round_id}
             Method: get
 
-  GetGroupInitialModelFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      Timeout: 3
-      MemorySize: 128
-      CodeUri: get_group_initial_model/
-      Handler: app.lambda_handler
-      FunctionName: !Join ["", [!Ref Stage, "-GetGroupInitialModel"]]
-      Layers:
-        - !Ref FMLaaSCoreDependencyLayer
-      Policies:
-        - AWSLambdaBasicExecutionRole
-        - DynamoDBCrudPolicy:
-            TableName: !Ref GroupsTable
-        - !Ref S3GetObjectPolicy
-      Events:
-        GetGroupInitialModelApiEvent:
-          Type: Api
-          Properties:
-            RestApiId: !Ref FmlaasProdApi
-            Path: /v1/group/get/initial_model/{group_id}
-            Method: get
-
   CreateGroupFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -473,29 +498,6 @@ Resources:
           Properties:
             RestApiId: !Ref FmlaasProdApi
             Path: /v1/submit_model_update
-            Method: post
-
-  SubmitGroupInitialModelFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      Timeout: 3
-      MemorySize: 128
-      CodeUri: submit_group_initial_model/
-      Handler: app.lambda_handler
-      FunctionName: !Join ["", [!Ref Stage, "-SubmitGroupInitialModel"]]
-      Layers:
-        - !Ref FMLaaSCoreDependencyLayer
-      Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref GroupsTable
-        - AWSLambdaBasicExecutionRole
-        - !Ref S3PutObjectPolicy
-      Events:
-        SubmitGroupInitialModelApiEvent:
-          Type: Api
-          Properties:
-            RestApiId: !Ref FmlaasProdApi
-            Path: /v1/group/post/initial_model
             Method: post
 
   GetRoundStartModelFunction:

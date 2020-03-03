@@ -6,6 +6,7 @@ from dependencies.python.fmlaas.exception import RequestForbiddenException
 from dependencies.python.fmlaas.model import DBObject
 from dependencies.python.fmlaas.model import FLGroup
 from dependencies.python.fmlaas.model import GroupPrivilegeTypesEnum
+from dependencies.python.fmlaas.request_processor import AuthContextProcessor
 
 class CreateGroupControllerTestCase(unittest.TestCase):
 
@@ -16,8 +17,9 @@ class CreateGroupControllerTestCase(unittest.TestCase):
             "authentication_type" : "JWT",
             "entity_id" : "user_123442"
         }
+        auth_context_processor = AuthContextProcessor(auth_json)
 
-        group_id = create_group_controller(db_, group_name, auth_json)
+        group_id = create_group_controller(db_, group_name, auth_context_processor)
 
         self.assertIsNotNone(group_id)
 
@@ -33,5 +35,6 @@ class CreateGroupControllerTestCase(unittest.TestCase):
             "authentication_type" : "DEVICE",
             "entity_id" : "device_123442"
         }
+        auth_context_processor = AuthContextProcessor(auth_json)
 
-        self.assertRaises(RequestForbiddenException, create_group_controller, db_, group_name, auth_json)
+        self.assertRaises(RequestForbiddenException, create_group_controller, db_, group_name, auth_context_processor)

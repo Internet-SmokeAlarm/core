@@ -12,6 +12,7 @@ from dependencies.python.fmlaas.model import RoundBuilder
 from dependencies.python.fmlaas.model import Model
 from dependencies.python.fmlaas.model import RoundConfiguration
 from dependencies.python.fmlaas.model import GroupPrivilegeTypesEnum
+from dependencies.python.fmlaas.request_processor import AuthContextProcessor
 
 class DeleteGroupControllerTestCase(unittest.TestCase):
 
@@ -25,7 +26,8 @@ class DeleteGroupControllerTestCase(unittest.TestCase):
     def _build_default_round(self):
         round_builder = RoundBuilder()
         round_builder.set_id("2345")
-        configuration = RoundConfiguration("1", "RANDOM")
+        round_builder.set_parent_group_id("test_id")
+        configuration = RoundConfiguration("1", "RANDOM", [])
         round_builder.set_configuration(configuration.to_json())
         round_builder.set_devices(["3456"])
         round_builder.set_start_model(Model("1234", "1234/1234", "123211").to_json())
@@ -38,7 +40,7 @@ class DeleteGroupControllerTestCase(unittest.TestCase):
 
         group = self._build_default_group()
         round = self._build_default_round()
-        group.add_round("2345")
+        group.create_round_path("2345")
         group.add_or_update_member("user12344", GroupPrivilegeTypesEnum.OWNER)
         group.save_to_db(group_db)
         round.save_to_db(round_db)
@@ -47,8 +49,9 @@ class DeleteGroupControllerTestCase(unittest.TestCase):
             "authentication_type" : "JWT",
             "entity_id" : "user12344"
         }
+        auth_context_processor = AuthContextProcessor(auth_json)
 
-        delete_group_controller(group_db, round_db, group.get_id(), auth_json)
+        delete_group_controller(group_db, round_db, group.get_id(), auth_context_processor)
 
         self.assertRaises(KeyError, DBObject.load_from_db, FLGroup, group.get_id(), group_db)
         self.assertRaises(KeyError, DBObject.load_from_db, Round, round.get_id(), round_db)
@@ -62,7 +65,7 @@ class DeleteGroupControllerTestCase(unittest.TestCase):
 
         group = self._build_default_group()
         round = self._build_default_round()
-        group.add_round("2345")
+        group.create_round_path("2345")
         group.add_or_update_member("user12344", GroupPrivilegeTypesEnum.OWNER)
         group.save_to_db(group_db)
         round.save_to_db(round_db)
@@ -71,8 +74,9 @@ class DeleteGroupControllerTestCase(unittest.TestCase):
             "authentication_type" : "DEVICE",
             "entity_id" : "user12344"
         }
+        auth_context_processor = AuthContextProcessor(auth_json)
 
-        self.assertRaises(RequestForbiddenException, delete_group_controller, group_db, round_db, group.get_id(), auth_json)
+        self.assertRaises(RequestForbiddenException, delete_group_controller, group_db, round_db, group.get_id(), auth_context_processor)
 
     def test_fail_not_authorized_to_access_group(self):
         group_db = InMemoryDBInterface()
@@ -80,7 +84,7 @@ class DeleteGroupControllerTestCase(unittest.TestCase):
 
         group = self._build_default_group()
         round = self._build_default_round()
-        group.add_round("2345")
+        group.create_round_path("2345")
         group.add_or_update_member("user12344", GroupPrivilegeTypesEnum.OWNER)
         group.save_to_db(group_db)
         round.save_to_db(round_db)
@@ -89,5 +93,6 @@ class DeleteGroupControllerTestCase(unittest.TestCase):
             "authentication_type" : "JWT",
             "entity_id" : "user123445"
         }
+        auth_context_processor = AuthContextProcessor(auth_json)
 
-        self.assertRaises(RequestForbiddenException, delete_group_controller, group_db, round_db, group.get_id(), auth_json)
+        self.assertRaises(RequestForbiddenException, delete_group_controller, group_db, round_db, group.get_id(), auth_context_processor)

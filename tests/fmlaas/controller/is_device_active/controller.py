@@ -10,6 +10,7 @@ from dependencies.python.fmlaas.model import RoundBuilder
 from dependencies.python.fmlaas.model import RoundConfiguration
 from dependencies.python.fmlaas.model import GroupPrivilegeTypesEnum
 from dependencies.python.fmlaas.controller.is_device_active import is_device_active_controller
+from dependencies.python.fmlaas.request_processor import AuthContextProcessor
 
 class IsDeviceActiveControllerTestCase(unittest.TestCase):
 
@@ -20,8 +21,8 @@ class IsDeviceActiveControllerTestCase(unittest.TestCase):
 
         group = group_builder.build()
         group.add_device("12344")
-        group.add_round("1234432414")
-        group.set_current_round_id("1234432414")
+        group.create_round_path("1234432414")
+        group.add_current_round_id("1234432414")
         group.add_or_update_member("user_12345", GroupPrivilegeTypesEnum.READ_ONLY)
 
         return group
@@ -29,9 +30,10 @@ class IsDeviceActiveControllerTestCase(unittest.TestCase):
     def _build_default_round(self):
         round_builder = RoundBuilder()
         round_builder.set_id("round_test_id")
-        round_builder.set_configuration(RoundConfiguration("1", "RANDOM").to_json())
-        round_builder.set_start_model(Model("12312414", "1234/345345/12312414", "123211").to_json())
-        round_builder.set_end_model(Model("1234", "1234/1234", "123211").to_json())
+        round_builder.set_parent_group_id("test_id")
+        round_builder.set_configuration(RoundConfiguration("1", "RANDOM", []).to_json())
+        round_builder.set_start_model(Model("12312414", "12312414/start_model", "123211").to_json())
+        round_builder.set_aggregate_model(Model("1234", "1234/aggregate_model", "123211").to_json())
         round_builder.set_devices(["12344"])
         round = round_builder.build()
 
@@ -45,20 +47,21 @@ class IsDeviceActiveControllerTestCase(unittest.TestCase):
         round.save_to_db(round_db_)
 
         group = self._build_default_group()
-        group.add_round(round.get_id())
-        group.set_current_round_id(round.get_id())
+        group.create_round_path(round.get_id())
+        group.add_current_round_id(round.get_id())
         group.save_to_db(group_db_)
 
         auth_json = {
             "authentication_type" : "DEVICE",
             "entity_id" : "12344"
         }
+        auth_context_processor = AuthContextProcessor(auth_json)
         is_device_active = is_device_active_controller(group_db_,
                                                     round_db_,
                                                     group.get_id(),
                                                     round.get_id(),
                                                     "12344",
-                                                    auth_json)
+                                                    auth_context_processor)
         self.assertTrue(is_device_active)
 
     def test_pass_user(self):
@@ -69,20 +72,21 @@ class IsDeviceActiveControllerTestCase(unittest.TestCase):
         round.save_to_db(round_db_)
 
         group = self._build_default_group()
-        group.add_round(round.get_id())
-        group.set_current_round_id(round.get_id())
+        group.create_round_path(round.get_id())
+        group.add_current_round_id(round.get_id())
         group.save_to_db(group_db_)
 
         auth_json = {
             "authentication_type" : "USER",
             "entity_id" : "user_12345"
         }
+        auth_context_processor = AuthContextProcessor(auth_json)
         is_device_active = is_device_active_controller(group_db_,
                                                     round_db_,
                                                     group.get_id(),
                                                     round.get_id(),
                                                     "12344",
-                                                    auth_json)
+                                                    auth_context_processor)
         self.assertTrue(is_device_active)
 
         is_device_active = is_device_active_controller(group_db_,
@@ -90,7 +94,7 @@ class IsDeviceActiveControllerTestCase(unittest.TestCase):
                                                     group.get_id(),
                                                     round.get_id(),
                                                     "123445",
-                                                    auth_json)
+                                                    auth_context_processor)
         self.assertFalse(is_device_active)
 
     def test_fail_not_authorized_device(self):
@@ -101,15 +105,16 @@ class IsDeviceActiveControllerTestCase(unittest.TestCase):
         round.save_to_db(round_db_)
 
         group = self._build_default_group()
-        group.add_round(round.get_id())
-        group.set_current_round_id(round.get_id())
+        group.create_round_path(round.get_id())
+        group.add_current_round_id(round.get_id())
         group.save_to_db(group_db_)
 
         auth_json = {
             "authentication_type" : "DEVICE",
             "entity_id" : "123445"
         }
-        self.assertRaises(RequestForbiddenException, is_device_active_controller, group_db_, round_db_, group.get_id(), round.get_id(), "12344", auth_json)
+        auth_context_processor = AuthContextProcessor(auth_json)
+        self.assertRaises(RequestForbiddenException, is_device_active_controller, group_db_, round_db_, group.get_id(), round.get_id(), "12344", auth_context_processor)
 
     def test_fail_not_authorized_user(self):
         group_db_ = InMemoryDBInterface()
@@ -119,15 +124,16 @@ class IsDeviceActiveControllerTestCase(unittest.TestCase):
         round.save_to_db(round_db_)
 
         group = self._build_default_group()
-        group.add_round(round.get_id())
-        group.set_current_round_id(round.get_id())
+        group.create_round_path(round.get_id())
+        group.add_current_round_id(round.get_id())
         group.save_to_db(group_db_)
 
         auth_json = {
             "authentication_type" : "USER",
             "entity_id" : "user_123456"
         }
-        self.assertRaises(RequestForbiddenException, is_device_active_controller, group_db_, round_db_, group.get_id(), round.get_id(), "12344", auth_json)
+        auth_context_processor = AuthContextProcessor(auth_json)
+        self.assertRaises(RequestForbiddenException, is_device_active_controller, group_db_, round_db_, group.get_id(), round.get_id(), "12344", auth_context_processor)
 
     def test_fail_not_authorized_round(self):
         group_db_ = InMemoryDBInterface()
@@ -143,7 +149,8 @@ class IsDeviceActiveControllerTestCase(unittest.TestCase):
             "authentication_type" : "USER",
             "entity_id" : "user_12345"
         }
-        self.assertRaises(RequestForbiddenException, is_device_active_controller, group_db_, round_db_, group.get_id(), round.get_id(), "12344", auth_json)
+        auth_context_processor = AuthContextProcessor(auth_json)
+        self.assertRaises(RequestForbiddenException, is_device_active_controller, group_db_, round_db_, group.get_id(), round.get_id(), "12344", auth_context_processor)
 
     def test_fail_not_authorized_device_2(self):
         group_db_ = InMemoryDBInterface()
@@ -153,12 +160,13 @@ class IsDeviceActiveControllerTestCase(unittest.TestCase):
         round.save_to_db(round_db_)
 
         group = self._build_default_group()
-        group.add_round(round.get_id())
-        group.set_current_round_id(round.get_id())
+        group.create_round_path(round.get_id())
+        group.add_current_round_id(round.get_id())
         group.save_to_db(group_db_)
 
         auth_json = {
             "authentication_type" : "DEVICE",
             "entity_id" : "12344"
         }
-        self.assertRaises(RequestForbiddenException, is_device_active_controller, group_db_, round_db_, group.get_id(), round.get_id(), "123445", auth_json)
+        auth_context_processor = AuthContextProcessor(auth_json)
+        self.assertRaises(RequestForbiddenException, is_device_active_controller, group_db_, round_db_, group.get_id(), round.get_id(), "123445", auth_context_processor)

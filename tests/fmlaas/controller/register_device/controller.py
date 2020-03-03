@@ -8,6 +8,7 @@ from dependencies.python.fmlaas.model import GroupBuilder
 from dependencies.python.fmlaas.model import ApiKey
 from dependencies.python.fmlaas.model import GroupPrivilegeTypesEnum
 from dependencies.python.fmlaas.controller.register_device import register_device_controller
+from dependencies.python.fmlaas.request_processor import AuthContextProcessor
 
 class RegisterDeviceControllerTestCase(unittest.TestCase):
 
@@ -34,10 +35,11 @@ class RegisterDeviceControllerTestCase(unittest.TestCase):
             "authentication_type" : "USER",
             "entity_id" : "user_12345"
         }
+        auth_context_processor = AuthContextProcessor(auth_json)
         id, key_plaintext = register_device_controller(group_db_,
                                                        key_db_,
                                                        group.get_id(),
-                                                       auth_json)
+                                                       auth_context_processor)
         self.assertIsNotNone(id)
         self.assertIsNotNone(key_plaintext)
         self.assertEqual(id, DBObject.load_from_db(ApiKey, id, key_db_).get_id())
@@ -53,7 +55,8 @@ class RegisterDeviceControllerTestCase(unittest.TestCase):
             "authentication_type" : "USER",
             "entity_id" : "user_123456"
         }
-        self.assertRaises(RequestForbiddenException, register_device_controller, group_db_, key_db_, group.get_id(), auth_json)
+        auth_context_processor = AuthContextProcessor(auth_json)
+        self.assertRaises(RequestForbiddenException, register_device_controller, group_db_, key_db_, group.get_id(), auth_context_processor)
 
     def test_fail_not_authorized_user_2(self):
         group_db_ = InMemoryDBInterface()
@@ -66,7 +69,8 @@ class RegisterDeviceControllerTestCase(unittest.TestCase):
             "authentication_type" : "USER",
             "entity_id" : "user_1234567"
         }
-        self.assertRaises(RequestForbiddenException, register_device_controller, group_db_, key_db_, group.get_id(), auth_json)
+        auth_context_processor = AuthContextProcessor(auth_json)
+        self.assertRaises(RequestForbiddenException, register_device_controller, group_db_, key_db_, group.get_id(), auth_context_processor)
 
     def test_fail_not_authorized_device(self):
         group_db_ = InMemoryDBInterface()
@@ -79,4 +83,5 @@ class RegisterDeviceControllerTestCase(unittest.TestCase):
             "authentication_type" : "DEVICE",
             "entity_id" : "12344"
         }
-        self.assertRaises(RequestForbiddenException, register_device_controller, group_db_, key_db_, group.get_id(), auth_json)
+        auth_context_processor = AuthContextProcessor(auth_json)
+        self.assertRaises(RequestForbiddenException, register_device_controller, group_db_, key_db_, group.get_id(), auth_context_processor)

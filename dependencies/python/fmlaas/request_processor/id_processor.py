@@ -6,6 +6,7 @@ class IDProcessor(RequestProcessor):
     GROUP_ID_KEY = "group_id"
     ROUND_ID_KEY = "round_id"
     DEVICE_ID_KEY = "device_id"
+    PREVIOUS_ROUND_ID_KEY = "previous_round_id"
 
     def __init__(self, json):
         self.json = json
@@ -37,6 +38,17 @@ class IDProcessor(RequestProcessor):
 
         if not self._is_string_name_valid(round_id) and throw_exception:
             raise ValueError("Round id invalid.")
+
+        return round_id
+
+    def get_previous_round_id(self, throw_exception=True):
+        """
+        :return: string
+        """
+        round_id = self.json.get(IDProcessor.PREVIOUS_ROUND_ID_KEY, None)
+
+        if not self._is_string_name_valid(round_id) and throw_exception:
+            raise ValueError("Previous round id invalid.")
 
         return round_id
 

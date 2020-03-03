@@ -3,19 +3,17 @@ from ...model import ApiKeyBuilder
 from ...model import ApiKeyTypeEnum
 from ...model import DBObject
 from ...model import GroupPrivilegeTypesEnum
-from ...request_processor import AuthContextProcessor
 from ...exception import raise_default_request_forbidden_error
 from fedlearn_auth import generate_key_pair
 from fedlearn_auth import hash_secret
 
-def register_device_controller(group_db, key_db, group_id, auth_json):
+def register_device_controller(group_db, key_db, group_id, auth_context_processor):
     """
     :param group_db: DB
     :param key_db: DB
     :param group_id: string
-    :param auth_json: dict
+    :param auth_context_processor: AuthContextProcessor
     """
-    auth_context_processor = AuthContextProcessor(auth_json)
     if auth_context_processor.is_type_device():
         raise_default_request_forbidden_error()
 

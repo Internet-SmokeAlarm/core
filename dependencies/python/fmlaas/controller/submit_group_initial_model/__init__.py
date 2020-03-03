@@ -1,1 +1,0 @@
-from .controller import submit_group_initial_model_controller

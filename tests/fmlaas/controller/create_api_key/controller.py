@@ -6,6 +6,7 @@ from dependencies.python.fmlaas.exception import RequestForbiddenException
 from dependencies.python.fmlaas.model import DBObject
 from dependencies.python.fmlaas.model import ApiKey
 from dependencies.python.fmlaas.model import GroupPrivilegeTypesEnum
+from dependencies.python.fmlaas.request_processor import AuthContextProcessor
 
 class CreateApiKeyControllerTestCase(unittest.TestCase):
 
@@ -15,8 +16,9 @@ class CreateApiKeyControllerTestCase(unittest.TestCase):
             "authentication_type" : "JWT",
             "entity_id" : "user_123442"
         }
+        auth_context_processor = AuthContextProcessor(auth_json)
 
-        key_plaintext = create_api_key_controller(db_, auth_json)
+        key_plaintext = create_api_key_controller(db_, auth_context_processor)
 
         self.assertIsNotNone(key_plaintext)
 
@@ -26,8 +28,9 @@ class CreateApiKeyControllerTestCase(unittest.TestCase):
             "authentication_type" : "USER",
             "entity_id" : "user_123442"
         }
+        auth_context_processor = AuthContextProcessor(auth_json)
 
-        key_plaintext = create_api_key_controller(db_, auth_json)
+        key_plaintext = create_api_key_controller(db_, auth_context_processor)
 
         self.assertIsNotNone(key_plaintext)
 
@@ -37,5 +40,6 @@ class CreateApiKeyControllerTestCase(unittest.TestCase):
             "authentication_type" : "DEVICE",
             "entity_id" : "user_123442"
         }
+        auth_context_processor = AuthContextProcessor(auth_json)
 
-        self.assertRaises(RequestForbiddenException, create_api_key_controller, db_, auth_json)
+        self.assertRaises(RequestForbiddenException, create_api_key_controller, db_, auth_context_processor)

@@ -2,6 +2,7 @@ from enum import Enum
 
 class RoundStatus(Enum):
 
+    INITIALIZED = "INITIALIZED"
     IN_PROGRESS = "IN_PROGRESS"
     COMPLETED = "COMPLETED"
     CANCELLED = "CANCELLED"

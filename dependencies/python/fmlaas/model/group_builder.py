@@ -7,10 +7,11 @@ class GroupBuilder(Builder):
         self.name = None
         self.id = None
         self.devices = {}
-        self.rounds = {}
-        self.current_round_id = "N/A"
-        self.initial_model = {}
+        self.round_info = {}
+        self.round_paths = []
+        self.current_round_ids = []
         self.members = {}
+        self.billing = {}
 
     def set_name(self, name):
         """
@@ -30,22 +31,34 @@ class GroupBuilder(Builder):
         """
         self.devices = devices
 
-    def set_rounds(self, rounds):
+    def set_round_info(self, round_info):
         """
         :param rounds: dict
         """
-        self.rounds = rounds
+        self.round_info = round_info
 
-    def set_current_round_id(self, current_round_id):
+    def set_round_paths(self, round_paths):
         """
-        :param current_round_id: string
+        :param round_paths: list(list(string))
         """
-        self.current_round_id = current_round_id
+        self.round_paths = round_paths
+
+    def set_current_round_ids(self, current_round_ids):
+        """
+        :param current_round_ids: list(string)
+        """
+        self.current_round_ids = current_round_ids
+
+    def set_billing(self, billing):
+        """
+        :param billing: dict
+        """
+        self.billing = billing
 
     def build(self):
         self._validate_paramaters()
 
-        return FLGroup(self.name, self.id, self.devices, self.rounds, self.current_round_id, self.initial_model, self.members)
+        return FLGroup(self.name, self.id, self.devices, self.round_info, self.round_paths, self.current_round_ids, self.members, self.billing)
 
     def _validate_paramaters(self):
         if self.id is None:
