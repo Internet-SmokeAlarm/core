@@ -89,7 +89,7 @@ class Round(DBObject):
         """
         :return: boolean
         """
-        return len(self.devices) == len(list(self.models.keys()))
+        return len(list(self.models.keys())) >= self.get_configuration().get_num_devices()
 
     def is_aggregate_model_set(self):
         """

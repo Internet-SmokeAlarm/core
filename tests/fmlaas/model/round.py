@@ -15,7 +15,7 @@ class RoundTestCase(unittest.TestCase):
         builder.set_id("test_id")
         builder.set_parent_group_id("fl_group_1232234")
         builder.set_devices(["123", "234"])
-        configuration = RoundConfiguration(50, 0, "RANDOM", [])
+        configuration = RoundConfiguration(2, 0, "RANDOM", [])
         builder.set_configuration(configuration.to_json())
 
         return builder.build()
