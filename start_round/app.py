@@ -15,6 +15,7 @@ def lambda_handler(event, context):
         "group_id" : "group id",
         "device_selection_strategy" : "device selection strategy",
         "num_devices" : int_number_of_devices,
+        "num_buffer_devices" int_number_of_buffer_devices,
         "previous_round_id" : "previous round id",
         "termination_criteria" : [
             {

@@ -32,7 +32,7 @@ class SubmitRoundStartModelControllerTestCase(unittest.TestCase):
         round_builder = RoundBuilder()
         round_builder.set_id(id)
         round_builder.set_parent_group_id("test_id")
-        round_builder.set_configuration(RoundConfiguration("1", "RANDOM", []).to_json())
+        round_builder.set_configuration(RoundConfiguration(1, 0, "RANDOM", []).to_json())
         round_builder.set_devices(["34553"])
         round = round_builder.build()
 

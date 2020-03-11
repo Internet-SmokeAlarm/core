@@ -19,13 +19,13 @@ from dependencies.python.fmlaas.request_processor import AuthContextProcessor
 class StartRoundControllerTestCase(unittest.TestCase):
 
     def test_get_device_selector_pass(self):
-        device_selector = get_device_selector(RoundConfiguration("5", "RANDOM", []))
+        device_selector = get_device_selector(RoundConfiguration(5, 0, "RANDOM", []))
 
         self.assertEqual(device_selector.__class__, RandomDeviceSelector)
 
     def test_create_round_pass(self):
         devices = ["123", "234", "345", "3456"]
-        round_config = RoundConfiguration("4", "RANDOM", [])
+        round_config = RoundConfiguration(4, 0, "RANDOM", [])
 
         new_round = create_round(devices, "test_id123", round_config)
 
@@ -48,7 +48,7 @@ class StartRoundControllerTestCase(unittest.TestCase):
         round_builder = RoundBuilder()
         round_builder.set_id("round_test_id")
         round_builder.set_parent_group_id("test_id")
-        round_builder.set_configuration(RoundConfiguration("1", "RANDOM", []).to_json())
+        round_builder.set_configuration(RoundConfiguration(1, 0, "RANDOM", []).to_json())
         round_builder.set_start_model(Model("12312414", "12312414/start_model", "123211").to_json())
         round_builder.set_devices(["34553"])
         round = round_builder.build()
@@ -65,7 +65,7 @@ class StartRoundControllerTestCase(unittest.TestCase):
         }
         auth_context_processor = AuthContextProcessor(auth_json)
 
-        new_round_id = start_round_controller(round_db, group_db, group.get_id(), RoundConfiguration("1", "RANDOM", []), round.get_id(), auth_context_processor)
+        new_round_id = start_round_controller(round_db, group_db, group.get_id(), RoundConfiguration(1, 0, "RANDOM", []), round.get_id(), auth_context_processor)
         new_round = DBObject.load_from_db(Round, new_round_id, round_db)
 
         updated_group = DBObject.load_from_db(FLGroup, group.get_id(), group_db)
@@ -92,7 +92,7 @@ class StartRoundControllerTestCase(unittest.TestCase):
         }
         auth_context_processor = AuthContextProcessor(auth_json)
 
-        new_round_id = start_round_controller(round_db, group_db, group.get_id(), RoundConfiguration("1", "RANDOM", []), None, auth_context_processor)
+        new_round_id = start_round_controller(round_db, group_db, group.get_id(), RoundConfiguration(1, 0, "RANDOM", []), None, auth_context_processor)
         new_round = DBObject.load_from_db(Round, new_round_id, round_db)
         updated_group = DBObject.load_from_db(FLGroup, group.get_id(), group_db)
 
@@ -116,7 +116,7 @@ class StartRoundControllerTestCase(unittest.TestCase):
         round_builder = RoundBuilder()
         round_builder.set_id("round_test_id")
         round_builder.set_parent_group_id("test_id")
-        round_builder.set_configuration(RoundConfiguration("1", "RANDOM", []).to_json())
+        round_builder.set_configuration(RoundConfiguration(1, 0, "RANDOM", []).to_json())
         round_builder.set_start_model(Model("12312414", "12312414/start_model", "123211").to_json())
         round_builder.set_devices(["34553"])
         round = round_builder.build()
@@ -133,7 +133,7 @@ class StartRoundControllerTestCase(unittest.TestCase):
         }
         auth_context_processor = AuthContextProcessor(auth_json)
 
-        new_round_id = start_round_controller(round_db, group_db, group.get_id(), RoundConfiguration("1", "RANDOM", []), round.get_id(), auth_context_processor)
+        new_round_id = start_round_controller(round_db, group_db, group.get_id(), RoundConfiguration(1, 0, "RANDOM", []), round.get_id(), auth_context_processor)
         new_round = DBObject.load_from_db(Round, new_round_id, round_db)
 
         updated_group = DBObject.load_from_db(FLGroup, group.get_id(), group_db)
@@ -162,7 +162,7 @@ class StartRoundControllerTestCase(unittest.TestCase):
         }
         auth_context_processor = AuthContextProcessor(auth_json)
 
-        self.assertRaises(RequestForbiddenException, start_round_controller, round_db, group_db, group.get_id(), RoundConfiguration("1", "RANDOM", []), None, auth_context_processor)
+        self.assertRaises(RequestForbiddenException, start_round_controller, round_db, group_db, group.get_id(), RoundConfiguration(1, 0, "RANDOM", []), None, auth_context_processor)
 
     def test_start_round_controller_fail_2(self):
         group_db = InMemoryDBInterface()
@@ -184,7 +184,7 @@ class StartRoundControllerTestCase(unittest.TestCase):
         }
         auth_context_processor = AuthContextProcessor(auth_json)
 
-        self.assertRaises(RequestForbiddenException, start_round_controller, round_db, group_db, group.get_id(), RoundConfiguration("1", "RANDOM", []), None, auth_context_processor)
+        self.assertRaises(RequestForbiddenException, start_round_controller, round_db, group_db, group.get_id(), RoundConfiguration(1, 0, "RANDOM", []), None, auth_context_processor)
 
     def test_start_round_controller_fail_3(self):
         group_db = InMemoryDBInterface()
@@ -206,4 +206,4 @@ class StartRoundControllerTestCase(unittest.TestCase):
         }
         auth_context_processor = AuthContextProcessor(auth_json)
 
-        self.assertRaises(RequestForbiddenException, start_round_controller, round_db, group_db, group.get_id(), RoundConfiguration("1", "RANDOM", []), None, auth_context_processor)
+        self.assertRaises(RequestForbiddenException, start_round_controller, round_db, group_db, group.get_id(), RoundConfiguration(1, 0, "RANDOM", []), None, auth_context_processor)
