@@ -15,10 +15,10 @@ class RoundConfigurationTestCase(unittest.TestCase):
         self.assertEqual(round_configuration_json["num_devices"], "50")
         self.assertEqual(round_configuration_json["device_selection_strategy"], "RANDOM")
         self.assertEqual(round_configuration_json["num_buffer_devices"], "5")
-        self.assertEqual(round_configuration_json["termination_criteria"][0], {'class_name': 'DurationTerminationCriteria', 'max_duration_sec': '50', 'start_epoch_time': '123211241.2342'})
+        self.assertEqual(round_configuration_json["termination_criteria"][0], {'type': 'DurationTerminationCriteria', 'max_duration_sec': '50', 'start_epoch_time': '123211241.2342'})
 
     def test_from_json_pass(self):
-        round_configuration_json = {'num_devices': "50", 'num_buffer_devices' : "5", "device_selection_strategy" : "RANDOM", "termination_criteria" : [{'class_name': 'DurationTerminationCriteria', 'max_duration_sec': '50', 'start_epoch_time': '123211241.2342'}]}
+        round_configuration_json = {'num_devices': "50", 'num_buffer_devices' : "5", "device_selection_strategy" : "RANDOM", "termination_criteria" : [{'type': 'DurationTerminationCriteria', 'max_duration_sec': '50', 'start_epoch_time': '123211241.2342'}]}
 
         round_configuration = RoundConfiguration.from_json(round_configuration_json)
 
@@ -26,7 +26,7 @@ class RoundConfigurationTestCase(unittest.TestCase):
         self.assertEqual(round_configuration.get_num_buffer_devices(), 5)
         self.assertEqual(round_configuration.get_total_num_devices(), 55)
         self.assertEqual(round_configuration.get_device_selection_strategy(), "RANDOM")
-        self.assertEqual(round_configuration.get_termination_criteria()[0].to_json(), {'class_name': 'DurationTerminationCriteria', 'max_duration_sec': '50', 'start_epoch_time': '123211241.2342'})
+        self.assertEqual(round_configuration.get_termination_criteria()[0].to_json(), {'type': 'DurationTerminationCriteria', 'max_duration_sec': '50', 'start_epoch_time': '123211241.2342'})
 
     def test_add_termination_criteria(self):
         round_configuration = RoundConfiguration(50, 0, "RANDOM", [])

@@ -92,7 +92,7 @@ class StartRoundControllerTestCase(unittest.TestCase):
         }
         auth_context_processor = AuthContextProcessor(auth_json)
 
-        new_round_id = start_round_controller(round_db, group_db, group.get_id(), RoundConfiguration(1, 0, "RANDOM", []), None, auth_context_processor)
+        new_round_id = start_round_controller(round_db, group_db, group.get_id(), RoundConfiguration(1, 0, "RANDOM", []), "", auth_context_processor)
         new_round = DBObject.load_from_db(Round, new_round_id, round_db)
         updated_group = DBObject.load_from_db(FLGroup, group.get_id(), group_db)
 
@@ -141,6 +141,26 @@ class StartRoundControllerTestCase(unittest.TestCase):
         self.assertEqual(round.get_end_model().to_json(), new_round.get_start_model().to_json())
         self.assertEqual(updated_group.get_current_round_ids(), [new_round_id])
         self.assertTrue(updated_group.contains_round(new_round_id))
+
+    def test_start_round_controller_fail_no_devices(self):
+        group_db = InMemoryDBInterface()
+        round_db = InMemoryDBInterface()
+
+        builder = GroupBuilder()
+        builder.set_id("test_id")
+        builder.set_name("test_name")
+        group = builder.build()
+        group.add_or_update_member("user_12345", GroupPrivilegeTypesEnum.ADMIN)
+
+        group.save_to_db(group_db)
+
+        auth_json = {
+            "authentication_type" : "USER",
+            "entity_id" : "user_12345"
+        }
+        auth_context_processor = AuthContextProcessor(auth_json)
+
+        self.assertRaises(ValueError, start_round_controller, round_db, group_db, group.get_id(), RoundConfiguration(1, 0, "RANDOM", []), "", auth_context_processor)
 
     def test_start_round_controller_fail(self):
         group_db = InMemoryDBInterface()

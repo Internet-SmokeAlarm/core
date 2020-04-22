@@ -17,7 +17,7 @@ class DurationTerminationCriteriaTestCase(unittest.TestCase):
 
     def test_from_json_pass(self):
         criteria_json = {
-            "class_name" : "DurationTerminationCriteria",
+            "type" : "DurationTerminationCriteria",
             "max_duration_sec" : "100",
             "start_epoch_time" : "1235345.5234"
         }
@@ -29,7 +29,7 @@ class DurationTerminationCriteriaTestCase(unittest.TestCase):
     def test_to_json_pass(self):
         criteria = DurationTerminationCriteria(100, 1235345.5234)
         criteria_json = {
-            "class_name" : "DurationTerminationCriteria",
+            "type" : "DurationTerminationCriteria",
             "max_duration_sec" : "100",
             "start_epoch_time" : "1235345.5234"
         }

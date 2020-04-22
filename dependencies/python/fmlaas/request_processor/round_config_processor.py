@@ -1,6 +1,7 @@
 from .request_processor import RequestProcessor
 from ..model import RoundConfiguration
 from ..model.termination_criteria import DurationTerminationCriteria
+from ..model.termination_criteria import get_termination_criteria_class_from_json
 from ..utils import get_epoch_time
 
 class RoundConfigJSONProcessor(RequestProcessor):
@@ -45,16 +46,16 @@ class RoundConfigJSONProcessor(RequestProcessor):
 
         converted_termination_criteria = []
         for criteria in termination_criteria:
-            converted_termination_criteria.append(self._load_termination_criteria(criteria["type"], criteria))
+            converted_termination_criteria.append(self._load_termination_criteria(criteria))
 
         return converted_termination_criteria
 
-    def _load_termination_criteria(self, criteria_type, criteria):
+    def _load_termination_criteria(self, criteria):
         """
-        :param criteria_type: string
         :param criteria: dict
         """
-        if criteria_type == "duration":
+        criteria_type = get_termination_criteria_class_from_json(criteria)
+        if criteria_type == DurationTerminationCriteria:
             return DurationTerminationCriteria(criteria["max_duration_sec"],
                                                get_epoch_time())
 
