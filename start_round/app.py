@@ -63,3 +63,8 @@ def lambda_handler(event, context):
             "statusCode" : 403,
             "body" : str(error)
         }
+    except ValueError as error:
+        return {
+            "statusCode" : 400,
+            "body" : str(error)
+        }
