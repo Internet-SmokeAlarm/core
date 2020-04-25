@@ -63,6 +63,7 @@ class SubmitModelUpdateControllerTestCase(unittest.TestCase):
                                                                                   auth_context_processor)
         self.assertTrue(can_submit_model_to_round)
         self.assertIsNotNone(presigned_url)
+        self.assertTrue("device_models" in presigned_url["fields"]["key"])
 
     def test_fail_not_authorized_user(self):
         group_db_ = InMemoryDBInterface()

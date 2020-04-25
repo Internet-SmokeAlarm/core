@@ -32,7 +32,7 @@ def submit_model_update_controller(group_db, round_db, group_id, round_id, auth_
     can_submit_model_to_round = round.is_in_progress() and round.is_device_active(auth_context_processor.get_entity_id())
     if can_submit_model_to_round:
         object_name = HierarchicalModelNameStructure()
-        object_name.generate_name(group_id, round_id, auth_context_processor.get_entity_id())
+        object_name.generate_name(round_id=round_id, device_id=auth_context_processor.get_entity_id())
 
         presigned_url = create_presigned_post(
             get_models_bucket_name(),
