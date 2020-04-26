@@ -356,9 +356,26 @@ class RoundTestCase(unittest.TestCase):
         builder.set_parent_group_id("fl_group_1232234")
         builder.set_devices(["123", "234"])
         configuration = RoundConfiguration(50, 0, "RANDOM", [
-            DurationTerminationCriteria(10, get_epoch_time()).to_json()
+            DurationTerminationCriteria(10, float(get_epoch_time())).to_json()
         ])
         builder.set_configuration(configuration.to_json())
         round = builder.build()
+
+        self.assertFalse(round.should_terminate())
+
+    def test_reset_termination_criteria_pass(self):
+        builder = RoundBuilder()
+        builder.set_id("test_id")
+        builder.set_parent_group_id("fl_group_1232234")
+        builder.set_devices(["123", "234"])
+        configuration = RoundConfiguration(50, 0, "RANDOM", [
+            DurationTerminationCriteria(10, float(get_epoch_time()) - 100).to_json()
+        ])
+        builder.set_configuration(configuration.to_json())
+        round = builder.build()
+
+        self.assertTrue(round.should_terminate())
+
+        round.reset_termination_criteria()
 
         self.assertFalse(round.should_terminate())

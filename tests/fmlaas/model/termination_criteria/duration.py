@@ -35,3 +35,10 @@ class DurationTerminationCriteriaTestCase(unittest.TestCase):
         }
 
         self.assertEqual(criteria.to_json(), criteria_json)
+
+    def test_reset_pass(self):
+        start_epoch_time = float(get_epoch_time()) - 100.0
+        criteria = DurationTerminationCriteria(100, start_epoch_time)
+        criteria.reset()
+
+        self.assertNotEqual(criteria.get_start_epoch_time(), start_epoch_time)

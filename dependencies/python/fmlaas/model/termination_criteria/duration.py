@@ -23,6 +23,9 @@ class DurationTerminationCriteria(TerminationCriteria):
         """
         return float(get_epoch_time()) - self.start_epoch_time >= self.max_duration_sec
 
+    def reset(self):
+        self.start_epoch_time = float(get_epoch_time())
+
     def to_json(self):
         return {
             "type" : DurationTerminationCriteria.__name__,

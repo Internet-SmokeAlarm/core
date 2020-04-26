@@ -248,6 +248,11 @@ class Round(DBObject):
 
         return False
 
+    def reset_termination_criteria(self):
+        config = self.get_configuration()
+        config.reset_termination_criteria()
+        self.configuration = config.to_json()
+
     def to_json(self):
         return {
             "ID" : self.id,

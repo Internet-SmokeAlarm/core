@@ -43,6 +43,16 @@ class RoundConfiguration:
         for criteria in termination_criteria:
             self.termination_criteria.append(criteria.to_json())
 
+    def reset_termination_criteria(self):
+        termination_criteria = self.get_termination_criteria()
+        updated_criteria = []
+        for criteria in termination_criteria:
+            criteria.reset()
+
+            updated_criteria.append(criteria.to_json())
+
+        self.termination_criteria = updated_criteria
+
     def to_json(self):
         return {
             "num_devices" : str(self.num_devices),

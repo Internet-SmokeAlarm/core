@@ -21,6 +21,7 @@ def update_round_path(current_round, round_db, group_db):
             group.add_current_round_id(round_id)
 
             round.set_start_model(current_round.get_end_model())
+            round.reset_termination_criteria()
             round.save_to_db(round_db)
 
             break

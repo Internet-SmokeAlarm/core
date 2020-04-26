@@ -52,3 +52,12 @@ class RoundConfigurationTestCase(unittest.TestCase):
         round_configuration = RoundConfiguration(50, 5, "RANDOM", [])
 
         self.assertEqual(round_configuration.get_total_num_devices(), 55)
+
+    def test_reset_termination_criteria_pass(self):
+        round_configuration = RoundConfiguration(50, 5, "RANDOM", [
+            DurationTerminationCriteria(50, 123211241.2342).to_json()
+        ])
+
+        round_configuration.reset_termination_criteria()
+
+        self.assertNotEqual(round_configuration.get_termination_criteria()[0].get_start_epoch_time(), 123211241.2342)
