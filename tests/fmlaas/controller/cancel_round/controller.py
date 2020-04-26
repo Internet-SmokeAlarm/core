@@ -16,6 +16,31 @@ from dependencies.python.fmlaas.controller.cancel_round import cancel_round_cont
 
 class CancelRoundControllerTestCase(unittest.TestCase):
 
+    def _build_default_group(self):
+        group_builder = GroupBuilder()
+        group_builder.set_id("test_id")
+        group_builder.set_name("test_name")
+
+        group = group_builder.build()
+        group.add_device("12344")
+        group.create_round_path("1234432414")
+        group.add_current_round_id("1234432414")
+        group.add_or_update_member("user_12345", GroupPrivilegeTypesEnum.READ_ONLY)
+
+        return group
+
+    def _build_default_round(self):
+        round_builder = RoundBuilder()
+        round_builder.set_id("round_test_id")
+        round_builder.set_parent_group_id("test_id")
+        round_builder.set_configuration(RoundConfiguration(1, 0, "RANDOM", []).to_json())
+        round_builder.set_start_model(Model("12312414", "12312414/start_model", "123211").to_json())
+        round_builder.set_aggregate_model(Model("1234", "1234/aggregate_model", "123211").to_json())
+        round_builder.set_devices(["34553"])
+        round = round_builder.build()
+
+        return round
+
     def test_pass(self):
         round_db = InMemoryDBInterface()
         group_db = InMemoryDBInterface()
@@ -118,6 +143,28 @@ class CancelRoundControllerTestCase(unittest.TestCase):
         self.assertTrue(round_2.get_id() in db_group.get_current_round_ids())
         self.assertEqual(db_round_2.get_status(), RoundStatus.IN_PROGRESS)
         self.assertEqual(db_round_2.get_start_model().to_json(), db_round.get_start_model().to_json())
+
+    def test_pass_3(self):
+        group_db_ = InMemoryDBInterface()
+        round_db_ = InMemoryDBInterface()
+
+        round = self._build_default_round()
+        round.set_aggregate_model(Model("1234", "1234/1234", "123211"))
+        round.complete()
+        round.save_to_db(round_db_)
+
+        group = self._build_default_group()
+        group.create_round_path(round.get_id())
+        group.add_current_round_id(round.get_id())
+        group.save_to_db(group_db_)
+
+        auth_json = {
+            "authentication_type" : "USER",
+            "entity_id" : "user_12345"
+        }
+        auth_context_processor = AuthContextProcessor(auth_json)
+
+        self.assertRaises(Exception, cancel_round_controller, group_db_, round_db_, round.get_id(), auth_context_processor)
 
     def test_fail_not_authorized_user(self):
         group_db = InMemoryDBInterface()
