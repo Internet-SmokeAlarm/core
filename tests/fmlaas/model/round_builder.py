@@ -12,7 +12,7 @@ class RoundBuilderTestCase(unittest.TestCase):
         round_builder.set_id("test_id")
         round_builder.set_parent_group_id("fl_group_123123")
 
-        configuration = RoundConfiguration("50", "RANDOM", [])
+        configuration = RoundConfiguration(50, 0, "RANDOM", [])
         round_builder.set_configuration(configuration.to_json())
         round_builder.set_start_model(Model("1234", "1234/start_model", "123211").to_json())
 
@@ -31,7 +31,7 @@ class RoundBuilderTestCase(unittest.TestCase):
     def test_build_fail(self):
         round_builder = RoundBuilder()
 
-        configuration = RoundConfiguration("50", "RANDOM", [])
+        configuration = RoundConfiguration(50, 0, "RANDOM", [])
         round_builder.set_configuration(configuration.to_json())
 
         self.assertRaises(ValueError, round_builder.build)
@@ -45,7 +45,7 @@ class RoundBuilderTestCase(unittest.TestCase):
     def test_build_fail_3(self):
         round_builder = RoundBuilder()
         round_builder.set_id("test_id")
-        configuration = RoundConfiguration("50", "RANDOM", [])
+        configuration = RoundConfiguration(50, 0, "RANDOM", [])
         round_builder.set_configuration(configuration.to_json())
 
         self.assertRaises(ValueError, round_builder.build)
@@ -55,7 +55,7 @@ class RoundBuilderTestCase(unittest.TestCase):
         round_builder.set_id("test_id")
         round_builder.set_parent_group_id("fl_group_12312313")
 
-        configuration = RoundConfiguration("50", "RANDOM", [])
+        configuration = RoundConfiguration(50, 0, "RANDOM", [])
         round_builder.set_configuration(configuration.to_json())
 
         round_builder.set_start_model(Model("1234", "1234/1234", "123211").to_json())
@@ -65,7 +65,7 @@ class RoundBuilderTestCase(unittest.TestCase):
     def test_validate_parameters_fail(self):
         round_builder = RoundBuilder()
 
-        configuration = RoundConfiguration("50", "RANDOM", [])
+        configuration = RoundConfiguration(50, 0, "RANDOM", [])
         round_builder.set_configuration(configuration.to_json())
 
         self.assertRaises(ValueError, round_builder._validate_parameters)
@@ -79,7 +79,7 @@ class RoundBuilderTestCase(unittest.TestCase):
     def test_validate_parameters_fail_3(self):
         round_builder = RoundBuilder()
         round_builder.set_id("test_id")
-        configuration = RoundConfiguration("50", "RANDOM", [])
+        configuration = RoundConfiguration(50, 0, "RANDOM", [])
         round_builder.set_configuration(configuration.to_json())
 
         self.assertRaises(ValueError, round_builder._validate_parameters)

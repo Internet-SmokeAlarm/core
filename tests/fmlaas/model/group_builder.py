@@ -35,16 +35,16 @@ class GroupBuilderTestCase(unittest.TestCase):
         builder.set_id("test_id")
         builder.set_name("test_name")
 
-        builder._validate_paramaters()
+        builder._validate_parameters()
 
     def test_validate_parameters_fail_1(self):
         builder = GroupBuilder()
         builder.set_id("test_id")
 
-        self.assertRaises(ValueError, builder._validate_paramaters)
+        self.assertRaises(ValueError, builder._validate_parameters)
 
     def test_validate_parameters_fail_2(self):
         builder = GroupBuilder()
         builder.set_name("test_name")
 
-        self.assertRaises(ValueError, builder._validate_paramaters)
+        self.assertRaises(ValueError, builder._validate_parameters)

@@ -243,7 +243,7 @@ Resources:
     Properties:
       Timeout: 3
       MemorySize: 128
-      CodeUri: cancel_round/
+      CodeUri: submit_round_start_model/
       Handler: app.lambda_handler
       FunctionName: !Join ["", [!Ref Stage, "-SubmitRoundStartModel"]]
       Layers:
@@ -254,6 +254,7 @@ Resources:
             TableName: !Ref GroupsTable
         - DynamoDBCrudPolicy:
             TableName: !Ref RoundsTable
+        - !Ref S3PutObjectPolicy
       Events:
         SubmitRoundStartModelApiEvent:
           Type: Api

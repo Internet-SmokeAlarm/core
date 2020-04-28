@@ -25,13 +25,13 @@ def lambda_handler(event, context):
     dynamodb_ = DynamoDBInterface(get_group_table_name_from_env())
 
     try:
-        current_round_id = get_group_current_round_id_controller(dynamodb_,
+        current_round_ids = get_group_current_round_id_controller(dynamodb_,
                                                                  group_id,
                                                                  auth_context_processor)
 
         return {
             "statusCode" : 200,
-            "body" : json.dumps({"round_id" : current_round_id})
+            "body" : json.dumps({"round_ids" : current_round_ids})
         }
     except RequestForbiddenException as error:
         return {

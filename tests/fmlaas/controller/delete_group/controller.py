@@ -27,7 +27,7 @@ class DeleteGroupControllerTestCase(unittest.TestCase):
         round_builder = RoundBuilder()
         round_builder.set_id("2345")
         round_builder.set_parent_group_id("test_id")
-        configuration = RoundConfiguration("1", "RANDOM", [])
+        configuration = RoundConfiguration(1, 0, "RANDOM", [])
         round_builder.set_configuration(configuration.to_json())
         round_builder.set_devices(["3456"])
         round_builder.set_start_model(Model("1234", "1234/1234", "123211").to_json())

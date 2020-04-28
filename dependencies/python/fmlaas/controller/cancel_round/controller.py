@@ -25,6 +25,9 @@ def cancel_round_controller(group_db, round_db, round_id, auth_context_processor
     if not group.does_member_have_auth(auth_context_processor.get_entity_id(), GroupPrivilegeTypesEnum.READ_WRITE):
         raise_default_request_forbidden_error()
 
+    if round.is_complete():
+        raise Exception("cannot cancel a round that has already been completed.")
+
     round.cancel()
     round.save_to_db(round_db)
 

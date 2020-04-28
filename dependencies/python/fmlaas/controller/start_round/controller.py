@@ -53,12 +53,16 @@ def start_round_controller(round_db,
     if not group.does_member_have_auth(auth_context_processor.get_entity_id(), GroupPrivilegeTypesEnum.READ_WRITE):
         raise_default_request_forbidden_error()
 
+    group_device_list = group.get_device_list()
+    if round_config.get_num_devices() > len(group_device_list):
+        raise ValueError("Cannot start round with more devices than exist in group.")
+
     device_selector = get_device_selector(round_config)
-    devices = device_selector.select_devices(group.get_device_list(), round_config)
+    devices = device_selector.select_devices(group_device_list, round_config)
 
     new_round = create_round(devices, group_id, round_config)
 
-    if previous_round_id is None:
+    if previous_round_id == "":
         group.create_round_path(new_round.get_id())
         group.add_current_round_id(new_round.get_id())
     else:

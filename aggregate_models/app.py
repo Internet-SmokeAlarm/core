@@ -61,7 +61,6 @@ def generate_global_model(models):
 def lambda_handler(event, context):
     try:
         id_processor = IDProcessor(event)
-        group_id = id_processor.get_group_id()
         round_id = id_processor.get_round_id()
     except ValueError as error:
         return {
@@ -73,7 +72,7 @@ def lambda_handler(event, context):
     round = DBObject.load_from_db(Round, round_id, dynamodb_)
 
     name = HierarchicalModelNameStructure()
-    name.generate_name(group_id=group_id, round_id=round_id)
+    name.generate_name(round_id=round_id)
 
     models = round.get_models()
     model_names = [models[model].get_name().get_name() for model in models.keys()]

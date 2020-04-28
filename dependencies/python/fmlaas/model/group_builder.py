@@ -56,11 +56,11 @@ class GroupBuilder(Builder):
         self.billing = billing
 
     def build(self):
-        self._validate_paramaters()
+        self._validate_parameters()
 
         return FLGroup(self.name, self.id, self.devices, self.round_info, self.round_paths, self.current_round_ids, self.members, self.billing)
 
-    def _validate_paramaters(self):
+    def _validate_parameters(self):
         if self.id is None:
             raise ValueError("ID must not be none")
         elif type(self.id) is not type("str"):

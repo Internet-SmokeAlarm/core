@@ -1,16 +1,11 @@
 import unittest
 
 from dependencies.python.fmlaas.model import FLGroup
-from dependencies.python.fmlaas.model import Round
-from dependencies.python.fmlaas.model import RoundBuilder
 from dependencies.python.fmlaas.model import Model
-from dependencies.python.fmlaas.model import RoundStatus
-from dependencies.python.fmlaas.model import RoundConfiguration
 from dependencies.python.fmlaas.model import GroupPrivilegeTypesEnum
 from dependencies.python.fmlaas import generate_unique_id
 from dependencies.python.fmlaas import HierarchicalModelNameStructure
 from dependencies.python.fmlaas.model import GroupBuilder
-from dependencies.python.fmlaas.device_selection import RandomDeviceSelector
 
 class FLGroupTestCase(unittest.TestCase):
 

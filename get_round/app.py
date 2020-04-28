@@ -34,6 +34,9 @@ def lambda_handler(event, context):
                                      round_id,
                                      auth_context_processor)
 
+        # TODO : Need to remove unnecessary content from return JSON.
+        #   Should probably happen inside the controller.
+
         return {
             "statusCode" : 200,
             "body" : json.dumps(round.to_json())
