@@ -22,7 +22,7 @@ def lambda_handler(event, context):
     except ValueError as error:
         return {
             "statusCode" : 400,
-            "body" : str(error)
+            "body" : json.dumps({"error_msg" : str(error)})
         }
 
     group_db = DynamoDBInterface(get_group_table_name_from_env())
@@ -42,5 +42,5 @@ def lambda_handler(event, context):
     except RequestForbiddenException as error:
         return {
             "statusCode" : 403,
-            "body" : str(error)
+            "body" : json.dumps({"error_msg" : str(error)})
         }

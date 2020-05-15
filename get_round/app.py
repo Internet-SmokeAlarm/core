@@ -21,7 +21,7 @@ def lambda_handler(event, context):
     except ValueError as error:
         return {
             "statusCode" : 400,
-            "body" : str(error)
+            "body" : json.dumps({"error_msg" : str(error)})
         }
 
     try:
@@ -44,5 +44,5 @@ def lambda_handler(event, context):
     except RequestForbiddenException as error:
         return {
             "statusCode" : 403,
-            "body" : str(error)
+            "body" : json.dumps({"error_msg" : str(error)})
         }

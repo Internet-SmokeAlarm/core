@@ -21,7 +21,7 @@ def lambda_handler(event, context):
     except ValueError as error:
         return {
             "statusCode" : 400,
-            "body" : str(error)
+            "body" : json.dumps({"error_msg" : str(error)})
         }
 
     group_db = DynamoDBInterface(get_group_table_name_from_env())
@@ -42,10 +42,10 @@ def lambda_handler(event, context):
         else:
             return {
                 "statusCode" : 400,
-                "body" : "Cannot get aggregate model for incomplete round"
+                "body" : json.dumps({"error_msg" : "Cannot get aggregate model for incomplete round"})
             }
     except RequestForbiddenException as error:
         return {
             "statusCode" : 403,
-            "body" : str(error)
+            "body" : json.dumps({"error_msg" : str(error)})
         }

@@ -20,7 +20,7 @@ def lambda_handler(event, context):
     except ValueError as error:
         return {
             "statusCode" : 400,
-            "body" : str(error)
+            "body" : json.dumps({"error_msg" : str(error)})
         }
 
     group_db = DynamoDBInterface(get_group_table_name_from_env())
@@ -35,7 +35,7 @@ def lambda_handler(event, context):
         if not can_submit_start_model:
             return {
                 "statusCode" : 400,
-                "body" : "Cannot submit model to this round because it is not in initialization state"
+                "body" : json.dumps({"error_msg" : "Cannot submit model to this round because it is not in initialization state"})
             }
         else:
             return {
@@ -45,5 +45,5 @@ def lambda_handler(event, context):
     except RequestForbiddenException as error:
         return {
             "statusCode" : 403,
-            "body" : str(error)
+            "body" : json.dumps({"error_msg" : str(error)})
         }

@@ -211,7 +211,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref FmlaasProdApi
-            Path: /v1/device/register
+            Path: /v1/device/create
             Method: post
 
   CancelRoundFunction:
@@ -284,7 +284,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref FmlaasProdApi
-            Path: /v1/round/start
+            Path: /v1/round/create
             Method: post
 
   GetRoundFunction:
@@ -379,7 +379,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref FmlaasProdApi
-            Path: /v1/round/get/aggregate_model/{group_id}/{round_id}
+            Path: /v1/round/aggregate_model/{group_id}/{round_id}
             Method: get
 
   CreateGroupFunction:
@@ -451,7 +451,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref FmlaasProdApi
-            Path: /v1/device/get/active/{group_id}/{round_id}/{device_id}
+            Path: /v1/device/is_active/{group_id}/{round_id}/{device_id}
             Method: get
 
   GetGroupCurrentRoundIdFunction:
@@ -473,7 +473,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref FmlaasProdApi
-            Path: /v1/group/get/current_round_id/{group_id}
+            Path: /v1/group/current_round_ids/{group_id}
             Method: get
 
   SubmitModelUpdateFunction:
@@ -498,7 +498,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref FmlaasProdApi
-            Path: /v1/submit_model_update
+            Path: /v1/device/submit_model_update
             Method: post
 
   GetRoundStartModelFunction:
@@ -523,7 +523,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref FmlaasProdApi
-            Path: /v1/round/get/start_model/{group_id}/{round_id}
+            Path: /v1/round/start_model/{group_id}/{round_id}
             Method: get
 
   AggregateModelsFunction:
