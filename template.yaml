@@ -158,7 +158,7 @@ Resources:
     Properties:
       Timeout: 10
       MemorySize: 1536
-      CodeUri: lambda_authorizer/
+      CodeUri: api/lambda_authorizer/
       Handler: app.lambda_handler
       FunctionName: !Join ["", [!Ref Stage, "-LambdaAuthorizer"]]
       Layers:
@@ -173,7 +173,7 @@ Resources:
     Properties:
       Timeout: 10
       MemorySize: 1536
-      CodeUri: create_api_key/
+      CodeUri: api/api_key/post/create/
       Handler: app.lambda_handler
       FunctionName: !Join ["", [!Ref Stage, "-CreateApiKey"]]
       Layers:
@@ -195,7 +195,7 @@ Resources:
     Properties:
       Timeout: 10
       MemorySize: 1536
-      CodeUri: register_device/
+      CodeUri: api/group/post/register_device/
       Handler: app.lambda_handler
       FunctionName: !Join ["", [!Ref Stage, "-RegisterDevice"]]
       Layers:
@@ -211,7 +211,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref FmlaasProdApi
-            Path: /v1/device/register
+            Path: /v1/device/create
             Method: post
 
   CancelRoundFunction:
@@ -219,7 +219,7 @@ Resources:
     Properties:
       Timeout: 3
       MemorySize: 128
-      CodeUri: cancel_round/
+      CodeUri: api/round/post/cancel/
       Handler: app.lambda_handler
       FunctionName: !Join ["", [!Ref Stage, "-CancelRound"]]
       Layers:
@@ -243,7 +243,7 @@ Resources:
     Properties:
       Timeout: 3
       MemorySize: 128
-      CodeUri: submit_round_start_model/
+      CodeUri: api/round/post/submit_start_model/
       Handler: app.lambda_handler
       FunctionName: !Join ["", [!Ref Stage, "-SubmitRoundStartModel"]]
       Layers:
@@ -263,14 +263,14 @@ Resources:
             Path: /v1/round/submit_start_model
             Method: post
 
-  StartRoundFunction:
+  CreateRoundFunction:
     Type: AWS::Serverless::Function
     Properties:
       Timeout: 3
       MemorySize: 128
-      CodeUri: start_round/
+      CodeUri: api/round/post/create/
       Handler: app.lambda_handler
-      FunctionName: !Join ["", [!Ref Stage, "-StartRound"]]
+      FunctionName: !Join ["", [!Ref Stage, "-CreateRound"]]
       Layers:
         - !Ref FMLaaSCoreDependencyLayer
       Policies:
@@ -280,11 +280,11 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref RoundsTable
       Events:
-        StartRoundApiEvent:
+        CreateRoundApiEvent:
           Type: Api
           Properties:
             RestApiId: !Ref FmlaasProdApi
-            Path: /v1/round/start
+            Path: /v1/round/create
             Method: post
 
   GetRoundFunction:
@@ -292,7 +292,7 @@ Resources:
     Properties:
       Timeout: 3
       MemorySize: 128
-      CodeUri: get_round/
+      CodeUri: api/round/get/round/
       Handler: app.lambda_handler
       FunctionName: !Join ["", [!Ref Stage, "-GetRound"]]
       Layers:
@@ -316,7 +316,7 @@ Resources:
     Properties:
       Timeout: 3
       MemorySize: 128
-      CodeUri: get_group/
+      CodeUri: api/group/get/group/
       Handler: app.lambda_handler
       FunctionName: !Join ["", [!Ref Stage, "-GetGroup"]]
       Layers:
@@ -338,7 +338,7 @@ Resources:
     Properties:
       Timeout: 3
       MemorySize: 128
-      CodeUri: model_uploaded/
+      CodeUri: api/model_uploaded/
       Handler: app.lambda_handler
       FunctionName: !Join ["", [!Ref Stage, "-ModelUploaded"]]
       Layers:
@@ -362,7 +362,7 @@ Resources:
     Properties:
       Timeout: 3
       MemorySize: 128
-      CodeUri: get_round_aggregate_model/
+      CodeUri: api/round/get/aggregate_model/
       Handler: app.lambda_handler
       FunctionName: !Join ["", [!Ref Stage, "-GetRoundAggregateModel"]]
       Layers:
@@ -379,7 +379,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref FmlaasProdApi
-            Path: /v1/round/get/aggregate_model/{group_id}/{round_id}
+            Path: /v1/round/aggregate_model/{group_id}/{round_id}
             Method: get
 
   CreateGroupFunction:
@@ -387,7 +387,7 @@ Resources:
     Properties:
       Timeout: 3
       MemorySize: 128
-      CodeUri: create_group/
+      CodeUri: api/group/post/create/
       Handler: app.lambda_handler
       FunctionName: !Join ["", [!Ref Stage, "-CreateGroup"]]
       Layers:
@@ -409,7 +409,7 @@ Resources:
     Properties:
       Timeout: 3
       MemorySize: 128
-      CodeUri: delete_group/
+      CodeUri: api/group/delete/group/
       Handler: app.lambda_handler
       FunctionName: !Join ["", [!Ref Stage, "-DeleteGroup"]]
       Layers:
@@ -435,7 +435,7 @@ Resources:
     Properties:
       Timeout: 3
       MemorySize: 128
-      CodeUri: is_device_active/
+      CodeUri: api/device/get/is_active/
       Handler: app.lambda_handler
       FunctionName: !Join ["", [!Ref Stage, "-IsDeviceActive"]]
       Layers:
@@ -451,17 +451,17 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref FmlaasProdApi
-            Path: /v1/device/get/active/{group_id}/{round_id}/{device_id}
+            Path: /v1/device/is_active/{group_id}/{round_id}/{device_id}
             Method: get
 
-  GetGroupCurrentRoundIdFunction:
+  GetGroupActiveRoundsFunction:
     Type: AWS::Serverless::Function
     Properties:
       Timeout: 3
       MemorySize: 128
-      CodeUri: get_group_current_round_id/
+      CodeUri: api/group/get/active_rounds/
       Handler: app.lambda_handler
-      FunctionName: !Join ["", [!Ref Stage, "-GetGroupCurrentRoundIdFunction"]]
+      FunctionName: !Join ["", [!Ref Stage, "-GetGroupActiveRoundsFunction"]]
       Layers:
         - !Ref FMLaaSCoreDependencyLayer
       Policies:
@@ -469,11 +469,11 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref GroupsTable
       Events:
-        GetGroupCurrentRoundIdEvent:
+        GetGroupActiveRoundsEvent:
           Type: Api
           Properties:
             RestApiId: !Ref FmlaasProdApi
-            Path: /v1/group/get/current_round_id/{group_id}
+            Path: /v1/group/active_rounds/{group_id}
             Method: get
 
   SubmitModelUpdateFunction:
@@ -481,7 +481,7 @@ Resources:
     Properties:
       Timeout: 3
       MemorySize: 128
-      CodeUri: submit_model_update/
+      CodeUri: api/device/post/submit_model_update/
       Handler: app.lambda_handler
       FunctionName: !Join ["", [!Ref Stage, "-SubmitModelUpdate"]]
       Layers:
@@ -498,7 +498,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref FmlaasProdApi
-            Path: /v1/submit_model_update
+            Path: /v1/device/submit_model_update
             Method: post
 
   GetRoundStartModelFunction:
@@ -506,7 +506,7 @@ Resources:
     Properties:
       Timeout: 3
       MemorySize: 128
-      CodeUri: get_round_start_model/
+      CodeUri: api/round/get/start_model/
       Handler: app.lambda_handler
       FunctionName: !Join ["", [!Ref Stage, "-GetRoundStartModel"]]
       Layers:
@@ -523,7 +523,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref FmlaasProdApi
-            Path: /v1/round/get/start_model/{group_id}/{round_id}
+            Path: /v1/round/start_model/{group_id}/{round_id}
             Method: get
 
   AggregateModelsFunction:
@@ -531,7 +531,7 @@ Resources:
     Properties:
       Timeout: 60
       MemorySize: 1536
-      CodeUri: aggregate_models/
+      CodeUri: api/aggregate_models/
       Handler: app.lambda_handler
       FunctionName: !Join ["", [!Ref Stage, "-AggregateModels"]]
       Layers:

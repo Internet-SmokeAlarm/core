@@ -25,7 +25,7 @@ if [[ $STAGE == *"prod"* ]]; then
   $(confirm)
 fi
 
-rm -r build
+rm -r build || true
 mkdir build
 
 aws s3api create-bucket --bucket ${STAGE}-fedlearn-core --region us-east-1
