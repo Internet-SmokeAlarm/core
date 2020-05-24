@@ -8,6 +8,7 @@ from fmlaas.request_processor import AuthContextProcessor
 from fmlaas.controller.get_job_aggregate_model import get_job_aggregate_model_controller
 from fmlaas.exception import RequestForbiddenException
 
+
 def lambda_handler(event, context):
     req_json = event.get("pathParameters")
     auth_json = event["requestContext"]["authorizer"]
@@ -20,8 +21,8 @@ def lambda_handler(event, context):
         auth_context_processor = AuthContextProcessor(auth_json)
     except ValueError as error:
         return {
-            "statusCode" : 400,
-            "body" : json.dumps({"error_msg" : str(error)})
+            "statusCode": 400,
+            "body": json.dumps({"error_msg": str(error)})
         }
 
     group_db = DynamoDBInterface(get_group_table_name_from_env())
@@ -29,23 +30,23 @@ def lambda_handler(event, context):
 
     try:
         is_job_complete, presigned_url = get_job_aggregate_model_controller(group_db,
-                                                                                job_db,
-                                                                                group_id,
-                                                                                job_id,
-                                                                                auth_context_processor)
+                                                                            job_db,
+                                                                            group_id,
+                                                                            job_id,
+                                                                            auth_context_processor)
 
         if is_job_complete:
             return {
-                "statusCode" : 200,
-                "body" : json.dumps({"model_url" : presigned_url})
+                "statusCode": 200,
+                "body": json.dumps({"model_url": presigned_url})
             }
         else:
             return {
-                "statusCode" : 400,
-                "body" : json.dumps({"error_msg" : "Cannot get aggregate model for incomplete job"})
+                "statusCode": 400,
+                "body": json.dumps({"error_msg": "Cannot get aggregate model for incomplete job"})
             }
     except RequestForbiddenException as error:
         return {
-            "statusCode" : 403,
-            "body" : json.dumps({"error_msg" : str(error)})
+            "statusCode": 403,
+            "body": json.dumps({"error_msg": str(error)})
         }

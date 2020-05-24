@@ -16,10 +16,12 @@ from dependencies.python.fmlaas.controller.start_job import create_job
 from dependencies.python.fmlaas.controller.start_job import start_job_controller
 from dependencies.python.fmlaas.request_processor import AuthContextProcessor
 
+
 class StartJobControllerTestCase(unittest.TestCase):
 
     def test_get_device_selector_pass(self):
-        device_selector = get_device_selector(JobConfiguration(5, 0, "RANDOM", []))
+        device_selector = get_device_selector(
+            JobConfiguration(5, 0, "RANDOM", []))
 
         self.assertEqual(device_selector.__class__, RandomDeviceSelector)
 
@@ -32,7 +34,9 @@ class StartJobControllerTestCase(unittest.TestCase):
         self.assertIsNotNone(new_job.get_id())
         self.assertEqual(new_job.get_devices(), devices)
         self.assertEqual(new_job.get_parent_project_id(), "test_id123")
-        self.assertEqual(job_config.to_json(), new_job.get_configuration().to_json())
+        self.assertEqual(
+            job_config.to_json(),
+            new_job.get_configuration().to_json())
 
     def test_start_job_controller_pass_1(self):
         project_db = InMemoryDBInterface()
@@ -41,15 +45,23 @@ class StartJobControllerTestCase(unittest.TestCase):
         builder = ProjectBuilder()
         builder.set_id("test_id")
         builder.set_name("test_name")
-        builder.set_devices({"34553" : {"ID" : "34553", "registered_on" : "213123144.2342"}})
+        builder.set_devices(
+            {"34553": {"ID": "34553", "registered_on": "213123144.2342"}})
         project = builder.build()
-        project.add_or_update_member("user_12345", ProjectPrivilegeTypesEnum.ADMIN)
+        project.add_or_update_member(
+            "user_12345", ProjectPrivilegeTypesEnum.ADMIN)
 
         job_builder = JobBuilder()
         job_builder.set_id("job_test_id")
         job_builder.set_parent_project_id("test_id")
-        job_builder.set_configuration(JobConfiguration(1, 0, "RANDOM", []).to_json())
-        job_builder.set_start_model(Model("12312414", "12312414/start_model", "123211").to_json())
+        job_builder.set_configuration(
+            JobConfiguration(
+                1, 0, "RANDOM", []).to_json())
+        job_builder.set_start_model(
+            Model(
+                "12312414",
+                "12312414/start_model",
+                "123211").to_json())
         job_builder.set_devices(["34553"])
         job = job_builder.build()
 
@@ -60,15 +72,18 @@ class StartJobControllerTestCase(unittest.TestCase):
         project.save_to_db(project_db)
 
         auth_json = {
-            "authentication_type" : "USER",
-            "entity_id" : "user_12345"
+            "authentication_type": "USER",
+            "entity_id": "user_12345"
         }
         auth_context_processor = AuthContextProcessor(auth_json)
 
-        new_job_id = start_job_controller(job_db, project_db, project.get_id(), JobConfiguration(1, 0, "RANDOM", []), job.get_id(), auth_context_processor)
+        new_job_id = start_job_controller(
+            job_db, project_db, project.get_id(), JobConfiguration(
+                1, 0, "RANDOM", []), job.get_id(), auth_context_processor)
         new_job = DBObject.load_from_db(Job, new_job_id, job_db)
 
-        updated_project = DBObject.load_from_db(Project, project.get_id(), project_db)
+        updated_project = DBObject.load_from_db(
+            Project, project.get_id(), project_db)
 
         self.assertEqual(updated_project.get_current_job_ids(), [job.get_id()])
         self.assertTrue(updated_project.contains_job(new_job_id))
@@ -80,21 +95,26 @@ class StartJobControllerTestCase(unittest.TestCase):
         builder = ProjectBuilder()
         builder.set_id("test_id")
         builder.set_name("test_name")
-        builder.set_devices({"34553" : {"ID" : "34553", "registered_on" : "213123144.2342"}})
+        builder.set_devices(
+            {"34553": {"ID": "34553", "registered_on": "213123144.2342"}})
         project = builder.build()
-        project.add_or_update_member("user_12345", ProjectPrivilegeTypesEnum.ADMIN)
+        project.add_or_update_member(
+            "user_12345", ProjectPrivilegeTypesEnum.ADMIN)
 
         project.save_to_db(project_db)
 
         auth_json = {
-            "authentication_type" : "USER",
-            "entity_id" : "user_12345"
+            "authentication_type": "USER",
+            "entity_id": "user_12345"
         }
         auth_context_processor = AuthContextProcessor(auth_json)
 
-        new_job_id = start_job_controller(job_db, project_db, project.get_id(), JobConfiguration(1, 0, "RANDOM", []), "", auth_context_processor)
+        new_job_id = start_job_controller(
+            job_db, project_db, project.get_id(), JobConfiguration(
+                1, 0, "RANDOM", []), "", auth_context_processor)
         new_job = DBObject.load_from_db(Job, new_job_id, job_db)
-        updated_project = DBObject.load_from_db(Project, project.get_id(), project_db)
+        updated_project = DBObject.load_from_db(
+            Project, project.get_id(), project_db)
 
         self.assertEqual(new_job.get_devices(), ["34553"])
 
@@ -109,15 +129,23 @@ class StartJobControllerTestCase(unittest.TestCase):
         builder = ProjectBuilder()
         builder.set_id("test_id")
         builder.set_name("test_name")
-        builder.set_devices({"34553" : {"ID" : "34553", "registered_on" : "213123144.2342"}})
+        builder.set_devices(
+            {"34553": {"ID": "34553", "registered_on": "213123144.2342"}})
         project = builder.build()
-        project.add_or_update_member("user_12345", ProjectPrivilegeTypesEnum.ADMIN)
+        project.add_or_update_member(
+            "user_12345", ProjectPrivilegeTypesEnum.ADMIN)
 
         job_builder = JobBuilder()
         job_builder.set_id("job_test_id")
         job_builder.set_parent_project_id("test_id")
-        job_builder.set_configuration(JobConfiguration(1, 0, "RANDOM", []).to_json())
-        job_builder.set_start_model(Model("12312414", "12312414/start_model", "123211").to_json())
+        job_builder.set_configuration(
+            JobConfiguration(
+                1, 0, "RANDOM", []).to_json())
+        job_builder.set_start_model(
+            Model(
+                "12312414",
+                "12312414/start_model",
+                "123211").to_json())
         job_builder.set_devices(["34553"])
         job = job_builder.build()
         job.cancel()
@@ -128,17 +156,22 @@ class StartJobControllerTestCase(unittest.TestCase):
         project.save_to_db(project_db)
 
         auth_json = {
-            "authentication_type" : "USER",
-            "entity_id" : "user_12345"
+            "authentication_type": "USER",
+            "entity_id": "user_12345"
         }
         auth_context_processor = AuthContextProcessor(auth_json)
 
-        new_job_id = start_job_controller(job_db, project_db, project.get_id(), JobConfiguration(1, 0, "RANDOM", []), job.get_id(), auth_context_processor)
+        new_job_id = start_job_controller(
+            job_db, project_db, project.get_id(), JobConfiguration(
+                1, 0, "RANDOM", []), job.get_id(), auth_context_processor)
         new_job = DBObject.load_from_db(Job, new_job_id, job_db)
 
-        updated_project = DBObject.load_from_db(Project, project.get_id(), project_db)
+        updated_project = DBObject.load_from_db(
+            Project, project.get_id(), project_db)
 
-        self.assertEqual(job.get_end_model().to_json(), new_job.get_start_model().to_json())
+        self.assertEqual(
+            job.get_end_model().to_json(),
+            new_job.get_start_model().to_json())
         self.assertEqual(updated_project.get_current_job_ids(), [new_job_id])
         self.assertTrue(updated_project.contains_job(new_job_id))
 
@@ -149,15 +182,23 @@ class StartJobControllerTestCase(unittest.TestCase):
         builder = ProjectBuilder()
         builder.set_id("test_id")
         builder.set_name("test_name")
-        builder.set_devices({"34553" : {"ID" : "34553", "registered_on" : "213123144.2342"}})
+        builder.set_devices(
+            {"34553": {"ID": "34553", "registered_on": "213123144.2342"}})
         project = builder.build()
-        project.add_or_update_member("user_12345", ProjectPrivilegeTypesEnum.ADMIN)
+        project.add_or_update_member(
+            "user_12345", ProjectPrivilegeTypesEnum.ADMIN)
 
         job_builder = JobBuilder()
         job_builder.set_id("job_test_id")
         job_builder.set_parent_project_id("test_id")
-        job_builder.set_configuration(JobConfiguration(1, 0, "RANDOM", []).to_json())
-        job_builder.set_start_model(Model("12312414", "12312414/start_model", "123211").to_json())
+        job_builder.set_configuration(
+            JobConfiguration(
+                1, 0, "RANDOM", []).to_json())
+        job_builder.set_start_model(
+            Model(
+                "12312414",
+                "12312414/start_model",
+                "123211").to_json())
         job_builder.set_devices(["34553"])
         job = job_builder.build()
 
@@ -167,20 +208,31 @@ class StartJobControllerTestCase(unittest.TestCase):
         project.save_to_db(project_db)
 
         auth_json = {
-            "authentication_type" : "USER",
-            "entity_id" : "user_12345"
+            "authentication_type": "USER",
+            "entity_id": "user_12345"
         }
         auth_context_processor = AuthContextProcessor(auth_json)
 
-        new_job_id = start_job_controller(job_db, project_db, project.get_id(), JobConfiguration(1, 0, "RANDOM", []), job.get_id(), auth_context_processor)
-        new_job_id_2 = start_job_controller(job_db, project_db, project.get_id(), JobConfiguration(1, 0, "RANDOM", []), new_job_id, auth_context_processor)
-        new_job_id_3 = start_job_controller(job_db, project_db, project.get_id(), JobConfiguration(1, 0, "RANDOM", []), new_job_id_2, auth_context_processor)
-        new_job_id_4 = start_job_controller(job_db, project_db, project.get_id(), JobConfiguration(1, 0, "RANDOM", []), new_job_id_3, auth_context_processor)
+        new_job_id = start_job_controller(
+            job_db, project_db, project.get_id(), JobConfiguration(
+                1, 0, "RANDOM", []), job.get_id(), auth_context_processor)
+        new_job_id_2 = start_job_controller(
+            job_db, project_db, project.get_id(), JobConfiguration(
+                1, 0, "RANDOM", []), new_job_id, auth_context_processor)
+        new_job_id_3 = start_job_controller(
+            job_db, project_db, project.get_id(), JobConfiguration(
+                1, 0, "RANDOM", []), new_job_id_2, auth_context_processor)
+        new_job_id_4 = start_job_controller(
+            job_db, project_db, project.get_id(), JobConfiguration(
+                1, 0, "RANDOM", []), new_job_id_3, auth_context_processor)
         new_job = DBObject.load_from_db(Job, new_job_id, job_db)
 
-        updated_project = DBObject.load_from_db(Project, project.get_id(), project_db)
+        updated_project = DBObject.load_from_db(
+            Project, project.get_id(), project_db)
 
-        self.assertEqual(job.get_end_model().to_json(), new_job.get_start_model().to_json())
+        self.assertEqual(
+            job.get_end_model().to_json(),
+            new_job.get_start_model().to_json())
         self.assertEqual(updated_project.get_current_job_ids(), [new_job_id])
         self.assertTrue(updated_project.contains_job(new_job_id))
 
@@ -192,17 +244,30 @@ class StartJobControllerTestCase(unittest.TestCase):
         builder.set_id("test_id")
         builder.set_name("test_name")
         project = builder.build()
-        project.add_or_update_member("user_12345", ProjectPrivilegeTypesEnum.ADMIN)
+        project.add_or_update_member(
+            "user_12345", ProjectPrivilegeTypesEnum.ADMIN)
 
         project.save_to_db(project_db)
 
         auth_json = {
-            "authentication_type" : "USER",
-            "entity_id" : "user_12345"
+            "authentication_type": "USER",
+            "entity_id": "user_12345"
         }
         auth_context_processor = AuthContextProcessor(auth_json)
 
-        self.assertRaises(ValueError, start_job_controller, job_db, project_db, project.get_id(), JobConfiguration(1, 0, "RANDOM", []), "", auth_context_processor)
+        self.assertRaises(
+            ValueError,
+            start_job_controller,
+            job_db,
+            project_db,
+            project.get_id(),
+            JobConfiguration(
+                1,
+                0,
+                "RANDOM",
+                []),
+            "",
+            auth_context_processor)
 
     def test_start_job_controller_fail(self):
         project_db = InMemoryDBInterface()
@@ -211,20 +276,35 @@ class StartJobControllerTestCase(unittest.TestCase):
         builder = ProjectBuilder()
         builder.set_id("test_id")
         builder.set_name("test_name")
-        builder.set_devices({"34553" : {"ID" : "34553", "registered_on" : "213123144.2342"}})
+        builder.set_devices(
+            {"34553": {"ID": "34553", "registered_on": "213123144.2342"}})
         project = builder.build()
-        project.add_or_update_member("user_12345", ProjectPrivilegeTypesEnum.ADMIN)
-        project.add_or_update_member("user_123456", ProjectPrivilegeTypesEnum.READ_ONLY)
+        project.add_or_update_member(
+            "user_12345", ProjectPrivilegeTypesEnum.ADMIN)
+        project.add_or_update_member(
+            "user_123456", ProjectPrivilegeTypesEnum.READ_ONLY)
 
         project.save_to_db(project_db)
 
         auth_json = {
-            "authentication_type" : "USER",
-            "entity_id" : "user_123456"
+            "authentication_type": "USER",
+            "entity_id": "user_123456"
         }
         auth_context_processor = AuthContextProcessor(auth_json)
 
-        self.assertRaises(RequestForbiddenException, start_job_controller, job_db, project_db, project.get_id(), JobConfiguration(1, 0, "RANDOM", []), None, auth_context_processor)
+        self.assertRaises(
+            RequestForbiddenException,
+            start_job_controller,
+            job_db,
+            project_db,
+            project.get_id(),
+            JobConfiguration(
+                1,
+                0,
+                "RANDOM",
+                []),
+            None,
+            auth_context_processor)
 
     def test_start_job_controller_fail_2(self):
         project_db = InMemoryDBInterface()
@@ -233,20 +313,35 @@ class StartJobControllerTestCase(unittest.TestCase):
         builder = ProjectBuilder()
         builder.set_id("test_id")
         builder.set_name("test_name")
-        builder.set_devices({"34553" : {"ID" : "34553", "registered_on" : "213123144.2342"}})
+        builder.set_devices(
+            {"34553": {"ID": "34553", "registered_on": "213123144.2342"}})
         project = builder.build()
-        project.add_or_update_member("user_12345", ProjectPrivilegeTypesEnum.ADMIN)
-        project.add_or_update_member("user_123456", ProjectPrivilegeTypesEnum.READ_ONLY)
+        project.add_or_update_member(
+            "user_12345", ProjectPrivilegeTypesEnum.ADMIN)
+        project.add_or_update_member(
+            "user_123456", ProjectPrivilegeTypesEnum.READ_ONLY)
 
         project.save_to_db(project_db)
 
         auth_json = {
-            "authentication_type" : "USER",
-            "entity_id" : "user_1234567"
+            "authentication_type": "USER",
+            "entity_id": "user_1234567"
         }
         auth_context_processor = AuthContextProcessor(auth_json)
 
-        self.assertRaises(RequestForbiddenException, start_job_controller, job_db, project_db, project.get_id(), JobConfiguration(1, 0, "RANDOM", []), None, auth_context_processor)
+        self.assertRaises(
+            RequestForbiddenException,
+            start_job_controller,
+            job_db,
+            project_db,
+            project.get_id(),
+            JobConfiguration(
+                1,
+                0,
+                "RANDOM",
+                []),
+            None,
+            auth_context_processor)
 
     def test_start_job_controller_fail_3(self):
         project_db = InMemoryDBInterface()
@@ -255,17 +350,32 @@ class StartJobControllerTestCase(unittest.TestCase):
         builder = ProjectBuilder()
         builder.set_id("test_id")
         builder.set_name("test_name")
-        builder.set_devices({"34553" : {"ID" : "34553", "registered_on" : "213123144.2342"}})
+        builder.set_devices(
+            {"34553": {"ID": "34553", "registered_on": "213123144.2342"}})
         project = builder.build()
-        project.add_or_update_member("user_12345", ProjectPrivilegeTypesEnum.ADMIN)
-        project.add_or_update_member("user_123456", ProjectPrivilegeTypesEnum.READ_ONLY)
+        project.add_or_update_member(
+            "user_12345", ProjectPrivilegeTypesEnum.ADMIN)
+        project.add_or_update_member(
+            "user_123456", ProjectPrivilegeTypesEnum.READ_ONLY)
 
         project.save_to_db(project_db)
 
         auth_json = {
-            "authentication_type" : "DEVICE",
-            "entity_id" : "34553"
+            "authentication_type": "DEVICE",
+            "entity_id": "34553"
         }
         auth_context_processor = AuthContextProcessor(auth_json)
 
-        self.assertRaises(RequestForbiddenException, start_job_controller, job_db, project_db, project.get_id(), JobConfiguration(1, 0, "RANDOM", []), None, auth_context_processor)
+        self.assertRaises(
+            RequestForbiddenException,
+            start_job_controller,
+            job_db,
+            project_db,
+            project.get_id(),
+            JobConfiguration(
+                1,
+                0,
+                "RANDOM",
+                []),
+            None,
+            auth_context_processor)

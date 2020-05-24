@@ -1,5 +1,6 @@
 from .request_processor import RequestProcessor
 
+
 class IDProcessor(RequestProcessor):
 
     PROJECT_NAME_KEY = "project_name"

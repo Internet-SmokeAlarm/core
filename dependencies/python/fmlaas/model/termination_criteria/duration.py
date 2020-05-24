@@ -1,6 +1,7 @@
 from .termination_criteria import TerminationCriteria
 from ...utils import get_epoch_time
 
+
 class DurationTerminationCriteria(TerminationCriteria):
 
     def __init__(self, max_duration_sec, start_epoch_time):
@@ -21,18 +22,20 @@ class DurationTerminationCriteria(TerminationCriteria):
         """
         :param round: Round
         """
-        return float(get_epoch_time()) - self.start_epoch_time >= self.max_duration_sec
+        return float(get_epoch_time()) - \
+            self.start_epoch_time >= self.max_duration_sec
 
     def reset(self):
         self.start_epoch_time = float(get_epoch_time())
 
     def to_json(self):
         return {
-            "type" : DurationTerminationCriteria.__name__,
-            "max_duration_sec" : str(self.max_duration_sec),
-            "start_epoch_time" : str(self.start_epoch_time)
+            "type": DurationTerminationCriteria.__name__,
+            "max_duration_sec": str(self.max_duration_sec),
+            "start_epoch_time": str(self.start_epoch_time)
         }
 
     @staticmethod
     def from_json(json_data):
-        return DurationTerminationCriteria(int(json_data["max_duration_sec"]), float(json_data["start_epoch_time"]))
+        return DurationTerminationCriteria(
+            int(json_data["max_duration_sec"]), float(json_data["start_epoch_time"]))

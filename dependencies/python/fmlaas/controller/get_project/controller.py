@@ -2,6 +2,7 @@ from ...exception import raise_default_request_forbidden_error
 from ...model import Project
 from ...model import DBObject
 
+
 def get_project_controller(db_, project_id, auth_context_processor):
     """
     :param db: DB

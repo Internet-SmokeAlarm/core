@@ -1,9 +1,11 @@
 from .model_naming import ModelNameStructure
 from .model_name_type import ModelNameType
 
+
 class HierarchicalModelNameStructure(ModelNameStructure):
 
-    def _generate_name(self, is_start_model=False, job_id=None, device_id=None):
+    def _generate_name(self, is_start_model=False,
+                       job_id=None, device_id=None):
         """
         :param is_start_model: boolean
         :param job_id: string
@@ -11,7 +13,7 @@ class HierarchicalModelNameStructure(ModelNameStructure):
         """
         if is_start_model:
             return self._generate_job_start_model_name(job_id)
-        elif device_id == None:
+        elif device_id is None:
             return self._generate_job_aggregate_model_name(job_id)
         else:
             return self._generate_device_model_update_name(job_id, device_id)

@@ -8,13 +8,16 @@ from ...exception import raise_default_request_forbidden_error
 from ... import generate_unique_id
 from ...device_selection import DeviceSelectorFactory
 
+
 def get_device_selector(job_configuration):
     """
     :param job_configuration: JobConfiguration
     :return: DeviceSelector
     """
     factory = DeviceSelectorFactory()
-    return factory.get_device_selector(job_configuration.get_device_selection_strategy())
+    return factory.get_device_selector(
+        job_configuration.get_device_selection_strategy())
+
 
 def create_job(devices, parent_project_id, job_config):
     """
@@ -32,12 +35,13 @@ def create_job(devices, parent_project_id, job_config):
 
     return builder.build()
 
+
 def start_job_controller(job_db,
-                           project_db,
-                           project_id,
-                           job_config,
-                           previous_job_id,
-                           auth_context_processor):
+                         project_db,
+                         project_id,
+                         job_config,
+                         previous_job_id,
+                         auth_context_processor):
     """
     :param job_db: DB
     :param project_db: DB
@@ -50,12 +54,14 @@ def start_job_controller(job_db,
         raise_default_request_forbidden_error()
 
     project = DBObject.load_from_db(Project, project_id, project_db)
-    if not project.does_member_have_auth(auth_context_processor.get_entity_id(), ProjectPrivilegeTypesEnum.READ_WRITE):
+    if not project.does_member_have_auth(
+            auth_context_processor.get_entity_id(), ProjectPrivilegeTypesEnum.READ_WRITE):
         raise_default_request_forbidden_error()
 
     project_device_list = project.get_device_list()
     if job_config.get_num_devices() > len(project_device_list):
-        raise ValueError("Cannot start job with more devices than exist in project.")
+        raise ValueError(
+            "Cannot start job with more devices than exist in project.")
 
     device_selector = get_device_selector(job_config)
     devices = device_selector.select_devices(project_device_list, job_config)

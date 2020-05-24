@@ -1,5 +1,6 @@
 from .db import DB
 
+
 class InMemoryDBInterface(DB):
 
     ID_KEY_NAME = "ID"

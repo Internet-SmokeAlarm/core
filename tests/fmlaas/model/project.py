@@ -7,6 +7,7 @@ from dependencies.python.fmlaas import generate_unique_id
 from dependencies.python.fmlaas import HierarchicalModelNameStructure
 from dependencies.python.fmlaas.model import ProjectBuilder
 
+
 class ProjectTestCase(unittest.TestCase):
 
     def build_default_project(self):
@@ -64,14 +65,32 @@ class ProjectTestCase(unittest.TestCase):
         self.assertTrue("billing" in json_data)
 
     def test_from_json_pass(self):
-        json_data = {'name': 'a_different_name', 'current_job_ids' : [], 'ID': 'id', 'devices': {'6617961791227642': {'ID': '6617961791227642', 'registered_on': "1576779269.11093"}, '6336011475872533': {'ID': '6336011475872533', 'registered_on': "1576779269.110966"}}, 'job_info': {}, "job_paths" : [], "members" : {}, "billing" : {}}
+        json_data = {
+            'name': 'a_different_name',
+            'current_job_ids': [],
+            'ID': 'id',
+            'devices': {
+                '6617961791227642': {
+                    'ID': '6617961791227642',
+                    'registered_on': "1576779269.11093"},
+                '6336011475872533': {
+                    'ID': '6336011475872533',
+                    'registered_on': "1576779269.110966"}},
+            'job_info': {},
+            "job_paths": [],
+            "members": {},
+            "billing": {}}
 
         project = Project.from_json(json_data)
 
         self.assertEqual(project.get_name(), "a_different_name")
         self.assertEqual(project.get_id(), "id")
         self.assertEqual(project.get_current_job_ids(), [])
-        self.assertEqual(project.get_devices(), {'6617961791227642': {'ID': '6617961791227642', 'registered_on': "1576779269.11093"}, '6336011475872533': {'ID': '6336011475872533', 'registered_on': "1576779269.110966"}})
+        self.assertEqual(
+            project.get_devices(), {
+                '6617961791227642': {
+                    'ID': '6617961791227642', 'registered_on': "1576779269.11093"}, '6336011475872533': {
+                    'ID': '6336011475872533', 'registered_on': "1576779269.110966"}})
         self.assertEqual(project.members, {})
         self.assertEqual(project.get_job_paths(), [])
         self.assertEqual(project.get_job_info(), {})
@@ -82,9 +101,12 @@ class ProjectTestCase(unittest.TestCase):
         project.add_device("7897956979947357")
         project.add_device("1822867963788927")
 
-        project.add_or_update_member("user_1234456", ProjectPrivilegeTypesEnum.OWNER)
-        project.add_or_update_member("user_123445", ProjectPrivilegeTypesEnum.ADMIN)
-        project.add_or_update_member("user_12344", ProjectPrivilegeTypesEnum.READ_ONLY)
+        project.add_or_update_member(
+            "user_1234456", ProjectPrivilegeTypesEnum.OWNER)
+        project.add_or_update_member(
+            "user_123445", ProjectPrivilegeTypesEnum.ADMIN)
+        project.add_or_update_member(
+            "user_12344", ProjectPrivilegeTypesEnum.READ_ONLY)
 
         project.create_job_path("34345234123")
         project.add_job_to_path_prev_id("34345234123", "564324234")
@@ -100,7 +122,9 @@ class ProjectTestCase(unittest.TestCase):
         self.assertEqual(project.get_id(), json_project.get_id())
         self.assertEqual(project.get_job_info(), json_project.get_job_info())
         self.assertEqual(project.get_devices(), json_project.get_devices())
-        self.assertEqual(project.get_current_job_ids(), json_project.get_current_job_ids())
+        self.assertEqual(
+            project.get_current_job_ids(),
+            json_project.get_current_job_ids())
         self.assertEqual(project.get_members(), json_project.get_members())
 
     def test_contains_job_pass(self):
@@ -176,7 +200,8 @@ class ProjectTestCase(unittest.TestCase):
         project.add_job_to_path_prev_id("34345234123", "564324234")
         project.create_job_path("34345234123")
 
-        self.assertEqual(["34345234123", "564324234"], project.get_job_paths()[0])
+        self.assertEqual(["34345234123", "564324234"],
+                         project.get_job_paths()[0])
 
     def test_add_job_to_path_prev_id_pass(self):
         project = self.build_default_project()
@@ -186,7 +211,8 @@ class ProjectTestCase(unittest.TestCase):
         project.add_job_to_path_prev_id("564324234", "6324213123")
         project.create_job_path("12312445123")
 
-        self.assertEqual(["34345234123", "564324234", "6324213123"], project.get_job_paths()[0])
+        self.assertEqual(["34345234123", "564324234",
+                          "6324213123"], project.get_job_paths()[0])
         self.assertEqual(["12312445123"], project.get_job_paths()[1])
         self.assertTrue("34345234123" in project.get_job_info())
         self.assertTrue("564324234" in project.get_job_info())
@@ -200,14 +226,16 @@ class ProjectTestCase(unittest.TestCase):
         project.add_job_to_path_prev_id("34345234123", "564324234")
         project.add_job_to_path_prev_id("6324213123", "63242131235")
 
-        self.assertEqual(["34345234123", "564324234"], project.get_job_paths()[0])
+        self.assertEqual(["34345234123", "564324234"],
+                         project.get_job_paths()[0])
         self.assertTrue("34345234123" in project.get_job_info())
         self.assertTrue("564324234" in project.get_job_info())
         self.assertFalse("63242131235" in project.get_job_info())
 
     def test_is_member_pass(self):
         project = self.build_default_project()
-        project.add_or_update_member("user_12344", ProjectPrivilegeTypesEnum.ADMIN)
+        project.add_or_update_member(
+            "user_12344", ProjectPrivilegeTypesEnum.ADMIN)
 
         self.assertTrue(project.is_member("user_12344"))
         self.assertFalse(project.is_member("user_12345"))
@@ -215,39 +243,73 @@ class ProjectTestCase(unittest.TestCase):
     def test_add_or_update_member_pass(self):
         project = self.build_default_project()
 
-        project.add_or_update_member("user_12344", ProjectPrivilegeTypesEnum.ADMIN)
+        project.add_or_update_member(
+            "user_12344", ProjectPrivilegeTypesEnum.ADMIN)
 
         self.assertTrue("user_12344" in project.members)
 
     def test_does_member_have_auth_pass(self):
         project = self.build_default_project()
-        project.add_or_update_member("user_12344", ProjectPrivilegeTypesEnum.ADMIN)
+        project.add_or_update_member(
+            "user_12344", ProjectPrivilegeTypesEnum.ADMIN)
 
-        self.assertTrue(project.does_member_have_auth("user_12344", ProjectPrivilegeTypesEnum.ADMIN))
-        self.assertTrue(project.does_member_have_auth("user_12344", ProjectPrivilegeTypesEnum.READ_WRITE))
-        self.assertTrue(project.does_member_have_auth("user_12344", ProjectPrivilegeTypesEnum.READ_ONLY))
+        self.assertTrue(
+            project.does_member_have_auth(
+                "user_12344",
+                ProjectPrivilegeTypesEnum.ADMIN))
+        self.assertTrue(
+            project.does_member_have_auth(
+                "user_12344",
+                ProjectPrivilegeTypesEnum.READ_WRITE))
+        self.assertTrue(
+            project.does_member_have_auth(
+                "user_12344",
+                ProjectPrivilegeTypesEnum.READ_ONLY))
 
     def test_does_member_have_auth_pass_2(self):
         project = self.build_default_project()
-        project.add_or_update_member("user_12344", ProjectPrivilegeTypesEnum.READ_WRITE)
+        project.add_or_update_member(
+            "user_12344", ProjectPrivilegeTypesEnum.READ_WRITE)
 
-        self.assertFalse(project.does_member_have_auth("user_12344", ProjectPrivilegeTypesEnum.ADMIN))
-        self.assertTrue(project.does_member_have_auth("user_12344", ProjectPrivilegeTypesEnum.READ_WRITE))
-        self.assertTrue(project.does_member_have_auth("user_12344", ProjectPrivilegeTypesEnum.READ_ONLY))
+        self.assertFalse(
+            project.does_member_have_auth(
+                "user_12344",
+                ProjectPrivilegeTypesEnum.ADMIN))
+        self.assertTrue(
+            project.does_member_have_auth(
+                "user_12344",
+                ProjectPrivilegeTypesEnum.READ_WRITE))
+        self.assertTrue(
+            project.does_member_have_auth(
+                "user_12344",
+                ProjectPrivilegeTypesEnum.READ_ONLY))
 
     def test_does_member_have_auth_pass_3(self):
         project = self.build_default_project()
-        project.add_or_update_member("user_12344", ProjectPrivilegeTypesEnum.READ_ONLY)
+        project.add_or_update_member(
+            "user_12344", ProjectPrivilegeTypesEnum.READ_ONLY)
 
-        self.assertFalse(project.does_member_have_auth("user_12344", ProjectPrivilegeTypesEnum.ADMIN))
-        self.assertFalse(project.does_member_have_auth("user_12344", ProjectPrivilegeTypesEnum.READ_WRITE))
-        self.assertTrue(project.does_member_have_auth("user_12344", ProjectPrivilegeTypesEnum.READ_ONLY))
+        self.assertFalse(
+            project.does_member_have_auth(
+                "user_12344",
+                ProjectPrivilegeTypesEnum.ADMIN))
+        self.assertFalse(
+            project.does_member_have_auth(
+                "user_12344",
+                ProjectPrivilegeTypesEnum.READ_WRITE))
+        self.assertTrue(
+            project.does_member_have_auth(
+                "user_12344",
+                ProjectPrivilegeTypesEnum.READ_ONLY))
 
     def test_get_member_auth_level_pass(self):
         project = self.build_default_project()
-        project.add_or_update_member("user_12344", ProjectPrivilegeTypesEnum.READ_ONLY)
+        project.add_or_update_member(
+            "user_12344", ProjectPrivilegeTypesEnum.READ_ONLY)
 
-        self.assertEqual(ProjectPrivilegeTypesEnum.READ_ONLY, project.get_member_auth_level("user_12344"))
+        self.assertEqual(
+            ProjectPrivilegeTypesEnum.READ_ONLY,
+            project.get_member_auth_level("user_12344"))
 
     def test_contains_device_pass(self):
         project = self.build_default_project()
@@ -268,6 +330,8 @@ class ProjectTestCase(unittest.TestCase):
         project.add_job_to_path_prev_id("23423234", "6345234242")
         project.create_job_path("84839222")
 
-        self.assertEqual("6345234242", project.get_next_job_in_sequence("23423234"))
+        self.assertEqual(
+            "6345234242",
+            project.get_next_job_in_sequence("23423234"))
         self.assertEqual(None, project.get_next_job_in_sequence("84839222"))
         self.assertEqual(None, project.get_next_job_in_sequence("6345234242"))

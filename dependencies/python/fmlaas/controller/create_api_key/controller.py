@@ -4,6 +4,7 @@ from ...exception import raise_default_request_forbidden_error
 from fedlearn_auth import generate_key_pair
 from fedlearn_auth import hash_secret
 
+
 def create_api_key_controller(db_, auth_context_processor):
     """
     :param db_: DB

@@ -3,6 +3,7 @@ from .job_configuration import JobConfiguration
 from .model import Model
 from .db_object import DBObject
 
+
 class Job(DBObject):
 
     def __init__(self,
@@ -89,7 +90,8 @@ class Job(DBObject):
         """
         :return: boolean
         """
-        return len(list(self.models.keys())) >= self.get_configuration().get_num_devices()
+        return len(list(self.models.keys())
+                   ) >= self.get_configuration().get_num_devices()
 
     def is_aggregate_model_set(self):
         """
@@ -255,27 +257,27 @@ class Job(DBObject):
 
     def to_json(self):
         return {
-            "ID" : self.id,
-            "status" : self.status,
-            "devices" : self.devices,
-            "aggregate_model" : self.aggregate_model,
-            "start_model" : self.start_model,
-            "configuration" : self.configuration,
-            "models" : self.models,
-            "created_on" : self.created_on,
-            "billable_size" : self.billable_size,
-            "parent_project_id" : self.parent_project_id
+            "ID": self.id,
+            "status": self.status,
+            "devices": self.devices,
+            "aggregate_model": self.aggregate_model,
+            "start_model": self.start_model,
+            "configuration": self.configuration,
+            "models": self.models,
+            "created_on": self.created_on,
+            "billable_size": self.billable_size,
+            "parent_project_id": self.parent_project_id
         }
 
     @staticmethod
     def from_json(json_data):
         return Job(json_data["ID"],
-            json_data["devices"],
-            json_data["status"],
-            json_data["aggregate_model"],
-            json_data["start_model"],
-            json_data["configuration"],
-            json_data["models"],
-            json_data["created_on"],
-            json_data["billable_size"],
-            json_data["parent_project_id"])
+                   json_data["devices"],
+                   json_data["status"],
+                   json_data["aggregate_model"],
+                   json_data["start_model"],
+                   json_data["configuration"],
+                   json_data["models"],
+                   json_data["created_on"],
+                   json_data["billable_size"],
+                   json_data["parent_project_id"])

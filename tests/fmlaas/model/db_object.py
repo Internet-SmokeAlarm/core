@@ -7,6 +7,7 @@ from dependencies.python.fmlaas.model import Job
 from dependencies.python.fmlaas.model import Model
 from dependencies.python.fmlaas.model import JobConfiguration
 
+
 class DBObjectTestCase(unittest.TestCase):
 
     def _build_default_job(self):
@@ -26,4 +27,9 @@ class DBObjectTestCase(unittest.TestCase):
         db_ = InMemoryDBInterface()
 
         self.assertTrue(job.save_to_db(db_))
-        self.assertEqual(DBObject.load_from_db(Job, "test_id", db_).to_json(), job.to_json())
+        self.assertEqual(
+            DBObject.load_from_db(
+                Job,
+                "test_id",
+                db_).to_json(),
+            job.to_json())

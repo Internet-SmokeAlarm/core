@@ -4,6 +4,7 @@ from dependencies.python.fedlearn_auth import generate_key_pair
 from dependencies.python.fedlearn_auth import hash_secret
 from dependencies.python.fmlaas.model import ApiKeyBuilder
 
+
 class ApiKeyBuilderTestCase(unittest.TestCase):
 
     def test_build_pass(self):

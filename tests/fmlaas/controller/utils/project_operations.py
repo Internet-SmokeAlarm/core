@@ -15,6 +15,7 @@ from dependencies.python.fmlaas.utils import get_epoch_time
 from dependencies.python.fmlaas.model.termination_criteria import DurationTerminationCriteria
 from dependencies.python.fmlaas.controller.utils import termination_check
 
+
 class ProjectOperationsTestCase(unittest.TestCase):
 
     def test_update_job_path_pass(self):
@@ -24,15 +25,23 @@ class ProjectOperationsTestCase(unittest.TestCase):
         builder = ProjectBuilder()
         builder.set_id("test_id")
         builder.set_name("test_name")
-        builder.set_devices({"34553" : {"ID" : "34553", "registered_on" : "213123144.2342"}})
+        builder.set_devices(
+            {"34553": {"ID": "34553", "registered_on": "213123144.2342"}})
         project = builder.build()
-        project.add_or_update_member("user_12345", ProjectPrivilegeTypesEnum.ADMIN)
+        project.add_or_update_member(
+            "user_12345", ProjectPrivilegeTypesEnum.ADMIN)
 
         job_builder = JobBuilder()
         job_builder.set_id("job_test_id")
         job_builder.set_parent_project_id("test_id")
-        job_builder.set_configuration(JobConfiguration(1, 0, "RANDOM", []).to_json())
-        job_builder.set_start_model(Model("12312414", "12312414/start_model", "123211").to_json())
+        job_builder.set_configuration(
+            JobConfiguration(
+                1, 0, "RANDOM", []).to_json())
+        job_builder.set_start_model(
+            Model(
+                "12312414",
+                "12312414/start_model",
+                "123211").to_json())
         job_builder.set_devices(["34553"])
         job = job_builder.build()
 
@@ -44,7 +53,8 @@ class ProjectOperationsTestCase(unittest.TestCase):
 
         update_job_path(job, job_db, project_db)
 
-        updated_project = DBObject.load_from_db(Project, project.get_id(), project_db)
+        updated_project = DBObject.load_from_db(
+            Project, project.get_id(), project_db)
 
         self.assertEqual(updated_project.get_current_job_ids(), [])
         self.assertTrue(updated_project.contains_job(job.get_id()))
@@ -56,15 +66,23 @@ class ProjectOperationsTestCase(unittest.TestCase):
         builder = ProjectBuilder()
         builder.set_id("test_id")
         builder.set_name("test_name")
-        builder.set_devices({"34553" : {"ID" : "34553", "registered_on" : "213123144.2342"}})
+        builder.set_devices(
+            {"34553": {"ID": "34553", "registered_on": "213123144.2342"}})
         project = builder.build()
-        project.add_or_update_member("user_12345", ProjectPrivilegeTypesEnum.ADMIN)
+        project.add_or_update_member(
+            "user_12345", ProjectPrivilegeTypesEnum.ADMIN)
 
         job_builder = JobBuilder()
         job_builder.set_id("job_test_id")
         job_builder.set_parent_project_id("test_id")
-        job_builder.set_configuration(JobConfiguration(1, 0, "RANDOM", []).to_json())
-        job_builder.set_start_model(Model("12312414", "12312414/start_model", "123211").to_json())
+        job_builder.set_configuration(
+            JobConfiguration(
+                1, 0, "RANDOM", []).to_json())
+        job_builder.set_start_model(
+            Model(
+                "12312414",
+                "12312414/start_model",
+                "123211").to_json())
         job_builder.set_devices(["34553"])
         job = job_builder.build()
         job.cancel()
@@ -72,7 +90,9 @@ class ProjectOperationsTestCase(unittest.TestCase):
         job_builder_2 = JobBuilder()
         job_builder_2.set_id("job_test_id_2")
         job_builder_2.set_parent_project_id("test_id")
-        job_builder_2.set_configuration(JobConfiguration(1, 0, "RANDOM", []).to_json())
+        job_builder_2.set_configuration(
+            JobConfiguration(
+                1, 0, "RANDOM", []).to_json())
         job_builder_2.set_devices(["34553"])
         job_2 = job_builder_2.build()
 
@@ -86,12 +106,17 @@ class ProjectOperationsTestCase(unittest.TestCase):
 
         update_job_path(job, job_db, project_db)
 
-        updated_project = DBObject.load_from_db(Project, project.get_id(), project_db)
+        updated_project = DBObject.load_from_db(
+            Project, project.get_id(), project_db)
         update_job_2 = DBObject.load_from_db(Job, job_2.get_id(), job_db)
 
-        self.assertEqual(updated_project.get_current_job_ids(), [job_2.get_id()])
+        self.assertEqual(
+            updated_project.get_current_job_ids(), [
+                job_2.get_id()])
         self.assertTrue(update_job_2.is_in_progress())
-        self.assertEqual(job.get_end_model().to_json(), update_job_2.get_start_model().to_json())
+        self.assertEqual(
+            job.get_end_model().to_json(),
+            update_job_2.get_start_model().to_json())
         self.assertTrue(updated_project.contains_job(job.get_id()))
         self.assertTrue(updated_project.contains_job(job_2.get_id()))
 
@@ -102,15 +127,23 @@ class ProjectOperationsTestCase(unittest.TestCase):
         builder = ProjectBuilder()
         builder.set_id("test_id")
         builder.set_name("test_name")
-        builder.set_devices({"34553" : {"ID" : "34553", "registered_on" : "213123144.2342"}})
+        builder.set_devices(
+            {"34553": {"ID": "34553", "registered_on": "213123144.2342"}})
         project = builder.build()
-        project.add_or_update_member("user_12345", ProjectPrivilegeTypesEnum.ADMIN)
+        project.add_or_update_member(
+            "user_12345", ProjectPrivilegeTypesEnum.ADMIN)
 
         job_builder = JobBuilder()
         job_builder.set_id("job_test_id")
         job_builder.set_parent_project_id("test_id")
-        job_builder.set_configuration(JobConfiguration(1, 0, "RANDOM", []).to_json())
-        job_builder.set_start_model(Model("12312414", "12312414/start_model", "123211").to_json())
+        job_builder.set_configuration(
+            JobConfiguration(
+                1, 0, "RANDOM", []).to_json())
+        job_builder.set_start_model(
+            Model(
+                "12312414",
+                "12312414/start_model",
+                "123211").to_json())
         job_builder.set_devices(["34553"])
         job = job_builder.build()
         job.cancel()
@@ -118,7 +151,11 @@ class ProjectOperationsTestCase(unittest.TestCase):
         job_builder_2 = JobBuilder()
         job_builder_2.set_id("job_test_id_2")
         job_builder_2.set_parent_project_id("test_id")
-        job_builder_2.set_configuration(JobConfiguration(1, 0, "RANDOM", [DurationTerminationCriteria(100, 5000.123).to_json()]).to_json())
+        job_builder_2.set_configuration(
+            JobConfiguration(
+                1, 0, "RANDOM", [
+                    DurationTerminationCriteria(
+                        100, 5000.123).to_json()]).to_json())
         job_builder_2.set_devices(["34553"])
         job_2 = job_builder_2.build()
 
@@ -134,12 +171,17 @@ class ProjectOperationsTestCase(unittest.TestCase):
 
         update_job_path(job, job_db, project_db)
 
-        updated_project = DBObject.load_from_db(Project, project.get_id(), project_db)
+        updated_project = DBObject.load_from_db(
+            Project, project.get_id(), project_db)
         update_job_2 = DBObject.load_from_db(Job, job_2.get_id(), job_db)
 
-        self.assertEqual(updated_project.get_current_job_ids(), [job_2.get_id()])
+        self.assertEqual(
+            updated_project.get_current_job_ids(), [
+                job_2.get_id()])
         self.assertTrue(update_job_2.is_in_progress())
-        self.assertEqual(job.get_end_model().to_json(), update_job_2.get_start_model().to_json())
+        self.assertEqual(
+            job.get_end_model().to_json(),
+            update_job_2.get_start_model().to_json())
         self.assertTrue(updated_project.contains_job(job.get_id()))
         self.assertTrue(updated_project.contains_job(job_2.get_id()))
         self.assertFalse(update_job_2.should_terminate())
@@ -151,24 +193,34 @@ class ProjectOperationsTestCase(unittest.TestCase):
         builder = ProjectBuilder()
         builder.set_id("test_id")
         builder.set_name("test_name")
-        builder.set_devices({"34553" : {"ID" : "34553", "registered_on" : "213123144.2342"}})
+        builder.set_devices(
+            {"34553": {"ID": "34553", "registered_on": "213123144.2342"}})
         project = builder.build()
-        project.add_or_update_member("user_12345", ProjectPrivilegeTypesEnum.ADMIN)
+        project.add_or_update_member(
+            "user_12345", ProjectPrivilegeTypesEnum.ADMIN)
 
         job_builder = JobBuilder()
         job_builder.set_id("job_test_id")
         job_builder.set_parent_project_id("test_id")
         config = JobConfiguration(1, 0, "RANDOM", [])
-        config.add_termination_criteria(DurationTerminationCriteria(0, get_epoch_time()))
+        config.add_termination_criteria(
+            DurationTerminationCriteria(
+                0, get_epoch_time()))
         job_builder.set_configuration(config.to_json())
-        job_builder.set_start_model(Model("12312414", "12312414/start_model", "123211").to_json())
+        job_builder.set_start_model(
+            Model(
+                "12312414",
+                "12312414/start_model",
+                "123211").to_json())
         job_builder.set_devices(["34553"])
         job = job_builder.build()
 
         job_builder_2 = JobBuilder()
         job_builder_2.set_id("job_test_id_2")
         job_builder_2.set_parent_project_id("test_id")
-        job_builder_2.set_configuration(JobConfiguration(1, 0, "RANDOM", []).to_json())
+        job_builder_2.set_configuration(
+            JobConfiguration(
+                1, 0, "RANDOM", []).to_json())
         job_builder_2.set_devices(["34553"])
         job_2 = job_builder_2.build()
 
@@ -182,12 +234,17 @@ class ProjectOperationsTestCase(unittest.TestCase):
 
         termination_check(job, job_db, project_db)
 
-        updated_project = DBObject.load_from_db(Project, project.get_id(), project_db)
+        updated_project = DBObject.load_from_db(
+            Project, project.get_id(), project_db)
         update_job_2 = DBObject.load_from_db(Job, job_2.get_id(), job_db)
 
-        self.assertEqual(updated_project.get_current_job_ids(), [job_2.get_id()])
+        self.assertEqual(
+            updated_project.get_current_job_ids(), [
+                job_2.get_id()])
         self.assertTrue(update_job_2.is_in_progress())
-        self.assertEqual(job.get_end_model().to_json(), update_job_2.get_start_model().to_json())
+        self.assertEqual(
+            job.get_end_model().to_json(),
+            update_job_2.get_start_model().to_json())
         self.assertTrue(updated_project.contains_job(job.get_id()))
         self.assertTrue(updated_project.contains_job(job_2.get_id()))
         self.assertTrue(job.is_cancelled())
@@ -199,24 +256,34 @@ class ProjectOperationsTestCase(unittest.TestCase):
         builder = ProjectBuilder()
         builder.set_id("test_id")
         builder.set_name("test_name")
-        builder.set_devices({"34553" : {"ID" : "34553", "registered_on" : "213123144.2342"}})
+        builder.set_devices(
+            {"34553": {"ID": "34553", "registered_on": "213123144.2342"}})
         project = builder.build()
-        project.add_or_update_member("user_12345", ProjectPrivilegeTypesEnum.ADMIN)
+        project.add_or_update_member(
+            "user_12345", ProjectPrivilegeTypesEnum.ADMIN)
 
         job_builder = JobBuilder()
         job_builder.set_id("job_test_id")
         job_builder.set_parent_project_id("test_id")
         config = JobConfiguration(1, 0, "RANDOM", [])
-        config.add_termination_criteria(DurationTerminationCriteria(10, get_epoch_time()))
+        config.add_termination_criteria(
+            DurationTerminationCriteria(
+                10, get_epoch_time()))
         job_builder.set_configuration(config.to_json())
-        job_builder.set_start_model(Model("12312414", "12312414/start_model", "123211").to_json())
+        job_builder.set_start_model(
+            Model(
+                "12312414",
+                "12312414/start_model",
+                "123211").to_json())
         job_builder.set_devices(["34553"])
         job = job_builder.build()
 
         job_builder_2 = JobBuilder()
         job_builder_2.set_id("job_test_id_2")
         job_builder_2.set_parent_project_id("test_id")
-        job_builder_2.set_configuration(JobConfiguration(1, 0, "RANDOM", []).to_json())
+        job_builder_2.set_configuration(
+            JobConfiguration(
+                1, 0, "RANDOM", []).to_json())
         job_builder_2.set_devices(["34553"])
         job_2 = job_builder_2.build()
 
@@ -230,7 +297,8 @@ class ProjectOperationsTestCase(unittest.TestCase):
 
         termination_check(job, job_db, project_db)
 
-        updated_project = DBObject.load_from_db(Project, project.get_id(), project_db)
+        updated_project = DBObject.load_from_db(
+            Project, project.get_id(), project_db)
         update_job_2 = DBObject.load_from_db(Job, job_2.get_id(), job_db)
 
         self.assertEqual(updated_project.get_current_job_ids(), [job.get_id()])

@@ -9,6 +9,7 @@ from ..device_selection import DeviceSelectorFactory
 
 from .db_object import DBObject
 
+
 class Project(DBObject):
 
     def __init__(self,
@@ -154,13 +155,14 @@ class Project(DBObject):
         :param user_id: string
         :param permission_level: ProjectPrivilegeTypesEnum
         """
-        self.members[user_id] = {"permission_level" : permission_level.value}
+        self.members[user_id] = {"permission_level": permission_level.value}
 
     def get_member_auth_level(self, user_id):
         """
         :param user_id: string
         """
-        return ProjectPrivilegeTypesEnum(self.members[user_id]["permission_level"])
+        return ProjectPrivilegeTypesEnum(
+            self.members[user_id]["permission_level"])
 
     def does_member_have_auth(self, user_id, permission_level):
         """
@@ -170,30 +172,31 @@ class Project(DBObject):
         if not self.is_member(user_id):
             return False
         else:
-            return self.get_member_auth_level(user_id).value >= permission_level.value
+            return self.get_member_auth_level(
+                user_id).value >= permission_level.value
 
     def get_members(self):
         return self.members
 
     def to_json(self):
         return {
-            "name" : self.name,
-            "ID" : self.id,
-            "devices" : self.devices,
-            "job_info" : self.job_info,
-            "job_paths" : self.job_paths,
-            "current_job_ids" : self.current_job_ids,
-            "members" : self.members,
-            "billing" : self.billing
+            "name": self.name,
+            "ID": self.id,
+            "devices": self.devices,
+            "job_info": self.job_info,
+            "job_paths": self.job_paths,
+            "current_job_ids": self.current_job_ids,
+            "members": self.members,
+            "billing": self.billing
         }
 
     @staticmethod
     def from_json(json_data):
         return Project(json_data["name"],
-            json_data["ID"],
-            json_data["devices"],
-            json_data["job_info"],
-            json_data["job_paths"],
-            json_data["current_job_ids"],
-            json_data["members"],
-            json_data["billing"])
+                       json_data["ID"],
+                       json_data["devices"],
+                       json_data["job_info"],
+                       json_data["job_paths"],
+                       json_data["current_job_ids"],
+                       json_data["members"],
+                       json_data["billing"])

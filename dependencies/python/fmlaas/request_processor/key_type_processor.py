@@ -1,6 +1,7 @@
 from .request_processor import RequestProcessor
 from ..model import ApiKeyTypeEnum
 
+
 class KeyTypeProcessor(RequestProcessor):
 
     KEY_TYPE_KEY = "KEY_TYPE"

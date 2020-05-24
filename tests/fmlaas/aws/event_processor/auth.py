@@ -7,6 +7,7 @@ from dependencies.python.fmlaas.model import DBObject
 from dependencies.python.fedlearn_auth import generate_key_pair
 from dependencies.python.fedlearn_auth import hash_secret
 
+
 class AuthEventProcessorTestCase(unittest.TestCase):
 
     def test_process_event_pass(self):
@@ -49,8 +50,8 @@ class AuthEventProcessorTestCase(unittest.TestCase):
             "queryStringParameters": {
             },
             "pathParameters": {
-                "group_id" : "1234",
-                "round_id" : "3453533"
+                "group_id": "1234",
+                "round_id": "3453533"
             },
             "stageVariables": {
             },
@@ -72,8 +73,12 @@ class AuthEventProcessorTestCase(unittest.TestCase):
         auth_event = AuthEventProcessor().process_event(req_json)
 
         self.assertEqual(key_plaintext, auth_event.get_token())
-        self.assertEqual({"group_id" : "1234", "round_id" : "3453533"}, auth_event.get_path_parameters())
-        self.assertEqual("arn:aws:execute-api:us-east-1:123456789012:s4x3opwd6i/Prod/POST/v1/group/get/current_round_id/1234", auth_event.get_method_arn())
+        self.assertEqual({"group_id": "1234",
+                          "round_id": "3453533"},
+                         auth_event.get_path_parameters())
+        self.assertEqual(
+            "arn:aws:execute-api:us-east-1:123456789012:s4x3opwd6i/Prod/POST/v1/group/get/current_round_id/1234",
+            auth_event.get_method_arn())
         self.assertEqual("Prod", auth_event.get_stage())
         self.assertEqual("s4x3opwd6i", auth_event.get_rest_api_id())
         self.assertEqual("123456789012", auth_event.get_aws_account_id())

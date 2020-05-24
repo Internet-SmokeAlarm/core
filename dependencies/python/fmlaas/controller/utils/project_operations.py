@@ -2,6 +2,7 @@ from ...model import DBObject
 from ...model import Project
 from ...model import Job
 
+
 def update_job_path(current_job, job_db, project_db):
     """
     Removes the current_job object from a project's active jobs, identifies
@@ -11,7 +12,8 @@ def update_job_path(current_job, job_db, project_db):
     :param job_db: DB
     :param project_db: DB
     """
-    project = DBObject.load_from_db(Project, current_job.get_parent_project_id(), project_db)
+    project = DBObject.load_from_db(
+        Project, current_job.get_parent_project_id(), project_db)
     project.remove_current_job_id(current_job.get_id())
 
     job_id = project.get_next_job_in_sequence(current_job.get_id())
@@ -31,6 +33,7 @@ def update_job_path(current_job, job_db, project_db):
     project.save_to_db(project_db)
 
     return
+
 
 def termination_check(current_job, job_db, project_db):
     """

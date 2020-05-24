@@ -3,11 +3,12 @@ import unittest
 from dependencies.python.fmlaas.request_processor import AuthContextProcessor
 from dependencies.python.fmlaas.model import ApiKeyTypeEnum
 
+
 class AuthContextProcessorTestCase(unittest.TestCase):
 
     def test_get_auth_type_pass(self):
         data = {
-            "authentication_type" : "JWT"
+            "authentication_type": "JWT"
         }
 
         auth_context_processor = AuthContextProcessor(data)
@@ -25,7 +26,7 @@ class AuthContextProcessorTestCase(unittest.TestCase):
 
     def test_get_entity_id_pass(self):
         data = {
-            "entity_id" : "12344"
+            "entity_id": "12344"
         }
 
         auth_context_processor = AuthContextProcessor(data)

@@ -4,6 +4,7 @@ from ..model.termination_criteria import DurationTerminationCriteria
 from ..model.termination_criteria import get_termination_criteria_class_from_json
 from ..utils import get_epoch_time
 
+
 class JobConfigJSONProcessor(RequestProcessor):
 
     DEVICE_SELECTION_STRATEGY_KEY = "device_selection_strategy"
@@ -15,7 +16,8 @@ class JobConfigJSONProcessor(RequestProcessor):
         self.json = json
 
     def get_device_selection_strategy(self):
-        device_selection_strategy = self.json.get(JobConfigJSONProcessor.DEVICE_SELECTION_STRATEGY_KEY, None)
+        device_selection_strategy = self.json.get(
+            JobConfigJSONProcessor.DEVICE_SELECTION_STRATEGY_KEY, None)
 
         if not self._is_string_name_valid(device_selection_strategy):
             raise ValueError("Device selection strategy invalid.")
@@ -23,7 +25,8 @@ class JobConfigJSONProcessor(RequestProcessor):
         return device_selection_strategy
 
     def get_num_devices(self):
-        num_devices = self.json.get(JobConfigJSONProcessor.NUM_DEVICES_KEY, None)
+        num_devices = self.json.get(
+            JobConfigJSONProcessor.NUM_DEVICES_KEY, None)
 
         if not self._is_int_name_valid(num_devices):
             raise ValueError("Num devices invalid.")
@@ -31,7 +34,8 @@ class JobConfigJSONProcessor(RequestProcessor):
         return num_devices
 
     def get_num_buffer_devices(self):
-        num_buffer_devices = self.json.get(JobConfigJSONProcessor.NUM_BUFFER_DEVICES_KEY, None)
+        num_buffer_devices = self.json.get(
+            JobConfigJSONProcessor.NUM_BUFFER_DEVICES_KEY, None)
 
         if not self._is_int_name_valid(num_buffer_devices):
             raise ValueError("Num buffer devices invalid.")
@@ -39,14 +43,16 @@ class JobConfigJSONProcessor(RequestProcessor):
         return num_buffer_devices
 
     def get_termination_criteria(self):
-        termination_criteria = self.json.get(JobConfigJSONProcessor.TERMINATION_CRITERIA_KEY, None)
+        termination_criteria = self.json.get(
+            JobConfigJSONProcessor.TERMINATION_CRITERIA_KEY, None)
 
         if termination_criteria is None:
             raise ValueError("Termination criteria invalid.")
 
         converted_termination_criteria = []
         for criteria in termination_criteria:
-            converted_termination_criteria.append(self._load_termination_criteria(criteria))
+            converted_termination_criteria.append(
+                self._load_termination_criteria(criteria))
 
         return converted_termination_criteria
 
@@ -63,6 +69,6 @@ class JobConfigJSONProcessor(RequestProcessor):
 
     def generate_job_config(self):
         return JobConfiguration(self.get_num_devices(),
-                                  self.get_num_buffer_devices(),
-                                  self.get_device_selection_strategy(),
-                                  [x.to_json() for x in self.get_termination_criteria()])
+                                self.get_num_buffer_devices(),
+                                self.get_device_selection_strategy(),
+                                [x.to_json() for x in self.get_termination_criteria()])

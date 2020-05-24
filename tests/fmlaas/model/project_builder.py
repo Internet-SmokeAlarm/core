@@ -2,6 +2,7 @@ import unittest
 
 from dependencies.python.fmlaas.model import ProjectBuilder
 
+
 class ProjectBuilderTestCase(unittest.TestCase):
 
     def test_build_pass_1(self):

@@ -9,6 +9,7 @@ from dependencies.python.fmlaas.aws.event_processor import AuthEventProcessor
 from dependencies.python.fmlaas.model import DBObject
 from dependencies.python.fmlaas.database import InMemoryDBInterface
 
+
 class AuthControllerTestCase(unittest.TestCase):
 
     def _build_default_event(self, key_string):
@@ -44,9 +45,9 @@ class AuthControllerTestCase(unittest.TestCase):
             "queryStringParameters": {
             },
             "pathParameters": {
-                "group_id" : "1234",
-                "round_id" : "3453533",
-                "device_id" : "1231214"
+                "group_id": "1234",
+                "round_id": "3453533",
+                "device_id": "1231214"
             },
             "stageVariables": {
             },
@@ -82,8 +83,11 @@ class AuthControllerTestCase(unittest.TestCase):
         auth_event = self._build_default_event(key_plaintext)
         result = auth_controller(auth_event, key_db)
 
-        self.assertEqual(result["context"]["entity_id"], api_key.get_entity_id())
-        self.assertEqual(result["policyDocument"]["Statement"][0]["Effect"], "Allow")
+        self.assertEqual(
+            result["context"]["entity_id"],
+            api_key.get_entity_id())
+        self.assertEqual(result["policyDocument"]
+                         ["Statement"][0]["Effect"], "Allow")
 
     def test_auth_controller_pass_2(self):
         key_db = InMemoryDBInterface()
@@ -100,8 +104,11 @@ class AuthControllerTestCase(unittest.TestCase):
 
         result = auth_controller(auth_event, key_db)
 
-        self.assertEqual(result["context"]["entity_id"], api_key.get_entity_id())
-        self.assertEqual(result["policyDocument"]["Statement"][0]["Effect"], "Allow")
+        self.assertEqual(
+            result["context"]["entity_id"],
+            api_key.get_entity_id())
+        self.assertEqual(result["policyDocument"]
+                         ["Statement"][0]["Effect"], "Allow")
 
     def test_auth_controller_pass_3(self):
         key_db = InMemoryDBInterface()
@@ -119,8 +126,11 @@ class AuthControllerTestCase(unittest.TestCase):
         result = auth_controller(auth_event, key_db)
 
         self.assertEqual(result["context"]["entity_id"], api_key.get_id())
-        self.assertEqual(result["context"]["authentication_type"], api_key.get_key_type())
-        self.assertEqual(result["policyDocument"]["Statement"][0]["Effect"], "Allow")
+        self.assertEqual(
+            result["context"]["authentication_type"],
+            api_key.get_key_type())
+        self.assertEqual(result["policyDocument"]
+                         ["Statement"][0]["Effect"], "Allow")
 
     def test_auth_controller_pass_6(self):
         key_db = InMemoryDBInterface()
@@ -131,5 +141,8 @@ class AuthControllerTestCase(unittest.TestCase):
         result = auth_controller(auth_event, key_db)
 
         self.assertEqual(result["context"]["entity_id"], "UNAUTHENTICATED")
-        self.assertEqual(result["policyDocument"]["Statement"][0]["Effect"], "Deny")
-        self.assertEqual(result["context"]["authentication_type"], "UNAUTHENTICATED")
+        self.assertEqual(result["policyDocument"]
+                         ["Statement"][0]["Effect"], "Deny")
+        self.assertEqual(
+            result["context"]["authentication_type"],
+            "UNAUTHENTICATED")

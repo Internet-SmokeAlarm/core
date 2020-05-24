@@ -14,6 +14,7 @@ from dependencies.python.fmlaas.controller.model_uploaded import handle_device_m
 from dependencies.python.fmlaas.controller.model_uploaded import handle_job_aggregate_model
 from dependencies.python.fmlaas.controller.model_uploaded import handle_job_start_model
 
+
 class ModelUploadedControllerTestCase(unittest.TestCase):
 
     def _build_default_job(self):
@@ -23,7 +24,11 @@ class ModelUploadedControllerTestCase(unittest.TestCase):
         configuration = JobConfiguration(1, 0, "RANDOM", [])
         job_builder.set_configuration(configuration.to_json())
         job_builder.set_devices(["3456"])
-        job_builder.set_start_model(Model("1234", "1234/start_model", "123211").to_json())
+        job_builder.set_start_model(
+            Model(
+                "1234",
+                "1234/start_model",
+                "123211").to_json())
 
         return job_builder.build()
 
@@ -37,17 +42,26 @@ class ModelUploadedControllerTestCase(unittest.TestCase):
     def test_get_model_process_function_pass_1(self):
         model = Model("1232344", "1234/device_models/1232344", "923843287")
 
-        self.assertEqual(handle_device_model_update, get_model_process_function(model.get_name()))
+        self.assertEqual(
+            handle_device_model_update,
+            get_model_process_function(
+                model.get_name()))
 
     def test_get_model_process_function_pass_2(self):
         model = Model("1234", "1234/aggregate_model", "923843287")
 
-        self.assertEqual(handle_job_aggregate_model, get_model_process_function(model.get_name()))
+        self.assertEqual(
+            handle_job_aggregate_model,
+            get_model_process_function(
+                model.get_name()))
 
     def test_get_model_process_function_pass_3(self):
         model = Model("1234", "1234/start_model", "923843287")
 
-        self.assertEqual(handle_job_start_model, get_model_process_function(model.get_name()))
+        self.assertEqual(
+            handle_job_start_model,
+            get_model_process_function(
+                model.get_name()))
 
     def test_handle_device_model_update_pass(self):
         db_ = InMemoryDBInterface()
@@ -122,7 +136,8 @@ class ModelUploadedControllerTestCase(unittest.TestCase):
         handle_device_model_update(model, None, db_)
 
         aggregate_model = Model(None, "1234/device_models/2345", "435345")
-        should_aggregate = handle_job_aggregate_model(aggregate_model, project_db, db_)
+        should_aggregate = handle_job_aggregate_model(
+            aggregate_model, project_db, db_)
         self.assertFalse(should_aggregate)
 
         job_2 = DBObject.load_from_db(Job, job.get_id(), db_)
@@ -157,13 +172,18 @@ class ModelUploadedControllerTestCase(unittest.TestCase):
         aggregate_model = Model(None, "1234/device_models/2345", "435345")
         handle_job_aggregate_model(aggregate_model, project_db, job_db)
 
-        project_from_db = DBObject.load_from_db(Project, project.get_id(), project_db)
+        project_from_db = DBObject.load_from_db(
+            Project, project.get_id(), project_db)
         self.assertEqual(1, len(project_from_db.get_current_job_ids()))
-        self.assertEqual(job_2.get_id(), project_from_db.get_current_job_ids()[0])
+        self.assertEqual(
+            job_2.get_id(),
+            project_from_db.get_current_job_ids()[0])
 
         job_2_from_db = DBObject.load_from_db(Job, job_2.get_id(), job_db)
         job_from_db = DBObject.load_from_db(Job, job.get_id(), job_db)
-        self.assertEqual(job_from_db.get_aggregate_model().to_json(), job_2_from_db.get_start_model().to_json())
+        self.assertEqual(
+            job_from_db.get_aggregate_model().to_json(),
+            job_2_from_db.get_start_model().to_json())
 
     def test_handle_job_aggregate_model_pass_3(self):
         project_db = InMemoryDBInterface()
@@ -203,13 +223,18 @@ class ModelUploadedControllerTestCase(unittest.TestCase):
         aggregate_model = Model(None, "1234/device_models/2345", "435345")
         handle_job_aggregate_model(aggregate_model, project_db, job_db)
 
-        project_from_db = DBObject.load_from_db(Project, project.get_id(), project_db)
+        project_from_db = DBObject.load_from_db(
+            Project, project.get_id(), project_db)
         self.assertEqual(1, len(project_from_db.get_current_job_ids()))
-        self.assertEqual(job_3.get_id(), project_from_db.get_current_job_ids()[0])
+        self.assertEqual(
+            job_3.get_id(),
+            project_from_db.get_current_job_ids()[0])
 
         job_3_from_db = DBObject.load_from_db(Job, job_3.get_id(), job_db)
         job_from_db = DBObject.load_from_db(Job, job.get_id(), job_db)
-        self.assertEqual(job_from_db.get_aggregate_model().to_json(), job_3_from_db.get_start_model().to_json())
+        self.assertEqual(
+            job_from_db.get_aggregate_model().to_json(),
+            job_3_from_db.get_start_model().to_json())
 
     def test_handle_job_start_model_pass(self):
         db_ = InMemoryDBInterface()

@@ -11,6 +11,7 @@ from dependencies.python.fmlaas.model import ProjectPrivilegeTypesEnum
 from dependencies.python.fmlaas.controller.get_job_start_model import get_job_start_model_controller
 from dependencies.python.fmlaas.request_processor import AuthContextProcessor
 
+
 class GetJobStartModelControllerTestCase(unittest.TestCase):
 
     def _build_default_project(self):
@@ -22,7 +23,8 @@ class GetJobStartModelControllerTestCase(unittest.TestCase):
         project.add_device("12344")
         project.create_job_path("1234432414")
         project.add_current_job_id("1234432414")
-        project.add_or_update_member("user_12345", ProjectPrivilegeTypesEnum.READ_ONLY)
+        project.add_or_update_member(
+            "user_12345", ProjectPrivilegeTypesEnum.READ_ONLY)
 
         return project
 
@@ -30,9 +32,19 @@ class GetJobStartModelControllerTestCase(unittest.TestCase):
         job_builder = JobBuilder()
         job_builder.set_id("job_test_id")
         job_builder.set_parent_project_id("test_id")
-        job_builder.set_configuration(JobConfiguration(1, 0, "RANDOM", []).to_json())
-        job_builder.set_start_model(Model("12312414", "12312414/start_model", "123211").to_json())
-        job_builder.set_aggregate_model(Model("1234", "1234/aggregate_model", "123211").to_json())
+        job_builder.set_configuration(
+            JobConfiguration(
+                1, 0, "RANDOM", []).to_json())
+        job_builder.set_start_model(
+            Model(
+                "12312414",
+                "12312414/start_model",
+                "123211").to_json())
+        job_builder.set_aggregate_model(
+            Model(
+                "1234",
+                "1234/aggregate_model",
+                "123211").to_json())
         job_builder.set_devices(["34553"])
         job = job_builder.build()
 
@@ -51,15 +63,15 @@ class GetJobStartModelControllerTestCase(unittest.TestCase):
         project.save_to_db(project_db_)
 
         auth_json = {
-            "authentication_type" : "USER",
-            "entity_id" : "user_12345"
+            "authentication_type": "USER",
+            "entity_id": "user_12345"
         }
         auth_context_processor = AuthContextProcessor(auth_json)
         presigned_url = get_job_start_model_controller(project_db_,
-                                                         job_db_,
-                                                         project.get_id(),
-                                                         job.get_id(),
-                                                         auth_context_processor)
+                                                       job_db_,
+                                                       project.get_id(),
+                                                       job.get_id(),
+                                                       auth_context_processor)
         self.assertIsNotNone(presigned_url)
 
     def test_pass_2(self):
@@ -75,15 +87,15 @@ class GetJobStartModelControllerTestCase(unittest.TestCase):
         project.save_to_db(project_db_)
 
         auth_json = {
-            "authentication_type" : "DEVICE",
-            "entity_id" : "34553"
+            "authentication_type": "DEVICE",
+            "entity_id": "34553"
         }
         auth_context_processor = AuthContextProcessor(auth_json)
         presigned_url = get_job_start_model_controller(project_db_,
-                                                         job_db_,
-                                                         project.get_id(),
-                                                         job.get_id(),
-                                                         auth_context_processor)
+                                                       job_db_,
+                                                       project.get_id(),
+                                                       job.get_id(),
+                                                       auth_context_processor)
         self.assertIsNotNone(presigned_url)
 
     def test_fail_not_authorized_1(self):
@@ -99,11 +111,18 @@ class GetJobStartModelControllerTestCase(unittest.TestCase):
         project.save_to_db(project_db_)
 
         auth_json = {
-            "authentication_type" : "DEVICE",
-            "entity_id" : "123445"
+            "authentication_type": "DEVICE",
+            "entity_id": "123445"
         }
         auth_context_processor = AuthContextProcessor(auth_json)
-        self.assertRaises(RequestForbiddenException, get_job_start_model_controller, project_db_, job_db_, project.get_id(), job.get_id(), auth_context_processor)
+        self.assertRaises(
+            RequestForbiddenException,
+            get_job_start_model_controller,
+            project_db_,
+            job_db_,
+            project.get_id(),
+            job.get_id(),
+            auth_context_processor)
 
     def test_fail_not_authorized_2(self):
         project_db_ = InMemoryDBInterface()
@@ -118,11 +137,18 @@ class GetJobStartModelControllerTestCase(unittest.TestCase):
         project.save_to_db(project_db_)
 
         auth_json = {
-            "authentication_type" : "USER",
-            "entity_id" : "123445"
+            "authentication_type": "USER",
+            "entity_id": "123445"
         }
         auth_context_processor = AuthContextProcessor(auth_json)
-        self.assertRaises(RequestForbiddenException, get_job_start_model_controller, project_db_, job_db_, project.get_id(), job.get_id(), auth_context_processor)
+        self.assertRaises(
+            RequestForbiddenException,
+            get_job_start_model_controller,
+            project_db_,
+            job_db_,
+            project.get_id(),
+            job.get_id(),
+            auth_context_processor)
 
     def test_fail_not_authorized_3(self):
         project_db_ = InMemoryDBInterface()
@@ -135,11 +161,18 @@ class GetJobStartModelControllerTestCase(unittest.TestCase):
         project.save_to_db(project_db_)
 
         auth_json = {
-            "authentication_type" : "DEVICE",
-            "entity_id" : "12344"
+            "authentication_type": "DEVICE",
+            "entity_id": "12344"
         }
         auth_context_processor = AuthContextProcessor(auth_json)
-        self.assertRaises(RequestForbiddenException, get_job_start_model_controller, project_db_, job_db_, project.get_id(), job.get_id(), auth_context_processor)
+        self.assertRaises(
+            RequestForbiddenException,
+            get_job_start_model_controller,
+            project_db_,
+            job_db_,
+            project.get_id(),
+            job.get_id(),
+            auth_context_processor)
 
     def test_fail_not_authorized_4(self):
         project_db_ = InMemoryDBInterface()
@@ -154,8 +187,15 @@ class GetJobStartModelControllerTestCase(unittest.TestCase):
         project.save_to_db(project_db_)
 
         auth_json = {
-            "authentication_type" : "DEVICE",
-            "entity_id" : "12344"
+            "authentication_type": "DEVICE",
+            "entity_id": "12344"
         }
         auth_context_processor = AuthContextProcessor(auth_json)
-        self.assertRaises(RequestForbiddenException, get_job_start_model_controller, project_db_, job_db_, project.get_id(), job.get_id(), auth_context_processor)
+        self.assertRaises(
+            RequestForbiddenException,
+            get_job_start_model_controller,
+            project_db_,
+            job_db_,
+            project.get_id(),
+            job.get_id(),
+            auth_context_processor)

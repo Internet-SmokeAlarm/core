@@ -2,6 +2,7 @@ from .api_key import ApiKey
 from .builder import Builder
 from ..utils.time import get_epoch_time
 
+
 class ApiKeyBuilder(Builder):
 
     def __init__(self, id, hash):
@@ -32,19 +33,19 @@ class ApiKeyBuilder(Builder):
         self._validate_paramaters()
 
         return ApiKey(self.id,
-            self.hash,
-            self.created_on,
-            self.event_log,
-            self.key_type,
-            self.entity_id)
+                      self.hash,
+                      self.created_on,
+                      self.event_log,
+                      self.key_type,
+                      self.entity_id)
 
     def _validate_paramaters(self):
-        if self.key_type == None:
+        if self.key_type is None:
             raise ValueError("Key type must not be None")
-        elif type(self.key_type) is not type("str"):
+        elif not isinstance(self.key_type, type("str")):
             raise ValueError("Key type must be of type string")
 
-        if self.entity_id == None:
+        if self.entity_id is None:
             raise ValueError("Entity ID must not be None")
-        elif type(self.entity_id) is not type("str"):
+        elif not isinstance(self.entity_id, type("str")):
             raise ValueError("Entity ID must be of type string")

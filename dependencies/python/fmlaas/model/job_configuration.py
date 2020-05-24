@@ -1,8 +1,10 @@
 from .termination_criteria import get_termination_criteria_from_json
 
+
 class JobConfiguration:
 
-    def __init__(self, num_devices, num_buffer_devices, device_selection_strategy, termination_criteria):
+    def __init__(self, num_devices, num_buffer_devices,
+                 device_selection_strategy, termination_criteria):
         """
         :param num_devices: int
         :param num_buffer_devices: int
@@ -27,7 +29,8 @@ class JobConfiguration:
         return self.device_selection_strategy
 
     def get_termination_criteria(self):
-        return [get_termination_criteria_from_json(criteria) for criteria in self.termination_criteria]
+        return [get_termination_criteria_from_json(
+            criteria) for criteria in self.termination_criteria]
 
     def add_termination_criteria(self, termination_criteria):
         """
@@ -55,15 +58,15 @@ class JobConfiguration:
 
     def to_json(self):
         return {
-            "num_devices" : str(self.num_devices),
-            "num_buffer_devices" : str(self.num_buffer_devices),
-            "device_selection_strategy" : self.device_selection_strategy,
-            "termination_criteria" : self.termination_criteria
+            "num_devices": str(self.num_devices),
+            "num_buffer_devices": str(self.num_buffer_devices),
+            "device_selection_strategy": self.device_selection_strategy,
+            "termination_criteria": self.termination_criteria
         }
 
     @staticmethod
     def from_json(json_data):
         return JobConfiguration(int(json_data["num_devices"]),
-                                  int(json_data["num_buffer_devices"]),
-                                  json_data["device_selection_strategy"],
-                                  json_data["termination_criteria"])
+                                int(json_data["num_buffer_devices"]),
+                                json_data["device_selection_strategy"],
+                                json_data["termination_criteria"])

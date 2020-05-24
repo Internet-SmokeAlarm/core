@@ -8,6 +8,7 @@ from fmlaas.database import DynamoDBInterface
 from fmlaas.exception import RequestForbiddenException
 from fmlaas.controller.submit_model_update import submit_model_update_controller
 
+
 def lambda_handler(event, context):
     req_json = json.loads(event.get('body'))
     auth_json = event["requestContext"]["authorizer"]
@@ -20,8 +21,8 @@ def lambda_handler(event, context):
         auth_context_processor = AuthContextProcessor(auth_json)
     except ValueError as error:
         return {
-            "statusCode" : 400,
-            "body" : json.dumps({"error_msg" : str(error)})
+            "statusCode": 400,
+            "body": json.dumps({"error_msg": str(error)})
         }
 
     group_db = DynamoDBInterface(get_group_table_name_from_env())
@@ -29,23 +30,23 @@ def lambda_handler(event, context):
 
     try:
         can_submit_model_to_job, presigned_url = submit_model_update_controller(group_db,
-                                                                                  job_db,
-                                                                                  group_id,
-                                                                                  job_id,
-                                                                                  auth_context_processor)
+                                                                                job_db,
+                                                                                group_id,
+                                                                                job_id,
+                                                                                auth_context_processor)
 
         if not can_submit_model_to_job:
             return {
-                "statusCode" : 400,
-                "body" : json.dumps({"error_msg" : "Cannot submit model to this job. Either device is not active, or job is complete"})
+                "statusCode": 400,
+                "body": json.dumps({"error_msg": "Cannot submit model to this job. Either device is not active, or job is complete"})
             }
         else:
             return {
-                "statusCode" : 200,
-                "body" : json.dumps({"model_url" : presigned_url})
+                "statusCode": 200,
+                "body": json.dumps({"model_url": presigned_url})
             }
     except RequestForbiddenException as error:
         return {
-            "statusCode" : 403,
-            "body" : json.dumps({"error_msg" : str(error)})
+            "statusCode": 403,
+            "body": json.dumps({"error_msg": str(error)})
         }

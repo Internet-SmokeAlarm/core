@@ -3,6 +3,7 @@ from ...model import ProjectBuilder
 from ...exception import raise_default_request_forbidden_error
 from ...model import ProjectPrivilegeTypesEnum
 
+
 def create_project_controller(db_, project_name, auth_context_processor):
     """
     :param db_: DB
@@ -18,7 +19,9 @@ def create_project_controller(db_, project_name, auth_context_processor):
     builder.set_id(project_id)
     builder.set_name(project_name)
     project = builder.build()
-    project.add_or_update_member(auth_context_processor.get_entity_id(), ProjectPrivilegeTypesEnum.OWNER)
+    project.add_or_update_member(
+        auth_context_processor.get_entity_id(),
+        ProjectPrivilegeTypesEnum.OWNER)
 
     project.save_to_db(db_)
 

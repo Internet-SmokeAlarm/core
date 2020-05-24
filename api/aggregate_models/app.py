@@ -15,6 +15,7 @@ from fmlaas.model import Model
 from fmlaas.request_processor import IDProcessor
 from fmlaas import HierarchicalModelNameStructure
 
+
 def load_model_from_s3(object_name):
     model_file = NamedTemporaryFile(delete=True)
 
@@ -31,6 +32,7 @@ def load_model_from_s3(object_name):
 
     return state_dict
 
+
 def save_model_to_s3(object_name, model):
     model_file = NamedTemporaryFile(delete=True)
     try:
@@ -42,6 +44,7 @@ def save_model_to_s3(object_name, model):
             upload_s3_object(object_name, f)
     finally:
         model_file.close()
+
 
 def generate_global_model(models):
     """
@@ -58,14 +61,15 @@ def generate_global_model(models):
 
     return global_model
 
+
 def lambda_handler(event, context):
     try:
         id_processor = IDProcessor(event)
         job_id = id_processor.get_job_id()
     except ValueError as error:
         return {
-            "statusCode" : 400,
-            "body" : str(error)
+            "statusCode": 400,
+            "body": str(error)
         }
 
     dynamodb_ = DynamoDBInterface(get_job_table_name_from_env())
@@ -75,7 +79,8 @@ def lambda_handler(event, context):
     name.generate_name(job_id=job_id)
 
     models = job.get_models()
-    model_names = [models[model].get_name().get_name() for model in models.keys()]
+    model_names = [models[model].get_name().get_name()
+                   for model in models.keys()]
     num_models = len(model_names)
 
     global_model = generate_global_model(model_names)
@@ -84,6 +89,6 @@ def lambda_handler(event, context):
     save_model_to_s3(name.get_name(), scaled_global_model)
 
     return {
-        "statusCode" : 200,
-        "body" : "{}"
+        "statusCode": 200,
+        "body": "{}"
     }

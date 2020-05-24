@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class ProjectPrivilegeTypesEnum(Enum):
 
     OWNER = 100

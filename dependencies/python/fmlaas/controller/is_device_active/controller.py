@@ -5,7 +5,9 @@ from ...model import ProjectPrivilegeTypesEnum
 from ...exception import raise_default_request_forbidden_error
 from ..utils import termination_check
 
-def is_device_active_controller(project_db, job_db, project_id, job_id, device_id, auth_context_processor):
+
+def is_device_active_controller(
+        project_db, job_db, project_id, job_id, device_id, auth_context_processor):
     """
     :param project_db: DB
     :param job_db: DB
@@ -20,7 +22,8 @@ def is_device_active_controller(project_db, job_db, project_id, job_id, device_i
 
     device_to_check = device_id
     if auth_context_processor.is_type_device():
-        if (not project.contains_device(auth_context_processor.get_entity_id())) or (device_id != auth_context_processor.get_entity_id()):
+        if (not project.contains_device(auth_context_processor.get_entity_id())) or (
+                device_id != auth_context_processor.get_entity_id()):
             raise_default_request_forbidden_error()
 
         device_to_check = auth_context_processor.get_entity_id()
@@ -31,7 +34,7 @@ def is_device_active_controller(project_db, job_db, project_id, job_id, device_i
 
     try:
         termination_check(job, job_db, project_db)
-    except:
+    except BaseException:
         pass
 
     return job.is_device_active(device_to_check)

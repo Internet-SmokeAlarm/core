@@ -1,10 +1,13 @@
 from .duration import DurationTerminationCriteria
 
+
 def get_termination_criteria_from_json(json_data):
     """
     :param json_data: dict
     """
-    return get_termination_criteria_class_from_json(json_data).from_json(json_data)
+    return get_termination_criteria_class_from_json(
+        json_data).from_json(json_data)
+
 
 def get_termination_criteria_class_from_json(json_data):
     """

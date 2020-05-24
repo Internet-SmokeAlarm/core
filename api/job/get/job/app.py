@@ -8,6 +8,7 @@ from fmlaas.request_processor import AuthContextProcessor
 from fmlaas.controller.get_job import get_job_controller
 from fmlaas.exception import RequestForbiddenException
 
+
 def lambda_handler(event, context):
     req_json = event.get("pathParameters")
     auth_json = event["requestContext"]["authorizer"]
@@ -20,8 +21,8 @@ def lambda_handler(event, context):
         auth_context_processor = AuthContextProcessor(auth_json)
     except ValueError as error:
         return {
-            "statusCode" : 400,
-            "body" : json.dumps({"error_msg" : str(error)})
+            "statusCode": 400,
+            "body": json.dumps({"error_msg": str(error)})
         }
 
     try:
@@ -29,20 +30,20 @@ def lambda_handler(event, context):
         job_db_ = DynamoDBInterface(get_job_table_name_from_env())
 
         job = get_job_controller(group_db_,
-                                     job_db_,
-                                     group_id,
-                                     job_id,
-                                     auth_context_processor)
+                                 job_db_,
+                                 group_id,
+                                 job_id,
+                                 auth_context_processor)
 
         # TODO : Need to remove unnecessary content from return JSON.
         #   Should probably happen inside the controller.
 
         return {
-            "statusCode" : 200,
-            "body" : json.dumps(job.to_json())
+            "statusCode": 200,
+            "body": json.dumps(job.to_json())
         }
     except RequestForbiddenException as error:
         return {
-            "statusCode" : 403,
-            "body" : json.dumps({"error_msg" : str(error)})
+            "statusCode": 403,
+            "body": json.dumps({"error_msg": str(error)})
         }

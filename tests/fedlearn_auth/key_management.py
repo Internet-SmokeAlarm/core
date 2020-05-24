@@ -4,6 +4,7 @@ from dependencies.python.fedlearn_auth import generate_secret
 from dependencies.python.fedlearn_auth import generate_key_pair
 from dependencies.python.fedlearn_auth import get_id_from_token
 
+
 class KeyManagementTestCase(unittest.TestCase):
 
     def test_generate_secret_pass(self):

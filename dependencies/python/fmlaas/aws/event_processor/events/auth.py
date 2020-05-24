@@ -1,6 +1,7 @@
 class AuthEvent:
 
-    def __init__(self, token, method_arn, path_parameters, aws_account_id, rest_api_id, region, stage):
+    def __init__(self, token, method_arn, path_parameters,
+                 aws_account_id, rest_api_id, region, stage):
         """
         :param token: string
         :param method_arn: string

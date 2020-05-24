@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class ModelNameType(Enum):
 
     DEVICE_MODEL_UPDATE = 1

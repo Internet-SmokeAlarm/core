@@ -9,7 +9,9 @@ from ...model import ProjectPrivilegeTypesEnum
 from ...exception import raise_default_request_forbidden_error
 from ..utils import termination_check
 
-def submit_job_start_model_controller(project_db, job_db, job_id, auth_context_processor):
+
+def submit_job_start_model_controller(
+        project_db, job_db, job_id, auth_context_processor):
     """
     :param project_db: DB
     :param job_db: DB
@@ -25,11 +27,13 @@ def submit_job_start_model_controller(project_db, job_db, job_id, auth_context_p
 
     try:
         job = DBObject.load_from_db(Job, job_id, job_db)
-        project = DBObject.load_from_db(Project, job.get_parent_project_id(), project_db)
-    except:
+        project = DBObject.load_from_db(
+            Project, job.get_parent_project_id(), project_db)
+    except BaseException:
         raise_default_request_forbidden_error()
 
-    if not project.does_member_have_auth(auth_context_processor.get_entity_id(), ProjectPrivilegeTypesEnum.READ_WRITE):
+    if not project.does_member_have_auth(
+            auth_context_processor.get_entity_id(), ProjectPrivilegeTypesEnum.READ_WRITE):
         raise_default_request_forbidden_error()
 
     can_submit_model_to_job = job.is_in_initialization()
@@ -48,7 +52,7 @@ def submit_job_start_model_controller(project_db, job_db, job_id, auth_context_p
 
     try:
         termination_check(job, job_db, project_db)
-    except:
+    except BaseException:
         can_submit_model_to_job = False
 
     return can_submit_model_to_job, presigned_url

@@ -1,5 +1,6 @@
 from ..hierarchical_model_naming import HierarchicalModelNameStructure
 
+
 class Model:
 
     def __init__(self, entity_id, name, size):
@@ -20,7 +21,7 @@ class Model:
 
     def get_name(self):
         # TODO : Maybe serialize the model name type as well so this isn't hardcoded?
-        #   Another option: Merge name logic into Model since it is an attribute
+        # Another option: Merge name logic into Model since it is an attribute
         return HierarchicalModelNameStructure().load_name(self.name)
 
     def get_size(self):
@@ -28,14 +29,15 @@ class Model:
 
     def to_json(self):
         return {
-            "entity_id" : self.entity_id,
-            "name" : self.name,
-            "size" : self.size
+            "entity_id": self.entity_id,
+            "name": self.name,
+            "size": self.size
         }
 
     @staticmethod
     def from_json(json_data):
-        return Model(json_data["entity_id"], json_data["name"], json_data["size"])
+        return Model(json_data["entity_id"],
+                     json_data["name"], json_data["size"])
 
     @staticmethod
     def is_valid_json(json_data):

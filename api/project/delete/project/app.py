@@ -10,6 +10,7 @@ from fmlaas.request_processor import AuthContextProcessor
 from fmlaas.exception import RequestForbiddenException
 from fmlaas.controller.delete_project import delete_project_controller
 
+
 def lambda_handler(event, context):
     req_json = json.loads(event.get('body'))
     auth_json = event["requestContext"]["authorizer"]
@@ -21,8 +22,8 @@ def lambda_handler(event, context):
         auth_context_processor = AuthContextProcessor(auth_json)
     except ValueError as error:
         return {
-            "statusCode" : 400,
-            "body" : json.dumps({"error_msg" : str(error)})
+            "statusCode": 400,
+            "body": json.dumps({"error_msg": str(error)})
         }
 
     project_db = DynamoDBInterface(get_project_table_name_from_env())
@@ -30,17 +31,17 @@ def lambda_handler(event, context):
 
     try:
         delete_project_controller(project_db,
-                                job_db,
-                                project_id,
-                                auth_context_processor)
+                                  job_db,
+                                  project_id,
+                                  auth_context_processor)
         delete_s3_objects_with_prefix(get_models_bucket_name(), project_id)
 
         return {
-            "statusCode" : 200,
-            "body" : "{}"
+            "statusCode": 200,
+            "body": "{}"
         }
     except RequestForbiddenException as error:
         return {
-            "statusCode" : 403,
-            "body" : json.dumps({"error_msg" : str(error)})
+            "statusCode": 403,
+            "body": json.dumps({"error_msg": str(error)})
         }

@@ -2,6 +2,7 @@ import unittest
 
 from dependencies.python.fmlaas.controller.model_uploaded import generate_aggregation_func_payload
 
+
 class LambdaTriggerHelperTestCase(unittest.TestCase):
 
     def test_generate_aggregation_func_payload_pass(self):

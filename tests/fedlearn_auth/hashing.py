@@ -4,6 +4,7 @@ from dependencies.python.fedlearn_auth import hash_secret
 from dependencies.python.fedlearn_auth import verify_key
 from dependencies.python.fedlearn_auth import generate_key_pair
 
+
 class HashingTestCase(unittest.TestCase):
 
     def test_hash_secret_pass(self):

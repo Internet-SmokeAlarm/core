@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class JobStatus(Enum):
 
     INITIALIZED = "INITIALIZED"

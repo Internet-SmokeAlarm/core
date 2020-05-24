@@ -9,6 +9,7 @@ from fmlaas.request_processor import AuthContextProcessor
 from fmlaas.request_processor import JobConfigJSONProcessor
 from fmlaas.exception import RequestForbiddenException
 
+
 def lambda_handler(event, context):
     """
     {
@@ -39,8 +40,8 @@ def lambda_handler(event, context):
         auth_context_processor = AuthContextProcessor(auth_json)
     except ValueError as error:
         return {
-            "statusCode" : 400,
-            "body" : json.dumps({"error_msg" : str(error)})
+            "statusCode": 400,
+            "body": json.dumps({"error_msg": str(error)})
         }
 
     job_db = DynamoDBInterface(get_job_table_name_from_env())
@@ -48,23 +49,23 @@ def lambda_handler(event, context):
 
     try:
         job_id = start_job_controller(job_db,
-                                          group_db,
-                                          group_id,
-                                          job_config,
-                                          previous_job_id,
-                                          auth_context_processor)
+                                      group_db,
+                                      group_id,
+                                      job_config,
+                                      previous_job_id,
+                                      auth_context_processor)
 
         return {
-            "statusCode" : 200,
-            "body" : json.dumps({"job_id" : job_id})
+            "statusCode": 200,
+            "body": json.dumps({"job_id": job_id})
         }
     except RequestForbiddenException as error:
         return {
-            "statusCode" : 403,
-            "body" : json.dumps({"error_msg" : str(error)})
+            "statusCode": 403,
+            "body": json.dumps({"error_msg": str(error)})
         }
     except ValueError as error:
         return {
-            "statusCode" : 400,
-            "body" : json.dumps({"error_msg" : str(error)})
+            "statusCode": 400,
+            "body": json.dumps({"error_msg": str(error)})
         }

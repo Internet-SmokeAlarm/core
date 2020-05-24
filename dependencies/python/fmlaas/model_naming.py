@@ -1,6 +1,7 @@
 from abc import abstractmethod
 from .model_name_type import ModelNameType
 
+
 class ModelNameStructure:
 
     def __init__(self):
@@ -22,7 +23,10 @@ class ModelNameStructure:
         :param device_id: string
         :param job_id: string
         """
-        self.name = self._generate_name(is_start_model=is_start_model, job_id=job_id, device_id=device_id)
+        self.name = self._generate_name(
+            is_start_model=is_start_model,
+            job_id=job_id,
+            device_id=device_id)
         self.name_type = self._identify_name_type()
 
     @abstractmethod
@@ -65,7 +69,8 @@ class ModelNameStructure:
         raise NotImplementedError("get_device_id() not implemented")
 
     @abstractmethod
-    def _generate_name(self, is_start_model=False, job_id=None, device_id=None):
+    def _generate_name(self, is_start_model=False,
+                       job_id=None, device_id=None):
         """
         Generates appropriate S3 object name given information.
 

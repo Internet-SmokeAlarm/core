@@ -8,6 +8,7 @@ from dependencies.python.fmlaas.model import Model
 from dependencies.python.fmlaas.model.termination_criteria import DurationTerminationCriteria
 from dependencies.python.fmlaas.utils import get_epoch_time
 
+
 class JobTestCase(unittest.TestCase):
 
     def _build_default_job(self):
@@ -22,44 +23,90 @@ class JobTestCase(unittest.TestCase):
 
     def test_to_json_pass(self):
         job = Job("my_id",
-            ["test1", "test2"],
-            JobStatus.COMPLETED.value,
-            {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : "2134235"},
-            {"name" : "21313124/21313124", "entity_id" : "21313124", "size" : "21313124"},
-            {"config info" : "here"},
-            {"test1" : {"size" : "123300"}},
-            "December 19th, 2019",
-            "1234345",
-            "fl_project_12312313")
+                  ["test1", "test2"],
+                  JobStatus.COMPLETED.value,
+                  {"name": "21313124/123123/123235345",
+                      "entity_id": "123235345", "size": "2134235"},
+                  {"name": "21313124/21313124",
+                      "entity_id": "21313124", "size": "21313124"},
+                  {"config info": "here"},
+                  {"test1": {"size": "123300"}},
+                  "December 19th, 2019",
+                  "1234345",
+                  "fl_project_12312313")
 
         job_json = job.to_json()
 
         self.assertEqual("my_id", job_json["ID"])
         self.assertEqual("COMPLETED", job_json["status"])
         self.assertEqual(["test1", "test2"], job_json["devices"])
-        self.assertEqual({"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : "2134235"}, job_json["aggregate_model"])
-        self.assertEqual({"name" : "21313124/21313124", "entity_id" : "21313124", "size" : "21313124"}, job_json["start_model"])
-        self.assertEqual({"config info" : "here"}, job_json["configuration"])
-        self.assertEqual({"test1" : {"size" : "123300"}}, job_json["models"])
+        self.assertEqual({"name": "21313124/123123/123235345",
+                          "entity_id": "123235345",
+                          "size": "2134235"},
+                         job_json["aggregate_model"])
+        self.assertEqual({"name": "21313124/21313124",
+                          "entity_id": "21313124",
+                          "size": "21313124"},
+                         job_json["start_model"])
+        self.assertEqual({"config info": "here"}, job_json["configuration"])
+        self.assertEqual({"test1": {"size": "123300"}}, job_json["models"])
         self.assertEqual("December 19th, 2019", job_json["created_on"])
         self.assertEqual("1234345", job_json["billable_size"])
         self.assertEqual("fl_project_12312313", job_json["parent_project_id"])
 
     def test_from_json_pass(self):
-        job_json = {'ID': 'my_id', 'status': 'COMPLETED', 'devices': ['test1', 'test2'], 'aggregate_model': {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : "2134235"}, 'start_model': {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : "2134235"}, 'configuration': {'num_devices' : "5", "num_buffer_devices" : "0", "device_selection_strategy" : "RANDOM", "termination_criteria" : []}, 'models': {"123235345" : {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : "2134235"}}, 'created_on': 'December 19th, 2019', "billable_size" : "0", "parent_project_id" : "fl_project_12312313"}
+        job_json = {
+            'ID': 'my_id',
+            'status': 'COMPLETED',
+            'devices': [
+                'test1',
+                'test2'],
+            'aggregate_model': {
+                "name": "21313124/123123/123235345",
+                "entity_id": "123235345",
+                "size": "2134235"},
+            'start_model': {
+                "name": "21313124/123123/123235345",
+                "entity_id": "123235345",
+                "size": "2134235"},
+            'configuration': {
+                'num_devices': "5",
+                "num_buffer_devices": "0",
+                "device_selection_strategy": "RANDOM",
+                "termination_criteria": []},
+            'models': {
+                "123235345": {
+                    "name": "21313124/123123/123235345",
+                            "entity_id": "123235345",
+                            "size": "2134235"}},
+            'created_on': 'December 19th, 2019',
+            "billable_size": "0",
+            "parent_project_id": "fl_project_12312313"}
 
         job = Job.from_json(job_json)
 
         self.assertEqual(job.get_id(), job_json["ID"])
         self.assertEqual(job.get_status(), JobStatus.COMPLETED)
         self.assertEqual(job.get_devices(), job_json["devices"])
-        self.assertEqual(job.get_aggregate_model().to_json(), job_json["aggregate_model"])
-        self.assertEqual(job.get_configuration().to_json(), job_json["configuration"])
-        self.assertEqual(job.get_models()["123235345"].to_json(), job_json["models"]["123235345"])
+        self.assertEqual(
+            job.get_aggregate_model().to_json(),
+            job_json["aggregate_model"])
+        self.assertEqual(
+            job.get_configuration().to_json(),
+            job_json["configuration"])
+        self.assertEqual(
+            job.get_models()["123235345"].to_json(),
+            job_json["models"]["123235345"])
         self.assertEqual(job.get_created_on(), job_json["created_on"])
-        self.assertEqual(job.get_start_model().to_json(), job_json["start_model"])
-        self.assertEqual(job.get_billable_size(), int(job_json["billable_size"]))
-        self.assertEqual(job.get_parent_project_id(), job_json["parent_project_id"])
+        self.assertEqual(
+            job.get_start_model().to_json(),
+            job_json["start_model"])
+        self.assertEqual(
+            job.get_billable_size(), int(
+                job_json["billable_size"]))
+        self.assertEqual(
+            job.get_parent_project_id(),
+            job_json["parent_project_id"])
 
     def test_add_model_pass(self):
         job = self._build_default_job()
@@ -69,20 +116,29 @@ class JobTestCase(unittest.TestCase):
         job.add_model(model)
 
         self.assertTrue(model.get_entity_id() in job.models)
-        self.assertTrue("12312312" in job.models[model.get_entity_id()]["name"])
-        self.assertEqual(model.get_size(), job.models[model.get_entity_id()]["size"])
+        self.assertTrue(
+            "12312312" in job.models[model.get_entity_id()]["name"])
+        self.assertEqual(model.get_size(),
+                         job.models[model.get_entity_id()]["size"])
 
     def test_get_models(self):
         job = Job("my_id",
-            ["test1", "test2"],
-            JobStatus.COMPLETED,
-            {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : "2134235"},
-            {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : "2134235"},
-            {"config info" : "here"},
-            {"123235345" : {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : "2134235"}, "1232353465" : {"name" : "21313124/123123/1232353465", "entity_id" : "1232353465", "size" : "2134235"}},
-            "December 19th, 2019",
-            "0",
-            "fl_project_12312313")
+                  ["test1", "test2"],
+                  JobStatus.COMPLETED,
+                  {"name": "21313124/123123/123235345",
+                      "entity_id": "123235345", "size": "2134235"},
+                  {"name": "21313124/123123/123235345",
+                      "entity_id": "123235345", "size": "2134235"},
+                  {"config info": "here"},
+                  {"123235345": {"name": "21313124/123123/123235345",
+                                 "entity_id": "123235345",
+                                 "size": "2134235"},
+                   "1232353465": {"name": "21313124/123123/1232353465",
+                                  "entity_id": "1232353465",
+                                  "size": "2134235"}},
+                  "December 19th, 2019",
+                  "0",
+                  "fl_project_12312313")
 
         models = job.get_models()
 
@@ -166,7 +222,11 @@ class JobTestCase(unittest.TestCase):
     def test_is_device_active_pass(self):
         job = self._build_default_job()
 
-        job.set_start_model(Model("34234342", "34234342/start_model", "234514"))
+        job.set_start_model(
+            Model(
+                "34234342",
+                "34234342/start_model",
+                "234514"))
 
         self.assertTrue(job.is_device_active("123"))
         self.assertTrue(job.is_device_active("234"))
@@ -221,7 +281,9 @@ class JobTestCase(unittest.TestCase):
         start_model = Model("1234", "1234/start_model", "1234345")
         job.set_start_model(start_model)
 
-        self.assertEqual(start_model.to_json(), job.get_start_model().to_json())
+        self.assertEqual(
+            start_model.to_json(),
+            job.get_start_model().to_json())
         self.assertEqual(job.get_status(), JobStatus.IN_PROGRESS)
 
     def test_set_start_model_pass_2(self):
@@ -229,9 +291,15 @@ class JobTestCase(unittest.TestCase):
 
         start_model = Model("1234", "1234/start_model", "1234345")
         job.set_start_model(start_model)
-        job.set_start_model(Model("123445645", "123445645/start_model", "6435453"))
+        job.set_start_model(
+            Model(
+                "123445645",
+                "123445645/start_model",
+                "6435453"))
 
-        self.assertEqual(start_model.to_json(), job.get_start_model().to_json())
+        self.assertEqual(
+            start_model.to_json(),
+            job.get_start_model().to_json())
         self.assertEqual(job.get_status(), JobStatus.IN_PROGRESS)
 
     def test_is_ready_for_aggregation_pass_2(self):
@@ -293,7 +361,9 @@ class JobTestCase(unittest.TestCase):
         job.cancel()
 
         self.assertEqual(job.get_status(), JobStatus.CANCELLED)
-        self.assertEqual(job.get_start_model().to_json(), job.get_end_model().to_json())
+        self.assertEqual(
+            job.get_start_model().to_json(),
+            job.get_end_model().to_json())
         self.assertEqual(job.get_billable_size(), 231241)
 
     def test_cancel_pass_2(self):
@@ -313,7 +383,9 @@ class JobTestCase(unittest.TestCase):
         job.complete()
 
         self.assertEqual(job.get_status(), JobStatus.COMPLETED)
-        self.assertEqual(job.get_aggregate_model().to_json(), job.get_end_model().to_json())
+        self.assertEqual(
+            job.get_aggregate_model().to_json(),
+            job.get_end_model().to_json())
         self.assertEqual(job.get_billable_size(), 243565)
 
     def test_calculate_billable_size_pass_1(self):
@@ -369,7 +441,8 @@ class JobTestCase(unittest.TestCase):
         builder.set_parent_project_id("fl_project_1232234")
         builder.set_devices(["123", "234"])
         configuration = JobConfiguration(50, 0, "RANDOM", [
-            DurationTerminationCriteria(10, float(get_epoch_time()) - 100).to_json()
+            DurationTerminationCriteria(
+                10, float(get_epoch_time()) - 100).to_json()
         ])
         builder.set_configuration(configuration.to_json())
         job = builder.build()

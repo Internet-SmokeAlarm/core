@@ -7,7 +7,9 @@ from ...aws import get_models_bucket_name
 from ...exception import raise_default_request_forbidden_error
 from ..utils import termination_check
 
-def get_job_start_model_controller(project_db, job_db, project_id, job_id, auth_context_processor):
+
+def get_job_start_model_controller(
+        project_db, job_db, project_id, job_id, auth_context_processor):
     """
     :param project_db: DB
     :param job_db: DB
@@ -36,7 +38,7 @@ def get_job_start_model_controller(project_db, job_db, project_id, job_id, auth_
 
     try:
         termination_check(job, job_db, project_db)
-    except:
+    except BaseException:
         pass
 
     return presigned_url

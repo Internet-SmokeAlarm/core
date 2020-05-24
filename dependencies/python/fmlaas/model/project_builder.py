@@ -1,6 +1,7 @@
 from .project import Project
 from .builder import Builder
 
+
 class ProjectBuilder(Builder):
 
     def __init__(self):
@@ -58,15 +59,16 @@ class ProjectBuilder(Builder):
     def build(self):
         self._validate_parameters()
 
-        return Project(self.name, self.id, self.devices, self.job_info, self.job_paths, self.current_job_ids, self.members, self.billing)
+        return Project(self.name, self.id, self.devices, self.job_info,
+                       self.job_paths, self.current_job_ids, self.members, self.billing)
 
     def _validate_parameters(self):
         if self.id is None:
             raise ValueError("ID must not be none")
-        elif type(self.id) is not type("str"):
+        elif not isinstance(self.id, type("str")):
             raise ValueError("ID must be type string")
 
         if self.name is None:
             raise ValueError("name must not be none")
-        elif type(self.name) is not type("str"):
+        elif not isinstance(self.name, type("str")):
             raise ValueError("name must be type string")

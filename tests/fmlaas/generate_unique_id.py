@@ -2,6 +2,7 @@ import unittest
 
 from dependencies.python.fmlaas import generate_unique_id
 
+
 class GenerateUniqueIdTestCase(unittest.TestCase):
 
     def test_pass(self):

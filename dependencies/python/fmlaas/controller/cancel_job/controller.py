@@ -6,6 +6,7 @@ from ...exception import raise_default_request_forbidden_error
 from ...model import ProjectPrivilegeTypesEnum
 from ..utils import update_job_path
 
+
 def cancel_job_controller(project_db, job_db, job_id, auth_context_processor):
     """
     :param project_db: DB
@@ -18,11 +19,13 @@ def cancel_job_controller(project_db, job_db, job_id, auth_context_processor):
 
     try:
         job = DBObject.load_from_db(Job, job_id, job_db)
-        project = DBObject.load_from_db(Project, job.get_parent_project_id(), project_db)
-    except:
+        project = DBObject.load_from_db(
+            Project, job.get_parent_project_id(), project_db)
+    except BaseException:
         raise_default_request_forbidden_error()
 
-    if not project.does_member_have_auth(auth_context_processor.get_entity_id(), ProjectPrivilegeTypesEnum.READ_WRITE):
+    if not project.does_member_have_auth(
+            auth_context_processor.get_entity_id(), ProjectPrivilegeTypesEnum.READ_WRITE):
         raise_default_request_forbidden_error()
 
     if job.is_complete():

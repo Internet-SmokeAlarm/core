@@ -1,15 +1,18 @@
+from bindings.pytorch.python.fmlaas_pytorch.storage import DiskModelStorage
+from bindings.pytorch.python.fmlaas_pytorch.serde import deserialize_state_dict
+from bindings.pytorch.python.fmlaas_pytorch import scale_model
+from bindings.pytorch.python.fmlaas_pytorch import combine_models
 import os
 from loguru import logger
 import sys
 import numpy
 sys.path.append(".")
-from bindings.pytorch.python.fmlaas_pytorch import combine_models
-from bindings.pytorch.python.fmlaas_pytorch import scale_model
-from bindings.pytorch.python.fmlaas_pytorch.serde import deserialize_state_dict
-from bindings.pytorch.python.fmlaas_pytorch.storage import DiskModelStorage
 
-STATE_DICTS_TO_COMBINE_PATH = ["tests/fmlaas/data/mnist_cnn_2.json", "tests/fmlaas/data/mnist_cnn.json"]
+STATE_DICTS_TO_COMBINE_PATH = [
+    "tests/fmlaas/data/mnist_cnn_2.json",
+    "tests/fmlaas/data/mnist_cnn.json"]
 STATE_DICT_COMBINED_PATH = "/Users/valetolpegin/Downloads/1320626241526138"
+
 
 def compare_state_dicts(model_1, model_2):
     models_differ = 0
@@ -27,11 +30,13 @@ def compare_state_dicts(model_1, model_2):
     if models_differ == 0:
         logger.info('Models match perfectly!')
 
+
 def load_state_dict(file_path):
     logger.info("Loading state dict: {}", file_path)
 
     with open(file_path, "r") as f:
         return deserialize_state_dict(DiskModelStorage.load_model(f))
+
 
 if __name__ == '__main__':
     combined_state_dict = load_state_dict(STATE_DICT_COMBINED_PATH)
@@ -42,7 +47,9 @@ if __name__ == '__main__':
 
         combined_model = combine_models(combined_model, state_dict)
 
-    scaled_model = scale_model(combined_model, len(STATE_DICTS_TO_COMBINE_PATH))
+    scaled_model = scale_model(
+        combined_model,
+        len(STATE_DICTS_TO_COMBINE_PATH))
 
     logger.info("Comparing state dict...")
     compare_state_dicts(combined_state_dict, scaled_model)

@@ -6,6 +6,7 @@ from ...utils import get_aggregation_lambda_func_name
 from ..utils import update_job_path
 from .lambda_trigger_helper import generate_aggregation_func_payload
 
+
 def models_uploaded_controller(project_db, job_db, models_uploaded):
     """
     :param project_db: DB
@@ -15,12 +16,16 @@ def models_uploaded_controller(project_db, job_db, models_uploaded):
     for model in models_uploaded:
         model_name = model.get_name()
         handler_function = get_model_process_function(model_name)
-        should_trigger_aggregation = handler_function(model, project_db, job_db)
+        should_trigger_aggregation = handler_function(
+            model, project_db, job_db)
 
         if should_trigger_aggregation:
-            payload = generate_aggregation_func_payload(model_name.get_job_id())
+            payload = generate_aggregation_func_payload(
+                model_name.get_job_id())
 
-            trigger_lambda_function(get_aggregation_lambda_func_name(), payload)
+            trigger_lambda_function(
+                get_aggregation_lambda_func_name(), payload)
+
 
 def get_model_process_function(model_name):
     if model_name.is_job_start_model():
@@ -30,6 +35,7 @@ def get_model_process_function(model_name):
     elif model_name.is_job_aggregate_model():
         return handle_job_aggregate_model
 
+
 def handle_job_start_model(model, project_db, job_db):
     model.set_entity_id(model.get_name().get_job_id())
 
@@ -38,6 +44,7 @@ def handle_job_start_model(model, project_db, job_db):
     job.save_to_db(job_db)
 
     return False
+
 
 def handle_device_model_update(model, project_db, job_db):
     model.set_entity_id(model.get_name().get_device_id())
@@ -52,6 +59,7 @@ def handle_device_model_update(model, project_db, job_db):
     job.save_to_db(job_db)
 
     return should_aggregate
+
 
 def handle_job_aggregate_model(model, project_db, job_db):
     model.set_entity_id(model.get_name().get_job_id())

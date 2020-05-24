@@ -3,6 +3,7 @@ from .builder import Builder
 
 from ..utils.time import get_epoch_time
 
+
 class DeviceBuilder(Builder):
 
     def __init__(self):
@@ -21,7 +22,7 @@ class DeviceBuilder(Builder):
         return Device(self.id, self.registered_on)
 
     def _validate_parameters(self):
-        if self.id == None:
+        if self.id is None:
             raise ValueError("ID must not be None")
-        elif type(self.id) is not type("str"):
+        elif not isinstance(self.id, type("str")):
             raise ValueError("ID must be of type string")

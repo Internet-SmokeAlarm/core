@@ -1,6 +1,7 @@
 from .event_processor import EventProcessor
 from .events import AuthEventBuilder
 
+
 class AuthEventProcessor(EventProcessor):
 
     def process_event(self, json_data):

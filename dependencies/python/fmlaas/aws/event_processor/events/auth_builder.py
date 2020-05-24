@@ -1,6 +1,7 @@
 from ....model import Builder
 from .auth import AuthEvent
 
+
 class AuthEventBuilder(Builder):
 
     def __init__(self):
@@ -67,37 +68,37 @@ class AuthEventBuilder(Builder):
             self.stage)
 
     def _validate_parameters(self):
-        if self.token == None:
+        if self.token is None:
             raise ValueError("Token must not be None")
-        elif type(self.token) is not type("str"):
+        elif not isinstance(self.token, type("str")):
             raise ValueError("Token must be of type string")
 
-        if self.method_arn == None:
+        if self.method_arn is None:
             raise ValueError("Method ARN must not be None")
-        elif type(self.method_arn) is not type("str"):
+        elif not isinstance(self.method_arn, type("str")):
             raise ValueError("Method ARN must be of type string")
 
-        if self.path_parameters == None:
+        if self.path_parameters is None:
             raise ValueError("Path Parameters must not be None")
-        elif type(self.path_parameters) is not type({}):
+        elif not isinstance(self.path_parameters, type({})):
             raise ValueError("Path Parameters must be of type dictionary")
 
-        if self.aws_account_id == None:
+        if self.aws_account_id is None:
             raise ValueError("AWS Account ID must not be None")
-        elif type(self.aws_account_id) is not type("str"):
+        elif not isinstance(self.aws_account_id, type("str")):
             raise ValueError("AWS Account ID must be of type string")
 
-        if self.rest_api_id == None:
+        if self.rest_api_id is None:
             raise ValueError("Rest API ID must not be None")
-        elif type(self.rest_api_id) is not type("str"):
+        elif not isinstance(self.rest_api_id, type("str")):
             raise ValueError("Rest API ID must be of type string")
 
-        if self.region == None:
+        if self.region is None:
             raise ValueError("Region must not be None")
-        elif type(self.region) is not type("str"):
+        elif not isinstance(self.region, type("str")):
             raise ValueError("Region must be of type string")
 
-        if self.stage == None:
+        if self.stage is None:
             raise ValueError("Stage must not be None")
-        elif type(self.stage) is not type("str"):
+        elif not isinstance(self.stage, type("str")):
             raise ValueError("Stage must be of type string")

@@ -7,7 +7,9 @@ from ...exception import raise_default_request_forbidden_error
 from fedlearn_auth import generate_key_pair
 from fedlearn_auth import hash_secret
 
-def register_device_controller(project_db, key_db, project_id, auth_context_processor):
+
+def register_device_controller(
+        project_db, key_db, project_id, auth_context_processor):
     """
     :param project_db: DB
     :param key_db: DB
@@ -18,7 +20,8 @@ def register_device_controller(project_db, key_db, project_id, auth_context_proc
         raise_default_request_forbidden_error()
 
     project = DBObject.load_from_db(Project, project_id, project_db)
-    if not project.does_member_have_auth(auth_context_processor.get_entity_id(), ProjectPrivilegeTypesEnum.READ_WRITE):
+    if not project.does_member_have_auth(
+            auth_context_processor.get_entity_id(), ProjectPrivilegeTypesEnum.READ_WRITE):
         raise_default_request_forbidden_error()
 
     id, key_plaintext = generate_key_pair()

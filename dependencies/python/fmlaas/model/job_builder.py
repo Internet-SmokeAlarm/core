@@ -5,6 +5,7 @@ from .builder import Builder
 
 from ..utils.time import get_epoch_time
 
+
 class JobBuilder(Builder):
 
     def __init__(self):
@@ -78,28 +79,28 @@ class JobBuilder(Builder):
         self._validate_parameters()
 
         return Job(self.id,
-            self.devices,
-            self.status,
-            self.aggregate_model,
-            self.start_model,
-            self.configuration,
-            self.models,
-            self.created_on,
-            self.billable_size,
-            self.parent_project_id)
+                   self.devices,
+                   self.status,
+                   self.aggregate_model,
+                   self.start_model,
+                   self.configuration,
+                   self.models,
+                   self.created_on,
+                   self.billable_size,
+                   self.parent_project_id)
 
     def _validate_parameters(self):
         if self.id is None:
             raise ValueError("ID must not be none")
-        elif type(self.id) is not type("str"):
+        elif not isinstance(self.id, type("str")):
             raise ValueError("ID must be type string")
 
         if self.configuration is None:
             raise ValueError("configuration must not be none")
-        elif type(self.configuration) is not type({}):
+        elif not isinstance(self.configuration, type({})):
             raise ValueError("configuration must be type dict")
 
         if self.parent_project_id is None:
             raise ValueError("Parent Project ID must not be none")
-        elif type(self.parent_project_id) is not type("str"):
+        elif not isinstance(self.parent_project_id, type("str")):
             raise ValueError("Parent Project ID must be type string")

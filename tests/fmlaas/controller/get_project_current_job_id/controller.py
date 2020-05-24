@@ -9,6 +9,7 @@ from dependencies.python.fmlaas.model import Model
 from dependencies.python.fmlaas.model import ProjectPrivilegeTypesEnum
 from dependencies.python.fmlaas.request_processor import AuthContextProcessor
 
+
 class GetProjectCurrentJobIdControllerTestCase(unittest.TestCase):
 
     def _build_default_project(self):
@@ -20,7 +21,8 @@ class GetProjectCurrentJobIdControllerTestCase(unittest.TestCase):
         project.add_device("12344")
         project.create_job_path("1234432414")
         project.add_current_job_id("1234432414")
-        project.add_or_update_member("user_12345", ProjectPrivilegeTypesEnum.OWNER)
+        project.add_or_update_member(
+            "user_12345", ProjectPrivilegeTypesEnum.OWNER)
 
         return project
 
@@ -30,19 +32,21 @@ class GetProjectCurrentJobIdControllerTestCase(unittest.TestCase):
         project.save_to_db(db_)
 
         auth_json = {
-            "authentication_type" : "DEVICE",
-            "entity_id" : "12344"
+            "authentication_type": "DEVICE",
+            "entity_id": "12344"
         }
         auth_context_processor = AuthContextProcessor(auth_json)
-        current_job_id = get_project_current_job_id_controller(db_, project.get_id(), auth_context_processor)
+        current_job_id = get_project_current_job_id_controller(
+            db_, project.get_id(), auth_context_processor)
         self.assertEqual("1234432414", current_job_id[0])
 
         auth_json = {
-            "authentication_type" : "USER",
-            "entity_id" : "user_12345"
+            "authentication_type": "USER",
+            "entity_id": "user_12345"
         }
         auth_context_processor = AuthContextProcessor(auth_json)
-        current_job_id_2 = get_project_current_job_id_controller(db_, project.get_id(), auth_context_processor)
+        current_job_id_2 = get_project_current_job_id_controller(
+            db_, project.get_id(), auth_context_processor)
         self.assertEqual("1234432414", current_job_id_2[0])
 
     def test_not_authorized_1(self):
@@ -51,11 +55,16 @@ class GetProjectCurrentJobIdControllerTestCase(unittest.TestCase):
         project.save_to_db(db_)
 
         auth_json = {
-            "authentication_type" : "DEVICE",
-            "entity_id" : "34"
+            "authentication_type": "DEVICE",
+            "entity_id": "34"
         }
         auth_context_processor = AuthContextProcessor(auth_json)
-        self.assertRaises(RequestForbiddenException, get_project_current_job_id_controller, db_, project.get_id(), auth_context_processor)
+        self.assertRaises(
+            RequestForbiddenException,
+            get_project_current_job_id_controller,
+            db_,
+            project.get_id(),
+            auth_context_processor)
 
     def test_not_authorized_2(self):
         db_ = InMemoryDBInterface()
@@ -63,8 +72,13 @@ class GetProjectCurrentJobIdControllerTestCase(unittest.TestCase):
         project.save_to_db(db_)
 
         auth_json = {
-            "authentication_type" : "USER",
-            "entity_id" : "user_1234"
+            "authentication_type": "USER",
+            "entity_id": "user_1234"
         }
         auth_context_processor = AuthContextProcessor(auth_json)
-        self.assertRaises(RequestForbiddenException, get_project_current_job_id_controller, db_, project.get_id(), auth_context_processor)
+        self.assertRaises(
+            RequestForbiddenException,
+            get_project_current_job_id_controller,
+            db_,
+            project.get_id(),
+            auth_context_processor)
