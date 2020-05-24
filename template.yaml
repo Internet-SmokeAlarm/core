@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: FMLaaS Core
+Description: Verge AI Core
 
 Parameters:
   Stage:
@@ -11,17 +11,17 @@ Globals:
     Runtime: python3.7
     Environment:
       Variables:
-        MODELS_BUCKET: !Join ["", [!Ref Stage, "-fedlearn-models"]]
-        GROUPS_TABLE_NAME: !Join ["", [!Ref Stage, "-fl-projects"]]
-        ROUNDS_TABLE_NAME: !Join ["", [!Ref Stage, "-fl-jobs"]]
+        MODELS_BUCKET: !Join ["", [!Ref Stage, "-fl-models"]]
+        PROJECTS_TABLE_NAME: !Join ["", [!Ref Stage, "-fl-projects"]]
+        JOBS_TABLE_NAME: !Join ["", [!Ref Stage, "-fl-jobs"]]
         AUTH_KEY_TABLE_NAME: !Join ["", [!Ref Stage, "-fl-auth-key"]]
         AGGREGATION_LAMBDA_FUNCTION_NAME: !Join ["", [!Ref Stage, "-AggregateModels"]]
-        COGNITO_USER_POOL_CLIENT_ID: !Ref FedLearnCognitoUserPoolClient
-        COGNITO_USER_POOL_ID: !Ref FedLearnCognitoUserPool
+        COGNITO_USER_POOL_CLIENT_ID: !Ref AuthCognitoUserPoolClient
+        COGNITO_USER_POOL_ID: !Ref AuthCognitoUserPool
 
 Resources:
   # ------------ Api ------------
-  FmlaasProdApi:
+  ApiGw:
     Type: AWS::Serverless::Api
     Properties:
       StageName: !Ref Stage
@@ -81,7 +81,7 @@ Resources:
 
 
   # ------------ Cognito ------------
-  FedLearnCognitoUserPool:
+  AuthCognitoUserPool:
     Type: AWS::Cognito::UserPool
     Properties:
       UserPoolName: !Join ["", [!Ref Stage, "-fl-user-pool"]]
@@ -100,10 +100,10 @@ Resources:
           Name: email
           Required: false
 
-  FedLearnCognitoUserPoolClient:
+  AuthCognitoUserPoolClient:
     Type: AWS::Cognito::UserPoolClient
     Properties:
-      UserPoolId: !Ref FedLearnCognitoUserPool
+      UserPoolId: !Ref AuthCognitoUserPool
       ClientName: !Join ["", [!Ref Stage, "-fl-user-pool-client"]]
       GenerateSecret: false
 
@@ -112,7 +112,7 @@ Resources:
   ModelBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Join ["", [!Ref Stage, "-fedlearn-models"]]
+      BucketName: !Join ["", [!Ref Stage, "-fl-models"]]
 
 
   # ------------ IAM ------------
@@ -186,7 +186,7 @@ Resources:
         CreateApiKeyEvent:
           Type: Api
           Properties:
-            RestApiId: !Ref FmlaasProdApi
+            RestApiId: !Ref ApiGw
             Path: /v1/auth/create_key
             Method: post
 
@@ -210,7 +210,7 @@ Resources:
         RegisterDeviceApiEvent:
           Type: Api
           Properties:
-            RestApiId: !Ref FmlaasProdApi
+            RestApiId: !Ref ApiGw
             Path: /v1/device/create
             Method: post
 
@@ -234,7 +234,7 @@ Resources:
         CancelJobApiEvent:
           Type: Api
           Properties:
-            RestApiId: !Ref FmlaasProdApi
+            RestApiId: !Ref ApiGw
             Path: /v1/job/cancel
             Method: post
 
@@ -259,7 +259,7 @@ Resources:
         SubmitJobStartModelApiEvent:
           Type: Api
           Properties:
-            RestApiId: !Ref FmlaasProdApi
+            RestApiId: !Ref ApiGw
             Path: /v1/job/submit_start_model
             Method: post
 
@@ -283,7 +283,7 @@ Resources:
         CreateJobApiEvent:
           Type: Api
           Properties:
-            RestApiId: !Ref FmlaasProdApi
+            RestApiId: !Ref ApiGw
             Path: /v1/job/create
             Method: post
 
@@ -307,7 +307,7 @@ Resources:
         GetJobApiEvent:
           Type: Api
           Properties:
-            RestApiId: !Ref FmlaasProdApi
+            RestApiId: !Ref ApiGw
             Path: /v1/job/get/{project_id}/{job_id}
             Method: get
 
@@ -329,7 +329,7 @@ Resources:
         GetProjectApiEvent:
           Type: Api
           Properties:
-            RestApiId: !Ref FmlaasProdApi
+            RestApiId: !Ref ApiGw
             Path: /v1/project/get/{project_id}
             Method: get
 
@@ -378,7 +378,7 @@ Resources:
         GetJobAggregateModelApiEvent:
           Type: Api
           Properties:
-            RestApiId: !Ref FmlaasProdApi
+            RestApiId: !Ref ApiGw
             Path: /v1/job/aggregate_model/{project_id}/{job_id}
             Method: get
 
@@ -400,7 +400,7 @@ Resources:
         CreateProjectApiEvent:
           Type: Api
           Properties:
-            RestApiId: !Ref FmlaasProdApi
+            RestApiId: !Ref ApiGw
             Path: /v1/project/create
             Method: post
 
@@ -426,7 +426,7 @@ Resources:
         DeleteProjectApiEvent:
           Type: Api
           Properties:
-            RestApiId: !Ref FmlaasProdApi
+            RestApiId: !Ref ApiGw
             Path: /v1/project/delete
             Method: post
 
@@ -450,7 +450,7 @@ Resources:
         IsDeviceActiveApiEvent:
           Type: Api
           Properties:
-            RestApiId: !Ref FmlaasProdApi
+            RestApiId: !Ref ApiGw
             Path: /v1/device/is_active/{project_id}/{job_id}/{device_id}
             Method: get
 
@@ -472,7 +472,7 @@ Resources:
         GetProjectActiveJobsEvent:
           Type: Api
           Properties:
-            RestApiId: !Ref FmlaasProdApi
+            RestApiId: !Ref ApiGw
             Path: /v1/project/active_jobs/{project_id}
             Method: get
 
@@ -497,7 +497,7 @@ Resources:
         SubmitModelUpdateApiEvent:
           Type: Api
           Properties:
-            RestApiId: !Ref FmlaasProdApi
+            RestApiId: !Ref ApiGw
             Path: /v1/device/submit_model_update
             Method: post
 
@@ -522,7 +522,7 @@ Resources:
         GetJobStartModelApiEvent:
           Type: Api
           Properties:
-            RestApiId: !Ref FmlaasProdApi
+            RestApiId: !Ref ApiGw
             Path: /v1/job/start_model/{project_id}/{job_id}
             Method: get
 
@@ -552,16 +552,16 @@ Outputs:
 
   ApiId:
     Description: "API ID"
-    Value: !Ref FmlaasProdApi
+    Value: !Ref ApiGw
 
   ApiUrl:
     Description: URL for endpoint
-    Value: !Sub "https://${FmlaasProdApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+    Value: !Sub "https://${ApiGw}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
 
   CognitoUserPoolId:
     Description: "Cognito User Pool Id"
-    Value: !Ref FedLearnCognitoUserPool
+    Value: !Ref AuthCognitoUserPool
 
   CognitoUserPoolClientId:
     Description: "Cognito User Pool Client Id"
-    Value: !Ref FedLearnCognitoUserPoolClient
+    Value: !Ref AuthCognitoUserPoolClient

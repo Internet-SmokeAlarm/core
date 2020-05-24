@@ -1,11 +1,10 @@
 import json
 
-from fmlaas import get_group_table_name_from_env
+from fmlaas import get_project_table_name_from_env
 from fmlaas.database import DynamoDBInterface
 from fmlaas.request_processor import IDProcessor
 from fmlaas.request_processor import AuthContextProcessor
-from fmlaas import get_auth_key_table_from_env
-from fmlaas.controller.register_device import register_device_controller
+from fmlaas.controller.create_project import create_project_controller
 from fmlaas.exception import RequestForbiddenException
 
 def lambda_handler(event, context):
@@ -14,7 +13,7 @@ def lambda_handler(event, context):
 
     try:
         id_processor = IDProcessor(req_json)
-        group_id = id_processor.get_group_id()
+        project_name = id_processor.get_project_name()
 
         auth_context_processor = AuthContextProcessor(auth_json)
     except ValueError as error:
@@ -23,18 +22,16 @@ def lambda_handler(event, context):
             "body" : json.dumps({"error_msg" : str(error)})
         }
 
-    group_db = DynamoDBInterface(get_group_table_name_from_env())
-    key_db = DynamoDBInterface(get_auth_key_table_from_env())
+    dynamodb_ = DynamoDBInterface(get_project_table_name_from_env())
 
     try:
-        id, key_plaintext = register_device_controller(group_db,
-                                                       key_db,
-                                                       group_id,
-                                                       auth_context_processor)
+        project_id = create_project_controller(dynamodb_,
+                                           project_name,
+                                           auth_context_processor)
 
         return {
             "statusCode" : 200,
-            "body" : json.dumps({"device_id" : id, "device_api_key" : key_plaintext})
+            "body" : json.dumps({"project_id" : project_id})
         }
     except RequestForbiddenException as error:
         return {

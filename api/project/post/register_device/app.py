@@ -1,19 +1,20 @@
 import json
 
-from fmlaas import get_group_table_name_from_env
+from fmlaas import get_project_table_name_from_env
 from fmlaas.database import DynamoDBInterface
 from fmlaas.request_processor import IDProcessor
 from fmlaas.request_processor import AuthContextProcessor
-from fmlaas.controller.get_group_current_job_id import get_group_current_job_id_controller
+from fmlaas import get_auth_key_table_from_env
+from fmlaas.controller.register_device import register_device_controller
 from fmlaas.exception import RequestForbiddenException
 
 def lambda_handler(event, context):
-    req_json = event.get("pathParameters")
+    req_json = json.loads(event.get('body'))
     auth_json = event["requestContext"]["authorizer"]
 
     try:
         id_processor = IDProcessor(req_json)
-        group_id = id_processor.get_group_id()
+        project_id = id_processor.get_project_id()
 
         auth_context_processor = AuthContextProcessor(auth_json)
     except ValueError as error:
@@ -22,16 +23,18 @@ def lambda_handler(event, context):
             "body" : json.dumps({"error_msg" : str(error)})
         }
 
-    dynamodb_ = DynamoDBInterface(get_group_table_name_from_env())
+    project_db = DynamoDBInterface(get_project_table_name_from_env())
+    key_db = DynamoDBInterface(get_auth_key_table_from_env())
 
     try:
-        current_job_ids = get_group_current_job_id_controller(dynamodb_,
-                                                                 group_id,
-                                                                 auth_context_processor)
+        id, key_plaintext = register_device_controller(project_db,
+                                                       key_db,
+                                                       project_id,
+                                                       auth_context_processor)
 
         return {
             "statusCode" : 200,
-            "body" : json.dumps({"job_ids" : current_job_ids})
+            "body" : json.dumps({"device_id" : id, "device_api_key" : key_plaintext})
         }
     except RequestForbiddenException as error:
         return {
