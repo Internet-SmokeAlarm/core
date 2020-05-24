@@ -1,0 +1,34 @@
+from ... import generate_unique_id
+from ...model import DBObject
+from ...model import Job
+from ...model import FLGroup
+from ...exception import raise_default_request_forbidden_error
+from ...model import GroupPrivilegeTypesEnum
+from ..utils import update_job_path
+
+def cancel_job_controller(group_db, job_db, job_id, auth_context_processor):
+    """
+    :param group_db: DB
+    :param job_db: DB
+    :param job_id: string
+    :param auth_context_processor: AuthContextProcessor
+    """
+    if auth_context_processor.is_type_device():
+        raise_default_request_forbidden_error()
+
+    try:
+        job = DBObject.load_from_db(Job, job_id, job_db)
+        group = DBObject.load_from_db(FLGroup, job.get_parent_group_id(), group_db)
+    except:
+        raise_default_request_forbidden_error()
+
+    if not group.does_member_have_auth(auth_context_processor.get_entity_id(), GroupPrivilegeTypesEnum.READ_WRITE):
+        raise_default_request_forbidden_error()
+
+    if job.is_complete():
+        raise Exception("cannot cancel a job that has already been completed.")
+
+    job.cancel()
+    job.save_to_db(job_db)
+
+    update_job_path(job, job_db, group_db)

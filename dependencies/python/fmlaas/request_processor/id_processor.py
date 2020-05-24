@@ -4,9 +4,9 @@ class IDProcessor(RequestProcessor):
 
     GROUP_NAME_KEY = "group_name"
     GROUP_ID_KEY = "group_id"
-    ROUND_ID_KEY = "round_id"
+    ROUND_ID_KEY = "job_id"
     DEVICE_ID_KEY = "device_id"
-    PREVIOUS_ROUND_ID_KEY = "previous_round_id"
+    PREVIOUS_ROUND_ID_KEY = "previous_job_id"
 
     def __init__(self, json):
         self.json = json
@@ -30,27 +30,27 @@ class IDProcessor(RequestProcessor):
 
         return group_id
 
-    def get_round_id(self, throw_exception=True):
+    def get_job_id(self, throw_exception=True):
         """
         :return: string
         """
-        round_id = self.json.get(IDProcessor.ROUND_ID_KEY, None)
+        job_id = self.json.get(IDProcessor.ROUND_ID_KEY, None)
 
-        if not self._is_string_name_valid(round_id) and throw_exception:
-            raise ValueError("Round id invalid.")
+        if not self._is_string_name_valid(job_id) and throw_exception:
+            raise ValueError("Job id invalid.")
 
-        return round_id
+        return job_id
 
-    def get_previous_round_id(self, throw_exception=True):
+    def get_previous_job_id(self, throw_exception=True):
         """
         :return: string
         """
-        round_id = self.json.get(IDProcessor.PREVIOUS_ROUND_ID_KEY, None)
+        job_id = self.json.get(IDProcessor.PREVIOUS_ROUND_ID_KEY, None)
 
-        if not self._is_string_name_valid(round_id) and throw_exception:
-            raise ValueError("Previous round id invalid.")
+        if not self._is_string_name_valid(job_id) and throw_exception:
+            raise ValueError("Previous job id invalid.")
 
-        return round_id
+        return job_id
 
     def get_device_id(self, throw_exception=True):
         """

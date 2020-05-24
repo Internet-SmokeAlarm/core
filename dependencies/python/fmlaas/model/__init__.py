@@ -2,10 +2,10 @@ from .group_privilege_types import GroupPrivilegeTypesEnum
 from .builder import Builder
 from .db_object import DBObject
 from .model import Model
-from .round_status import RoundStatus
-from .round_configuration import RoundConfiguration
-from .round import Round
-from .round_builder import RoundBuilder
+from .job_status import JobStatus
+from .job_configuration import JobConfiguration
+from .job import Job
+from .job_builder import JobBuilder
 from .device import Device
 from .device_builder import DeviceBuilder
 from .group import FLGroup

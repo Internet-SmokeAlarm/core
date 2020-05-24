@@ -7,9 +7,9 @@ class GroupBuilder(Builder):
         self.name = None
         self.id = None
         self.devices = {}
-        self.round_info = {}
-        self.round_paths = []
-        self.current_round_ids = []
+        self.job_info = {}
+        self.job_paths = []
+        self.current_job_ids = []
         self.members = {}
         self.billing = {}
 
@@ -31,23 +31,23 @@ class GroupBuilder(Builder):
         """
         self.devices = devices
 
-    def set_round_info(self, round_info):
+    def set_job_info(self, job_info):
         """
-        :param rounds: dict
+        :param jobs: dict
         """
-        self.round_info = round_info
+        self.job_info = job_info
 
-    def set_round_paths(self, round_paths):
+    def set_job_paths(self, job_paths):
         """
-        :param round_paths: list(list(string))
+        :param job_paths: list(list(string))
         """
-        self.round_paths = round_paths
+        self.job_paths = job_paths
 
-    def set_current_round_ids(self, current_round_ids):
+    def set_current_job_ids(self, current_job_ids):
         """
-        :param current_round_ids: list(string)
+        :param current_job_ids: list(string)
         """
-        self.current_round_ids = current_round_ids
+        self.current_job_ids = current_job_ids
 
     def set_billing(self, billing):
         """
@@ -58,7 +58,7 @@ class GroupBuilder(Builder):
     def build(self):
         self._validate_parameters()
 
-        return FLGroup(self.name, self.id, self.devices, self.round_info, self.round_paths, self.current_round_ids, self.members, self.billing)
+        return FLGroup(self.name, self.id, self.devices, self.job_info, self.job_paths, self.current_job_ids, self.members, self.billing)
 
     def _validate_parameters(self):
         if self.id is None:

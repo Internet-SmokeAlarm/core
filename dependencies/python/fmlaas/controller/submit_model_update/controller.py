@@ -2,18 +2,18 @@ from ...aws import create_presigned_post
 from ... import HierarchicalModelNameStructure
 from ...aws import get_models_bucket_name
 from ...database import DynamoDBInterface
-from ...model import Round
+from ...model import Job
 from ...model import FLGroup
 from ...model import DBObject
 from ...exception import raise_default_request_forbidden_error
 from ..utils import termination_check
 
-def submit_model_update_controller(group_db, round_db, group_id, round_id, auth_context_processor):
+def submit_model_update_controller(group_db, job_db, group_id, job_id, auth_context_processor):
     """
     :param group_db: DB
-    :param round_db: DB
+    :param job_db: DB
     :param group_id: string
-    :param round_id: string
+    :param job_id: string
     :param auth_context_processor: AuthContextProcessor
     """
     if auth_context_processor.is_type_user():
@@ -24,15 +24,15 @@ def submit_model_update_controller(group_db, round_db, group_id, round_id, auth_
     CONDITIONS = []
 
     group = DBObject.load_from_db(FLGroup, group_id, group_db)
-    if (not group.contains_round(round_id)) or (not group.contains_device(auth_context_processor.get_entity_id())):
+    if (not group.contains_job(job_id)) or (not group.contains_device(auth_context_processor.get_entity_id())):
         raise_default_request_forbidden_error()
 
-    round = DBObject.load_from_db(Round, round_id, round_db)
+    job = DBObject.load_from_db(Job, job_id, job_db)
 
-    can_submit_model_to_round = round.is_in_progress() and round.is_device_active(auth_context_processor.get_entity_id())
-    if can_submit_model_to_round:
+    can_submit_model_to_job = job.is_in_progress() and job.is_device_active(auth_context_processor.get_entity_id())
+    if can_submit_model_to_job:
         object_name = HierarchicalModelNameStructure()
-        object_name.generate_name(round_id=round_id, device_id=auth_context_processor.get_entity_id())
+        object_name.generate_name(job_id=job_id, device_id=auth_context_processor.get_entity_id())
 
         presigned_url = create_presigned_post(
             get_models_bucket_name(),
@@ -44,8 +44,8 @@ def submit_model_update_controller(group_db, round_db, group_id, round_id, auth_
         presigned_url = None
 
     try:
-        termination_check(round, round_db, group_db)
+        termination_check(job, job_db, group_db)
     except:
-        can_submit_model_to_round = False
+        can_submit_model_to_job = False
 
-    return can_submit_model_to_round, presigned_url
+    return can_submit_model_to_job, presigned_url

@@ -20,21 +20,21 @@ class IDProcessorTestCase(unittest.TestCase):
         id_processor = IDProcessor({})
         self.assertIsNone(id_processor.get_group_name(throw_exception=False))
 
-    def test_get_round_id_fail(self):
-        json_data = {"round_id" : None}
+    def test_get_job_id_fail(self):
+        json_data = {"job_id" : None}
         id_processor = IDProcessor(json_data)
 
-        self.assertRaises(ValueError, id_processor.get_round_id)
+        self.assertRaises(ValueError, id_processor.get_job_id)
 
-    def test_get_round_id_fail_2(self):
-        json_data = {"round_id" : 12334}
+    def test_get_job_id_fail_2(self):
+        json_data = {"job_id" : 12334}
         id_processor = IDProcessor(json_data)
 
-        self.assertRaises(ValueError, id_processor.get_round_id)
+        self.assertRaises(ValueError, id_processor.get_job_id)
 
-    def test_get_round_id_fail_3(self):
+    def test_get_job_id_fail_3(self):
         id_processor = IDProcessor({})
-        self.assertIsNone(id_processor.get_round_id(throw_exception=False))
+        self.assertIsNone(id_processor.get_job_id(throw_exception=False))
 
     def test_get_group_id_fail(self):
         json_data = {"group_id" : None}
@@ -74,26 +74,26 @@ class IDProcessorTestCase(unittest.TestCase):
 
         self.assertEqual("None", id_processor.get_group_name())
 
-    def test_get_previous_round_id_pass(self):
-        json_data = {"previous_round_id" : "None"}
+    def test_get_previous_job_id_pass(self):
+        json_data = {"previous_job_id" : "None"}
         id_processor = IDProcessor(json_data)
 
-        self.assertEqual("None", id_processor.get_previous_round_id())
+        self.assertEqual("None", id_processor.get_previous_job_id())
 
-    def test_get_previous_round_id_fail_1(self):
-        json_data = {"previous_round_id" : None}
+    def test_get_previous_job_id_fail_1(self):
+        json_data = {"previous_job_id" : None}
         id_processor = IDProcessor(json_data)
 
-        self.assertRaises(ValueError, id_processor.get_previous_round_id)
+        self.assertRaises(ValueError, id_processor.get_previous_job_id)
 
-    def test_get_previous_round_id_fail_2(self):
-        json_data = {"previous_round_id" : 10}
+    def test_get_previous_job_id_fail_2(self):
+        json_data = {"previous_job_id" : 10}
         id_processor = IDProcessor(json_data)
 
-        self.assertRaises(ValueError, id_processor.get_previous_round_id)
+        self.assertRaises(ValueError, id_processor.get_previous_job_id)
 
-    def test_get_previous_round_id_fail_3(self):
-        json_data = {"previous_round_id" : None}
+    def test_get_previous_job_id_fail_3(self):
+        json_data = {"previous_job_id" : None}
         id_processor = IDProcessor(json_data)
 
-        self.assertIsNone(id_processor.get_previous_round_id(throw_exception=False))
+        self.assertIsNone(id_processor.get_previous_job_id(throw_exception=False))

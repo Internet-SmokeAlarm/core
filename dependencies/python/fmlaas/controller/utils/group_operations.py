@@ -1,49 +1,49 @@
 from ...model import DBObject
 from ...model import FLGroup
-from ...model import Round
+from ...model import Job
 
-def update_round_path(current_round, round_db, group_db):
+def update_job_path(current_job, job_db, group_db):
     """
-    Removes the current_round object from a group's active rounds, identifies
-    the next round that should be initialized in sequence (if any), and activates it.
+    Removes the current_job object from a group's active jobs, identifies
+    the next job that should be initialized in sequence (if any), and activates it.
 
-    :param current_round: Round
-    :param round_db: DB
+    :param current_job: Job
+    :param job_db: DB
     :param group_db: DB
     """
-    group = DBObject.load_from_db(FLGroup, current_round.get_parent_group_id(), group_db)
-    group.remove_current_round_id(current_round.get_id())
+    group = DBObject.load_from_db(FLGroup, current_job.get_parent_group_id(), group_db)
+    group.remove_current_job_id(current_job.get_id())
 
-    round_id = group.get_next_round_in_sequence(current_round.get_id())
-    while round_id is not None:
-        round = DBObject.load_from_db(Round, round_id, round_db)
-        if not round.is_cancelled():
-            group.add_current_round_id(round_id)
+    job_id = group.get_next_job_in_sequence(current_job.get_id())
+    while job_id is not None:
+        job = DBObject.load_from_db(Job, job_id, job_db)
+        if not job.is_cancelled():
+            group.add_current_job_id(job_id)
 
-            round.set_start_model(current_round.get_end_model())
-            round.reset_termination_criteria()
-            round.save_to_db(round_db)
+            job.set_start_model(current_job.get_end_model())
+            job.reset_termination_criteria()
+            job.save_to_db(job_db)
 
             break
 
-        round_id = group.get_next_round_in_sequence(round_id)
+        job_id = group.get_next_job_in_sequence(job_id)
 
     group.save_to_db(group_db)
 
     return
 
-def termination_check(current_round, round_db, group_db):
+def termination_check(current_job, job_db, group_db):
     """
-    Checks to see whether or not the current round should be terminated. If so,
+    Checks to see whether or not the current job should be terminated. If so,
     handle termination, and update.
 
-    :param current_round: Round
-    :param round_db: DB
+    :param current_job: Job
+    :param job_db: DB
     :param group_db: DB
     """
-    if current_round.should_terminate():
-        current_round.cancel()
+    if current_job.should_terminate():
+        current_job.cancel()
 
-        update_round_path(current_round, round_db, group_db)
+        update_job_path(current_job, job_db, group_db)
 
-        current_round.save_to_db(round_db)
+        current_job.save_to_db(job_db)

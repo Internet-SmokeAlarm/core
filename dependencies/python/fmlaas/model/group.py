@@ -1,7 +1,7 @@
 from .device_builder import DeviceBuilder
-from .round_builder import RoundBuilder
-from .round_status import RoundStatus
-from .round import Round
+from .job_builder import JobBuilder
+from .job_status import JobStatus
+from .job import Job
 from .model import Model
 from .group_privilege_types import GroupPrivilegeTypesEnum
 from ..generate_unique_id import generate_unique_id
@@ -15,27 +15,27 @@ class FLGroup(DBObject):
                  name,
                  id,
                  devices,
-                 round_info,
-                 round_paths,
-                 current_round_ids,
+                 job_info,
+                 job_paths,
+                 current_job_ids,
                  members,
                  billing):
         """
         :param name: string
         :param id: string
         :param devices: dict
-        :param round_info: dict
-        :param round_paths: list(list(string))
-        :param current_round_ids: list(string)
+        :param job_info: dict
+        :param job_paths: list(list(string))
+        :param current_job_ids: list(string)
         :param members: dict
         :param billing: dict
         """
         self.id = id
         self.name = name
         self.devices = devices
-        self.round_info = round_info
-        self.round_paths = round_paths
-        self.current_round_ids = current_round_ids
+        self.job_info = job_info
+        self.job_paths = job_paths
+        self.current_job_ids = current_job_ids
         self.members = members
         self.billing = billing
 
@@ -55,67 +55,67 @@ class FLGroup(DBObject):
         """
         return device_id in self.devices
 
-    def add_round_to_path_prev_id(self, prev_round_id, round_id):
+    def add_job_to_path_prev_id(self, prev_job_id, job_id):
         """
-        Add a round to a path using the last round ID of that path.
+        Add a job to a path using the last job ID of that path.
 
-        :param previous_round_id: string
-        :param round_id: string
+        :param previous_job_id: string
+        :param job_id: string
         """
-        for path_idx in range(len(self.round_paths)):
-            if self.round_paths[path_idx][-1] == prev_round_id:
-                self.round_paths[path_idx].append(round_id)
-                self._add_round_info(round_id)
+        for path_idx in range(len(self.job_paths)):
+            if self.job_paths[path_idx][-1] == prev_job_id:
+                self.job_paths[path_idx].append(job_id)
+                self._add_job_info(job_id)
 
                 return
 
-    def create_round_path(self, round_id):
+    def create_job_path(self, job_id):
         """
-        :param round_id: string
+        :param job_id: string
         """
-        if self.contains_round(round_id):
+        if self.contains_job(job_id):
             return
 
-        self.round_paths.append([round_id])
-        self._add_round_info(round_id)
+        self.job_paths.append([job_id])
+        self._add_job_info(job_id)
 
-    def _add_round_info(self, round_id):
+    def _add_job_info(self, job_id):
         """
-        :param round_id: string
+        :param job_id: string
         """
-        self.round_info[round_id] = {}
+        self.job_info[job_id] = {}
 
-    def add_current_round_id(self, round_id):
+    def add_current_job_id(self, job_id):
         """
-        Adds a round ID to active rounds.
+        Adds a job ID to active jobs.
 
-        :param round_id: string
+        :param job_id: string
         """
-        self.current_round_ids.append(round_id)
+        self.current_job_ids.append(job_id)
 
-    def remove_current_round_id(self, round_id):
+    def remove_current_job_id(self, job_id):
         """
-        Remove a round ID from active rounds.
+        Remove a job ID from active jobs.
 
-        :param round_id: string
+        :param job_id: string
         """
-        self.current_round_ids.remove(round_id)
+        self.current_job_ids.remove(job_id)
 
-    def contains_round(self, round_id):
+    def contains_job(self, job_id):
         """
-        :param round_id: string
+        :param job_id: string
         :return: boolean
         """
-        return round_id in self.round_info
+        return job_id in self.job_info
 
-    def get_next_round_in_sequence(self, round_id):
+    def get_next_job_in_sequence(self, job_id):
         """
-        :param round_id: string
+        :param job_id: string
         """
-        for round_path in self.round_paths:
-            for idx in range(0, len(round_path) - 1):
-                if round_path[idx] == round_id:
-                    return round_path[idx + 1]
+        for job_path in self.job_paths:
+            for idx in range(0, len(job_path) - 1):
+                if job_path[idx] == job_id:
+                    return job_path[idx + 1]
 
         return None
 
@@ -131,14 +131,14 @@ class FLGroup(DBObject):
     def get_device_list(self):
         return list(self.devices.keys())
 
-    def get_current_round_ids(self):
-        return self.current_round_ids
+    def get_current_job_ids(self):
+        return self.current_job_ids
 
-    def get_round_paths(self):
-        return self.round_paths
+    def get_job_paths(self):
+        return self.job_paths
 
-    def get_round_info(self):
-        return self.round_info
+    def get_job_info(self):
+        return self.job_info
 
     def get_billing(self):
         return self.billing
@@ -180,9 +180,9 @@ class FLGroup(DBObject):
             "name" : self.name,
             "ID" : self.id,
             "devices" : self.devices,
-            "round_info" : self.round_info,
-            "round_paths" : self.round_paths,
-            "current_round_ids" : self.current_round_ids,
+            "job_info" : self.job_info,
+            "job_paths" : self.job_paths,
+            "current_job_ids" : self.current_job_ids,
             "members" : self.members,
             "billing" : self.billing
         }
@@ -192,8 +192,8 @@ class FLGroup(DBObject):
         return FLGroup(json_data["name"],
             json_data["ID"],
             json_data["devices"],
-            json_data["round_info"],
-            json_data["round_paths"],
-            json_data["current_round_ids"],
+            json_data["job_info"],
+            json_data["job_paths"],
+            json_data["current_job_ids"],
             json_data["members"],
             json_data["billing"])

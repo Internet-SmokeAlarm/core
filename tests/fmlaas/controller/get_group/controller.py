@@ -33,7 +33,7 @@ class GetGroupControllerTestCase(unittest.TestCase):
 
         group_json = get_group_controller(db, group.get_id(), auth_context_processor)
 
-        self.assertEqual(group_json, {'name': 'test_name', 'ID': 'test_id', 'devices': {}, 'round_paths': [], 'current_round_ids': [], 'members': {'user123': {'permission_level': 10}}, "round_info" : {}, "billing" : {}})
+        self.assertEqual(group_json, {'name': 'test_name', 'ID': 'test_id', 'devices': {}, 'job_paths': [], 'current_job_ids': [], 'members': {'user123': {'permission_level': 10}}, "job_info" : {}, "billing" : {}})
 
     def test_not_authorized_1(self):
         db = InMemoryDBInterface()

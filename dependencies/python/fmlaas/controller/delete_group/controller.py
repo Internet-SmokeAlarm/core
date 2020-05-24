@@ -3,10 +3,10 @@ from ...model import DBObject
 from ...model import GroupPrivilegeTypesEnum
 from ...exception import raise_default_request_forbidden_error
 
-def delete_group_controller(group_db, round_db, group_id, auth_context_processor):
+def delete_group_controller(group_db, job_db, group_id, auth_context_processor):
     """
     :param group_db: DB
-    :param round_db: DB
+    :param job_db: DB
     :param group_id: string
     :param auth_context_processor: AuthContextProcessor
     """
@@ -21,8 +21,8 @@ def delete_group_controller(group_db, round_db, group_id, auth_context_processor
     if not group.does_member_have_auth(auth_context_processor.get_entity_id(), GroupPrivilegeTypesEnum.ADMIN):
         raise_default_request_forbidden_error()
 
-    round_ids = group.get_round_info().keys()
-    for round_id in round_ids:
-        round_db.delete_object(round_id)
+    job_ids = group.get_job_info().keys()
+    for job_id in job_ids:
+        job_db.delete_object(job_id)
 
     group_db.delete_object(group_id)

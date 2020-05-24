@@ -13,9 +13,9 @@ class GroupBuilderTestCase(unittest.TestCase):
         self.assertEqual(group.get_name(), "test_name")
         self.assertEqual(group.get_id(), "test_id")
         self.assertEqual(group.get_devices(), {})
-        self.assertEqual(group.get_round_info(), {})
-        self.assertEqual(group.get_current_round_ids(), [])
-        self.assertEqual(group.get_round_paths(), [])
+        self.assertEqual(group.get_job_info(), {})
+        self.assertEqual(group.get_current_job_ids(), [])
+        self.assertEqual(group.get_job_paths(), [])
         self.assertEqual(group.get_billing(), {})
 
     def test_build_fail_1(self):
