@@ -35,3 +35,14 @@ class ModelTestCase(unittest.TestCase):
             {'entity_id': '1234', 'size': "123552"}))
         self.assertFalse(Model.is_valid_json(
             {'entity_id': '1234', 'name': '4456/5567/1234'}))
+
+    def test_eq_pass(self):
+        model_1 = Model("123123", "23123/123123/1231231", "12312313")
+        model_2 = Model("564543", "23123/123123/1231231", "12312313")
+        model_3 = Model("564543", "23123/123123/1231231", "12312313")
+        model_4 = Model("564543", "23123/123123/1231231", "123512313")
+
+        self.assertTrue(model_1 == model_1)
+        self.assertFalse(model_1 == model_2)
+        self.assertTrue(model_2 == model_3)
+        self.assertFalse(model_2 == model_4)

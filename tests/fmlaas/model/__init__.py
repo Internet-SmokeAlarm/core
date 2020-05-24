@@ -9,5 +9,5 @@ from .model import ModelTestCase
 from .db_object import DBObjectTestCase
 from .api_key_builder import ApiKeyBuilderTestCase
 from .api_key import ApiKeyTestCase
-
+from .job_sequence import JobSequenceTestCase
 from .termination_criteria import *

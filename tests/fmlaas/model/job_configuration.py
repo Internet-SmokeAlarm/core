@@ -93,3 +93,27 @@ class JobConfigurationTestCase(unittest.TestCase):
 
         self.assertNotEqual(job_configuration.get_termination_criteria()[
                             0].get_start_epoch_time(), 123211241.2342)
+
+    def test_equals_pass_1(self):
+        config_1 = JobConfiguration(50, 5, "RANDOM", [])
+        config_2 = JobConfiguration(50, 10, "RANDOM", [])
+
+        self.assertFalse(config_1 == config_2)
+
+    def test_equals_pass_2(self):
+        config_1 = JobConfiguration(50, 5, "RANDOM", [])
+        config_3 = JobConfiguration(50, 5, "RANDOM", [])
+
+        self.assertTrue(config_1 == config_3)
+
+    def test_equals_pass_3(self):
+        config_3 = JobConfiguration(50, 5, "RANDOM", [])
+        config_4 = JobConfiguration(50, 5, "RANDOM", [DurationTerminationCriteria(50, 123211241.2342).to_json()])
+
+        self.assertFalse(config_3 == config_4)
+
+    def test_equals_pass_4(self):
+        config_3 = JobConfiguration(50, 5, "RANDOM", [DurationTerminationCriteria(50, 123211241.2342).to_json()])
+        config_4 = JobConfiguration(50, 5, "RANDOM", [DurationTerminationCriteria(50, 123211241.2342).to_json()])
+
+        self.assertTrue(config_3 == config_4)

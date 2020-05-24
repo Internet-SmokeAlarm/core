@@ -35,6 +35,7 @@ class CancelJobControllerTestCase(unittest.TestCase):
         job_builder = JobBuilder()
         job_builder.set_id("job_test_id")
         job_builder.set_parent_project_id("test_id")
+        job_builder.set_parent_job_sequence_id("test_id_2")
         job_builder.set_configuration(
             JobConfiguration(
                 1, 0, "RANDOM", []).to_json())
@@ -74,6 +75,7 @@ class CancelJobControllerTestCase(unittest.TestCase):
         job_builder = JobBuilder()
         job_builder.set_id("job_test_id")
         job_builder.set_parent_project_id("test_id")
+        job_builder.set_parent_job_sequence_id("test_id_2")
         job_builder.set_configuration(
             JobConfiguration(
                 1, 0, "RANDOM", []).to_json())
@@ -126,6 +128,7 @@ class CancelJobControllerTestCase(unittest.TestCase):
         job_builder = JobBuilder()
         job_builder.set_id("job_test_id")
         job_builder.set_parent_project_id("test_id")
+        job_builder.set_parent_job_sequence_id("test_id_2")
         job_builder.set_configuration(
             JobConfiguration(
                 1, 0, "RANDOM", []).to_json())
@@ -140,6 +143,7 @@ class CancelJobControllerTestCase(unittest.TestCase):
         job_builder = JobBuilder()
         job_builder.set_id("job_test_id_2")
         job_builder.set_parent_project_id("test_id")
+        job_builder.set_parent_job_sequence_id("test_id_2")
         job_builder.set_configuration(
             JobConfiguration(
                 1, 0, "RANDOM", []).to_json())
@@ -149,6 +153,7 @@ class CancelJobControllerTestCase(unittest.TestCase):
         job_builder = JobBuilder()
         job_builder.set_id("job_test_id_3")
         job_builder.set_parent_project_id("test_id")
+        job_builder.set_parent_job_sequence_id("test_id_2")
         job_builder.set_configuration(
             JobConfiguration(
                 1, 0, "RANDOM", []).to_json())
@@ -232,6 +237,7 @@ class CancelJobControllerTestCase(unittest.TestCase):
         job_builder = JobBuilder()
         job_builder.set_id("job_test_id")
         job_builder.set_parent_project_id("test_id")
+        job_builder.set_parent_job_sequence_id("test_id_2")
         job_builder.set_configuration(
             JobConfiguration(
                 1, 0, "RANDOM", []).to_json())
@@ -278,6 +284,7 @@ class CancelJobControllerTestCase(unittest.TestCase):
         job_builder = JobBuilder()
         job_builder.set_id("job_test_id")
         job_builder.set_parent_project_id("test_id")
+        job_builder.set_parent_job_sequence_id("test_id_2")
         job_builder.set_configuration(
             JobConfiguration(
                 1, 0, "RANDOM", []).to_json())

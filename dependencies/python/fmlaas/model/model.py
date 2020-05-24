@@ -42,3 +42,6 @@ class Model:
     @staticmethod
     def is_valid_json(json_data):
         return "entity_id" in json_data and "name" in json_data and "size" in json_data
+
+    def __eq__(self, other):
+        return self.entity_id == other.entity_id and self.name == other.name and self.size == other.size

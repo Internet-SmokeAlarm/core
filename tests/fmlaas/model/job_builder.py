@@ -20,6 +20,7 @@ class JobBuilderTestCase(unittest.TestCase):
                 "1234",
                 "1234/start_model",
                 "123211").to_json())
+        job_builder.set_parent_job_sequence_id("sequence_id_1")
 
         job = job_builder.build()
 
@@ -34,6 +35,7 @@ class JobBuilderTestCase(unittest.TestCase):
         self.assertEqual(job.get_billable_size(), 0)
         self.assertEqual(len(job.get_devices()), 0)
         self.assertEqual(job.get_parent_project_id(), "fl_project_123123")
+        self.assertEqual(job.get_parent_job_sequence_id(), "sequence_id_1")
 
     def test_build_fail(self):
         job_builder = JobBuilder()
@@ -61,6 +63,7 @@ class JobBuilderTestCase(unittest.TestCase):
         job_builder = JobBuilder()
         job_builder.set_id("test_id")
         job_builder.set_parent_project_id("fl_project_12312313")
+        job_builder.set_parent_job_sequence_id("sequence_id_1")
 
         configuration = JobConfiguration(50, 0, "RANDOM", [])
         job_builder.set_configuration(configuration.to_json())
@@ -92,5 +95,21 @@ class JobBuilderTestCase(unittest.TestCase):
         job_builder.set_id("test_id")
         configuration = JobConfiguration(50, 0, "RANDOM", [])
         job_builder.set_configuration(configuration.to_json())
+
+        self.assertRaises(ValueError, job_builder._validate_parameters)
+
+    def test_validate_parameters_fail_4(self):
+        job_builder = JobBuilder()
+        job_builder.set_id("test_id")
+        job_builder.set_parent_project_id("fl_project_12312313")
+
+        configuration = JobConfiguration(50, 0, "RANDOM", [])
+        job_builder.set_configuration(configuration.to_json())
+
+        job_builder.set_start_model(
+            Model(
+                "1234",
+                "1234/1234",
+                "123211").to_json())
 
         self.assertRaises(ValueError, job_builder._validate_parameters)

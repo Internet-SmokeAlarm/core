@@ -64,6 +64,9 @@ class JobConfiguration:
             "termination_criteria": self.termination_criteria
         }
 
+    def __eq__(self, other):
+        return (self.num_devices == other.num_devices) and (self.num_buffer_devices == other.num_buffer_devices) and (self.device_selection_strategy == other.device_selection_strategy) and (self.termination_criteria == other.termination_criteria)
+
     @staticmethod
     def from_json(json_data):
         return JobConfiguration(int(json_data["num_devices"]),
