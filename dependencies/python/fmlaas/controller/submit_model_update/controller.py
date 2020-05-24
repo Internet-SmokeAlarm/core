@@ -3,16 +3,16 @@ from ... import HierarchicalModelNameStructure
 from ...aws import get_models_bucket_name
 from ...database import DynamoDBInterface
 from ...model import Job
-from ...model import FLGroup
+from ...model import Project
 from ...model import DBObject
 from ...exception import raise_default_request_forbidden_error
 from ..utils import termination_check
 
-def submit_model_update_controller(group_db, job_db, group_id, job_id, auth_context_processor):
+def submit_model_update_controller(project_db, job_db, project_id, job_id, auth_context_processor):
     """
-    :param group_db: DB
+    :param project_db: DB
     :param job_db: DB
-    :param group_id: string
+    :param project_id: string
     :param job_id: string
     :param auth_context_processor: AuthContextProcessor
     """
@@ -23,8 +23,8 @@ def submit_model_update_controller(group_db, job_db, group_id, job_id, auth_cont
     FIELDS = {}
     CONDITIONS = []
 
-    group = DBObject.load_from_db(FLGroup, group_id, group_db)
-    if (not group.contains_job(job_id)) or (not group.contains_device(auth_context_processor.get_entity_id())):
+    project = DBObject.load_from_db(Project, project_id, project_db)
+    if (not project.contains_job(job_id)) or (not project.contains_device(auth_context_processor.get_entity_id())):
         raise_default_request_forbidden_error()
 
     job = DBObject.load_from_db(Job, job_id, job_db)
@@ -44,7 +44,7 @@ def submit_model_update_controller(group_db, job_db, group_id, job_id, auth_cont
         presigned_url = None
 
     try:
-        termination_check(job, job_db, group_db)
+        termination_check(job, job_db, project_db)
     except:
         can_submit_model_to_job = False
 

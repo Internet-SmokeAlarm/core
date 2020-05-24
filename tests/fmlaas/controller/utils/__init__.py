@@ -1,1 +1,1 @@
-from .group_operations import GroupOperationsTestCase
+from .project_operations import ProjectOperationsTestCase

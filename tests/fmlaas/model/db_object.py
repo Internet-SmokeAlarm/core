@@ -12,7 +12,7 @@ class DBObjectTestCase(unittest.TestCase):
     def _build_default_job(self):
         builder = JobBuilder()
         builder.set_id("test_id")
-        builder.set_parent_group_id("fl_group_12312313")
+        builder.set_parent_project_id("fl_project_12312313")
         builder.set_start_model(Model("123", "123/123", "34353").to_json())
         builder.set_devices(["123", "234"])
         configuration = JobConfiguration(50, 0, "RANDOM", [])

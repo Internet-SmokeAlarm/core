@@ -1,1 +1,0 @@
-from .controller import get_group_current_job_id_controller

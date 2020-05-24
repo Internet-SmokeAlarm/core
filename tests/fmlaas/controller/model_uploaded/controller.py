@@ -1,8 +1,8 @@
 import unittest
 
 from dependencies.python.fmlaas.model import Model
-from dependencies.python.fmlaas.model import FLGroup
-from dependencies.python.fmlaas.model import GroupBuilder
+from dependencies.python.fmlaas.model import Project
+from dependencies.python.fmlaas.model import ProjectBuilder
 from dependencies.python.fmlaas.model import Job
 from dependencies.python.fmlaas.model import JobBuilder
 from dependencies.python.fmlaas.model import JobConfiguration
@@ -19,7 +19,7 @@ class ModelUploadedControllerTestCase(unittest.TestCase):
     def _build_default_job(self):
         job_builder = JobBuilder()
         job_builder.set_id("1234")
-        job_builder.set_parent_group_id("test_id")
+        job_builder.set_parent_project_id("test_id")
         configuration = JobConfiguration(1, 0, "RANDOM", [])
         job_builder.set_configuration(configuration.to_json())
         job_builder.set_devices(["3456"])
@@ -27,12 +27,12 @@ class ModelUploadedControllerTestCase(unittest.TestCase):
 
         return job_builder.build()
 
-    def _build_default_group(self):
-        group_builder = GroupBuilder()
-        group_builder.set_id("test_id")
-        group_builder.set_name("test_name")
+    def _build_default_project(self):
+        project_builder = ProjectBuilder()
+        project_builder.set_id("test_id")
+        project_builder.set_name("test_name")
 
-        return group_builder.build()
+        return project_builder.build()
 
     def test_get_model_process_function_pass_1(self):
         model = Model("1232344", "1234/device_models/1232344", "923843287")
@@ -108,21 +108,21 @@ class ModelUploadedControllerTestCase(unittest.TestCase):
         self.assertFalse(should_aggregate)
 
     def test_handle_job_aggregate_model_pass(self):
-        group_db = InMemoryDBInterface()
+        project_db = InMemoryDBInterface()
         db_ = InMemoryDBInterface()
 
         job = self._build_default_job()
         job.save_to_db(db_)
 
-        group = self._build_default_group()
-        group.add_current_job_id(job.get_id())
-        group.save_to_db(group_db)
+        project = self._build_default_project()
+        project.add_current_job_id(job.get_id())
+        project.save_to_db(project_db)
 
         model = Model(None, "1234/device_models/3456", "1232131")
         handle_device_model_update(model, None, db_)
 
         aggregate_model = Model(None, "1234/device_models/2345", "435345")
-        should_aggregate = handle_job_aggregate_model(aggregate_model, group_db, db_)
+        should_aggregate = handle_job_aggregate_model(aggregate_model, project_db, db_)
         self.assertFalse(should_aggregate)
 
         job_2 = DBObject.load_from_db(Job, job.get_id(), db_)
@@ -131,7 +131,7 @@ class ModelUploadedControllerTestCase(unittest.TestCase):
         self.assertEqual(job_2.get_aggregate_model().get_size(), "435345")
 
     def test_handle_job_aggregate_model_pass_2(self):
-        group_db = InMemoryDBInterface()
+        project_db = InMemoryDBInterface()
         job_db = InMemoryDBInterface()
 
         job = self._build_default_job()
@@ -139,34 +139,34 @@ class ModelUploadedControllerTestCase(unittest.TestCase):
 
         job_builder = JobBuilder()
         job_builder.set_id("12341")
-        job_builder.set_parent_group_id("test_id")
+        job_builder.set_parent_project_id("test_id")
         configuration = JobConfiguration(1, 0, "RANDOM", [])
         job_builder.set_configuration(configuration.to_json())
         job_builder.set_devices(["3456"])
         job_2 = job_builder.build()
         job_2.save_to_db(job_db)
 
-        group = self._build_default_group()
-        group.create_job_path(job.get_id())
-        group.add_current_job_id(job.get_id())
-        group.add_job_to_path_prev_id(job.get_id(), job_2.get_id())
-        group.save_to_db(group_db)
+        project = self._build_default_project()
+        project.create_job_path(job.get_id())
+        project.add_current_job_id(job.get_id())
+        project.add_job_to_path_prev_id(job.get_id(), job_2.get_id())
+        project.save_to_db(project_db)
 
         model = Model(None, "1234/device_models/3456", "1232131")
         handle_device_model_update(model, None, job_db)
         aggregate_model = Model(None, "1234/device_models/2345", "435345")
-        handle_job_aggregate_model(aggregate_model, group_db, job_db)
+        handle_job_aggregate_model(aggregate_model, project_db, job_db)
 
-        group_from_db = DBObject.load_from_db(FLGroup, group.get_id(), group_db)
-        self.assertEqual(1, len(group_from_db.get_current_job_ids()))
-        self.assertEqual(job_2.get_id(), group_from_db.get_current_job_ids()[0])
+        project_from_db = DBObject.load_from_db(Project, project.get_id(), project_db)
+        self.assertEqual(1, len(project_from_db.get_current_job_ids()))
+        self.assertEqual(job_2.get_id(), project_from_db.get_current_job_ids()[0])
 
         job_2_from_db = DBObject.load_from_db(Job, job_2.get_id(), job_db)
         job_from_db = DBObject.load_from_db(Job, job.get_id(), job_db)
         self.assertEqual(job_from_db.get_aggregate_model().to_json(), job_2_from_db.get_start_model().to_json())
 
     def test_handle_job_aggregate_model_pass_3(self):
-        group_db = InMemoryDBInterface()
+        project_db = InMemoryDBInterface()
         job_db = InMemoryDBInterface()
 
         job = self._build_default_job()
@@ -174,7 +174,7 @@ class ModelUploadedControllerTestCase(unittest.TestCase):
 
         job_builder = JobBuilder()
         job_builder.set_id("12341")
-        job_builder.set_parent_group_id("test_id")
+        job_builder.set_parent_project_id("test_id")
         configuration = JobConfiguration(1, 0, "RANDOM", [])
         job_builder.set_configuration(configuration.to_json())
         job_builder.set_devices(["3456"])
@@ -184,28 +184,28 @@ class ModelUploadedControllerTestCase(unittest.TestCase):
 
         job_builder = JobBuilder()
         job_builder.set_id("12342")
-        job_builder.set_parent_group_id("test_id")
+        job_builder.set_parent_project_id("test_id")
         configuration = JobConfiguration(1, 0, "RANDOM", [])
         job_builder.set_configuration(configuration.to_json())
         job_builder.set_devices(["3456"])
         job_3 = job_builder.build()
         job_3.save_to_db(job_db)
 
-        group = self._build_default_group()
-        group.create_job_path(job.get_id())
-        group.add_current_job_id(job.get_id())
-        group.add_job_to_path_prev_id(job.get_id(), job_2.get_id())
-        group.add_job_to_path_prev_id(job_2.get_id(), job_3.get_id())
-        group.save_to_db(group_db)
+        project = self._build_default_project()
+        project.create_job_path(job.get_id())
+        project.add_current_job_id(job.get_id())
+        project.add_job_to_path_prev_id(job.get_id(), job_2.get_id())
+        project.add_job_to_path_prev_id(job_2.get_id(), job_3.get_id())
+        project.save_to_db(project_db)
 
         model = Model(None, "1234/device_models/3456", "1232131")
         handle_device_model_update(model, None, job_db)
         aggregate_model = Model(None, "1234/device_models/2345", "435345")
-        handle_job_aggregate_model(aggregate_model, group_db, job_db)
+        handle_job_aggregate_model(aggregate_model, project_db, job_db)
 
-        group_from_db = DBObject.load_from_db(FLGroup, group.get_id(), group_db)
-        self.assertEqual(1, len(group_from_db.get_current_job_ids()))
-        self.assertEqual(job_3.get_id(), group_from_db.get_current_job_ids()[0])
+        project_from_db = DBObject.load_from_db(Project, project.get_id(), project_db)
+        self.assertEqual(1, len(project_from_db.get_current_job_ids()))
+        self.assertEqual(job_3.get_id(), project_from_db.get_current_job_ids()[0])
 
         job_3_from_db = DBObject.load_from_db(Job, job_3.get_id(), job_db)
         job_from_db = DBObject.load_from_db(Job, job.get_id(), job_db)
@@ -216,7 +216,7 @@ class ModelUploadedControllerTestCase(unittest.TestCase):
 
         job_builder = JobBuilder()
         job_builder.set_id("1234")
-        job_builder.set_parent_group_id("test_id")
+        job_builder.set_parent_project_id("test_id")
         configuration = JobConfiguration(1, 0, "RANDOM", [])
         job_builder.set_configuration(configuration.to_json())
         job_builder.set_devices(["3456"])

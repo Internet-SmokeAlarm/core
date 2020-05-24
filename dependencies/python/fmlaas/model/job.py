@@ -15,7 +15,7 @@ class Job(DBObject):
                  models,
                  created_on,
                  billable_size,
-                 parent_group_id):
+                 parent_project_id):
         """
         :param id: string
         :param devices: list(string)
@@ -26,7 +26,7 @@ class Job(DBObject):
         :param models: dict
         :param created_on: string
         :param billable_size: string
-        :param parent_group_id: string
+        :param parent_project_id: string
         """
         self.id = id
         self.devices = devices
@@ -37,7 +37,7 @@ class Job(DBObject):
         self.models = models
         self.created_on = created_on
         self.billable_size = billable_size
-        self.parent_group_id = parent_group_id
+        self.parent_project_id = parent_project_id
 
     def get_id(self):
         return self.id
@@ -230,8 +230,8 @@ class Job(DBObject):
     def get_billable_size(self):
         return int(self.billable_size)
 
-    def get_parent_group_id(self):
-        return self.parent_group_id
+    def get_parent_project_id(self):
+        return self.parent_project_id
 
     def should_terminate(self):
         """
@@ -264,7 +264,7 @@ class Job(DBObject):
             "models" : self.models,
             "created_on" : self.created_on,
             "billable_size" : self.billable_size,
-            "parent_group_id" : self.parent_group_id
+            "parent_project_id" : self.parent_project_id
         }
 
     @staticmethod
@@ -278,4 +278,4 @@ class Job(DBObject):
             json_data["models"],
             json_data["created_on"],
             json_data["billable_size"],
-            json_data["parent_group_id"])
+            json_data["parent_project_id"])

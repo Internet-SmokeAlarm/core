@@ -5,7 +5,6 @@ from dependencies.python.fmlaas.database import InMemoryDBInterface
 from dependencies.python.fmlaas.exception import RequestForbiddenException
 from dependencies.python.fmlaas.model import DBObject
 from dependencies.python.fmlaas.model import ApiKey
-from dependencies.python.fmlaas.model import GroupPrivilegeTypesEnum
 from dependencies.python.fmlaas.request_processor import AuthContextProcessor
 
 class CreateApiKeyControllerTestCase(unittest.TestCase):

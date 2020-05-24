@@ -1,7 +1,7 @@
-from .group import FLGroup
+from .project import Project
 from .builder import Builder
 
-class GroupBuilder(Builder):
+class ProjectBuilder(Builder):
 
     def __init__(self):
         self.name = None
@@ -58,7 +58,7 @@ class GroupBuilder(Builder):
     def build(self):
         self._validate_parameters()
 
-        return FLGroup(self.name, self.id, self.devices, self.job_info, self.job_paths, self.current_job_ids, self.members, self.billing)
+        return Project(self.name, self.id, self.devices, self.job_info, self.job_paths, self.current_job_ids, self.members, self.billing)
 
     def _validate_parameters(self):
         if self.id is None:

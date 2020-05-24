@@ -1,14 +1,14 @@
 from ... import generate_unique_id
 from ...model import DBObject
 from ...model import Job
-from ...model import FLGroup
+from ...model import Project
 from ...exception import raise_default_request_forbidden_error
-from ...model import GroupPrivilegeTypesEnum
+from ...model import ProjectPrivilegeTypesEnum
 from ..utils import update_job_path
 
-def cancel_job_controller(group_db, job_db, job_id, auth_context_processor):
+def cancel_job_controller(project_db, job_db, job_id, auth_context_processor):
     """
-    :param group_db: DB
+    :param project_db: DB
     :param job_db: DB
     :param job_id: string
     :param auth_context_processor: AuthContextProcessor
@@ -18,11 +18,11 @@ def cancel_job_controller(group_db, job_db, job_id, auth_context_processor):
 
     try:
         job = DBObject.load_from_db(Job, job_id, job_db)
-        group = DBObject.load_from_db(FLGroup, job.get_parent_group_id(), group_db)
+        project = DBObject.load_from_db(Project, job.get_parent_project_id(), project_db)
     except:
         raise_default_request_forbidden_error()
 
-    if not group.does_member_have_auth(auth_context_processor.get_entity_id(), GroupPrivilegeTypesEnum.READ_WRITE):
+    if not project.does_member_have_auth(auth_context_processor.get_entity_id(), ProjectPrivilegeTypesEnum.READ_WRITE):
         raise_default_request_forbidden_error()
 
     if job.is_complete():
@@ -31,4 +31,4 @@ def cancel_job_controller(group_db, job_db, job_id, auth_context_processor):
     job.cancel()
     job.save_to_db(job_db)
 
-    update_job_path(job, job_db, group_db)
+    update_job_path(job, job_db, project_db)

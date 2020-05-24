@@ -1,5 +1,5 @@
-from .group_builder import GroupBuilderTestCase
-from .group import FLGroupTestCase
+from .project_builder import ProjectBuilderTestCase
+from .project import ProjectTestCase
 from .job import JobTestCase
 from .job_configuration import JobConfigurationTestCase
 from .job_builder import JobBuilderTestCase

@@ -3,13 +3,13 @@ from .job_builder import JobBuilder
 from .job_status import JobStatus
 from .job import Job
 from .model import Model
-from .group_privilege_types import GroupPrivilegeTypesEnum
+from .project_privilege_types import ProjectPrivilegeTypesEnum
 from ..generate_unique_id import generate_unique_id
 from ..device_selection import DeviceSelectorFactory
 
 from .db_object import DBObject
 
-class FLGroup(DBObject):
+class Project(DBObject):
 
     def __init__(self,
                  name,
@@ -152,7 +152,7 @@ class FLGroup(DBObject):
     def add_or_update_member(self, user_id, permission_level):
         """
         :param user_id: string
-        :param permission_level: GroupPrivilegeTypesEnum
+        :param permission_level: ProjectPrivilegeTypesEnum
         """
         self.members[user_id] = {"permission_level" : permission_level.value}
 
@@ -160,12 +160,12 @@ class FLGroup(DBObject):
         """
         :param user_id: string
         """
-        return GroupPrivilegeTypesEnum(self.members[user_id]["permission_level"])
+        return ProjectPrivilegeTypesEnum(self.members[user_id]["permission_level"])
 
     def does_member_have_auth(self, user_id, permission_level):
         """
         :param user_id: string
-        :param permission_level: GroupPrivilegeTypesEnum
+        :param permission_level: ProjectPrivilegeTypesEnum
         """
         if not self.is_member(user_id):
             return False
@@ -189,7 +189,7 @@ class FLGroup(DBObject):
 
     @staticmethod
     def from_json(json_data):
-        return FLGroup(json_data["name"],
+        return Project(json_data["name"],
             json_data["ID"],
             json_data["devices"],
             json_data["job_info"],

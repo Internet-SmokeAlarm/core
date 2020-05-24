@@ -10,7 +10,7 @@ class JobBuilderTestCase(unittest.TestCase):
     def test_build_pass(self):
         job_builder = JobBuilder()
         job_builder.set_id("test_id")
-        job_builder.set_parent_group_id("fl_group_123123")
+        job_builder.set_parent_project_id("fl_project_123123")
 
         configuration = JobConfiguration(50, 0, "RANDOM", [])
         job_builder.set_configuration(configuration.to_json())
@@ -26,7 +26,7 @@ class JobBuilderTestCase(unittest.TestCase):
         self.assertEqual(job.aggregate_model, {})
         self.assertEqual(job.get_billable_size(), 0)
         self.assertEqual(len(job.get_devices()), 0)
-        self.assertEqual(job.get_parent_group_id(), "fl_group_123123")
+        self.assertEqual(job.get_parent_project_id(), "fl_project_123123")
 
     def test_build_fail(self):
         job_builder = JobBuilder()
@@ -53,7 +53,7 @@ class JobBuilderTestCase(unittest.TestCase):
     def test_validate_parameters_pass(self):
         job_builder = JobBuilder()
         job_builder.set_id("test_id")
-        job_builder.set_parent_group_id("fl_group_12312313")
+        job_builder.set_parent_project_id("fl_project_12312313")
 
         configuration = JobConfiguration(50, 0, "RANDOM", [])
         job_builder.set_configuration(configuration.to_json())

@@ -13,7 +13,7 @@ class JobTestCase(unittest.TestCase):
     def _build_default_job(self):
         builder = JobBuilder()
         builder.set_id("test_id")
-        builder.set_parent_group_id("fl_group_1232234")
+        builder.set_parent_project_id("fl_project_1232234")
         builder.set_devices(["123", "234"])
         configuration = JobConfiguration(2, 0, "RANDOM", [])
         builder.set_configuration(configuration.to_json())
@@ -30,7 +30,7 @@ class JobTestCase(unittest.TestCase):
             {"test1" : {"size" : "123300"}},
             "December 19th, 2019",
             "1234345",
-            "fl_group_12312313")
+            "fl_project_12312313")
 
         job_json = job.to_json()
 
@@ -43,10 +43,10 @@ class JobTestCase(unittest.TestCase):
         self.assertEqual({"test1" : {"size" : "123300"}}, job_json["models"])
         self.assertEqual("December 19th, 2019", job_json["created_on"])
         self.assertEqual("1234345", job_json["billable_size"])
-        self.assertEqual("fl_group_12312313", job_json["parent_group_id"])
+        self.assertEqual("fl_project_12312313", job_json["parent_project_id"])
 
     def test_from_json_pass(self):
-        job_json = {'ID': 'my_id', 'status': 'COMPLETED', 'devices': ['test1', 'test2'], 'aggregate_model': {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : "2134235"}, 'start_model': {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : "2134235"}, 'configuration': {'num_devices' : "5", "num_buffer_devices" : "0", "device_selection_strategy" : "RANDOM", "termination_criteria" : []}, 'models': {"123235345" : {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : "2134235"}}, 'created_on': 'December 19th, 2019', "billable_size" : "0", "parent_group_id" : "fl_group_12312313"}
+        job_json = {'ID': 'my_id', 'status': 'COMPLETED', 'devices': ['test1', 'test2'], 'aggregate_model': {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : "2134235"}, 'start_model': {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : "2134235"}, 'configuration': {'num_devices' : "5", "num_buffer_devices" : "0", "device_selection_strategy" : "RANDOM", "termination_criteria" : []}, 'models': {"123235345" : {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : "2134235"}}, 'created_on': 'December 19th, 2019', "billable_size" : "0", "parent_project_id" : "fl_project_12312313"}
 
         job = Job.from_json(job_json)
 
@@ -59,7 +59,7 @@ class JobTestCase(unittest.TestCase):
         self.assertEqual(job.get_created_on(), job_json["created_on"])
         self.assertEqual(job.get_start_model().to_json(), job_json["start_model"])
         self.assertEqual(job.get_billable_size(), int(job_json["billable_size"]))
-        self.assertEqual(job.get_parent_group_id(), job_json["parent_group_id"])
+        self.assertEqual(job.get_parent_project_id(), job_json["parent_project_id"])
 
     def test_add_model_pass(self):
         job = self._build_default_job()
@@ -82,7 +82,7 @@ class JobTestCase(unittest.TestCase):
             {"123235345" : {"name" : "21313124/123123/123235345", "entity_id" : "123235345", "size" : "2134235"}, "1232353465" : {"name" : "21313124/123123/1232353465", "entity_id" : "1232353465", "size" : "2134235"}},
             "December 19th, 2019",
             "0",
-            "fl_group_12312313")
+            "fl_project_12312313")
 
         models = job.get_models()
 
@@ -319,7 +319,7 @@ class JobTestCase(unittest.TestCase):
     def test_calculate_billable_size_pass_1(self):
         builder = JobBuilder()
         builder.set_id("test_id")
-        builder.set_parent_group_id("fl_group_1232234")
+        builder.set_parent_project_id("fl_project_1232234")
         builder.set_devices(["123", "234"])
         configuration = JobConfiguration(50, 0, "RANDOM", [])
         builder.set_configuration(configuration.to_json())
@@ -340,7 +340,7 @@ class JobTestCase(unittest.TestCase):
     def test_should_terminate_pass(self):
         builder = JobBuilder()
         builder.set_id("test_id")
-        builder.set_parent_group_id("fl_group_1232234")
+        builder.set_parent_project_id("fl_project_1232234")
         builder.set_devices(["123", "234"])
         configuration = JobConfiguration(50, 0, "RANDOM", [
             DurationTerminationCriteria(0, 2313123.1231).to_json()
@@ -353,7 +353,7 @@ class JobTestCase(unittest.TestCase):
     def test_should_terminate_pass_2(self):
         builder = JobBuilder()
         builder.set_id("test_id")
-        builder.set_parent_group_id("fl_group_1232234")
+        builder.set_parent_project_id("fl_project_1232234")
         builder.set_devices(["123", "234"])
         configuration = JobConfiguration(50, 0, "RANDOM", [
             DurationTerminationCriteria(10, float(get_epoch_time())).to_json()
@@ -366,7 +366,7 @@ class JobTestCase(unittest.TestCase):
     def test_reset_termination_criteria_pass(self):
         builder = JobBuilder()
         builder.set_id("test_id")
-        builder.set_parent_group_id("fl_group_1232234")
+        builder.set_parent_project_id("fl_project_1232234")
         builder.set_devices(["123", "234"])
         configuration = JobConfiguration(50, 0, "RANDOM", [
             DurationTerminationCriteria(10, float(get_epoch_time()) - 100).to_json()

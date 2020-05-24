@@ -1,4 +1,4 @@
-from .group_privilege_types import GroupPrivilegeTypesEnum
+from .project_privilege_types import ProjectPrivilegeTypesEnum
 from .builder import Builder
 from .db_object import DBObject
 from .model import Model
@@ -8,8 +8,8 @@ from .job import Job
 from .job_builder import JobBuilder
 from .device import Device
 from .device_builder import DeviceBuilder
-from .group import FLGroup
-from .group_builder import GroupBuilder
+from .project import Project
+from .project_builder import ProjectBuilder
 from .api_key_type import ApiKeyTypeEnum
 from .api_key import ApiKey
 from .api_key_builder import ApiKeyBuilder

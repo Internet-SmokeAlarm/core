@@ -2,39 +2,39 @@ from .request_processor import RequestProcessor
 
 class IDProcessor(RequestProcessor):
 
-    GROUP_NAME_KEY = "group_name"
-    GROUP_ID_KEY = "group_id"
-    ROUND_ID_KEY = "job_id"
+    PROJECT_NAME_KEY = "project_name"
+    PROJECT_ID_KEY = "project_id"
+    JOB_ID_KEY = "job_id"
     DEVICE_ID_KEY = "device_id"
-    PREVIOUS_ROUND_ID_KEY = "previous_job_id"
+    PREVIOUS_JOB_ID_KEY = "previous_job_id"
 
     def __init__(self, json):
         self.json = json
 
-    def get_group_name(self, throw_exception=True):
-        group_name = self.json.get(IDProcessor.GROUP_NAME_KEY, None)
+    def get_project_name(self, throw_exception=True):
+        project_name = self.json.get(IDProcessor.PROJECT_NAME_KEY, None)
 
-        if not self._is_string_name_valid(group_name) and throw_exception:
-            raise ValueError("Group name invalid.")
+        if not self._is_string_name_valid(project_name) and throw_exception:
+            raise ValueError("Project name invalid.")
 
-        return group_name
+        return project_name
 
-    def get_group_id(self, throw_exception=True):
+    def get_project_id(self, throw_exception=True):
         """
         :return: string
         """
-        group_id = self.json.get(IDProcessor.GROUP_ID_KEY, None)
+        project_id = self.json.get(IDProcessor.PROJECT_ID_KEY, None)
 
-        if not self._is_string_name_valid(group_id) and throw_exception:
-            raise ValueError("Group id invalid.")
+        if not self._is_string_name_valid(project_id) and throw_exception:
+            raise ValueError("Project id invalid.")
 
-        return group_id
+        return project_id
 
     def get_job_id(self, throw_exception=True):
         """
         :return: string
         """
-        job_id = self.json.get(IDProcessor.ROUND_ID_KEY, None)
+        job_id = self.json.get(IDProcessor.JOB_ID_KEY, None)
 
         if not self._is_string_name_valid(job_id) and throw_exception:
             raise ValueError("Job id invalid.")
@@ -45,7 +45,7 @@ class IDProcessor(RequestProcessor):
         """
         :return: string
         """
-        job_id = self.json.get(IDProcessor.PREVIOUS_ROUND_ID_KEY, None)
+        job_id = self.json.get(IDProcessor.PREVIOUS_JOB_ID_KEY, None)
 
         if not self._is_string_name_valid(job_id) and throw_exception:
             raise ValueError("Previous job id invalid.")

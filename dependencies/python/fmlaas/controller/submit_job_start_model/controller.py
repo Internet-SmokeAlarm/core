@@ -3,15 +3,15 @@ from ... import HierarchicalModelNameStructure
 from ...aws import get_models_bucket_name
 from ...database import DynamoDBInterface
 from ...model import Job
-from ...model import FLGroup
+from ...model import Project
 from ...model import DBObject
-from ...model import GroupPrivilegeTypesEnum
+from ...model import ProjectPrivilegeTypesEnum
 from ...exception import raise_default_request_forbidden_error
 from ..utils import termination_check
 
-def submit_job_start_model_controller(group_db, job_db, job_id, auth_context_processor):
+def submit_job_start_model_controller(project_db, job_db, job_id, auth_context_processor):
     """
-    :param group_db: DB
+    :param project_db: DB
     :param job_db: DB
     :param job_id: string
     :param auth_context_processor: AuthContextProcessor
@@ -25,11 +25,11 @@ def submit_job_start_model_controller(group_db, job_db, job_id, auth_context_pro
 
     try:
         job = DBObject.load_from_db(Job, job_id, job_db)
-        group = DBObject.load_from_db(FLGroup, job.get_parent_group_id(), group_db)
+        project = DBObject.load_from_db(Project, job.get_parent_project_id(), project_db)
     except:
         raise_default_request_forbidden_error()
 
-    if not group.does_member_have_auth(auth_context_processor.get_entity_id(), GroupPrivilegeTypesEnum.READ_WRITE):
+    if not project.does_member_have_auth(auth_context_processor.get_entity_id(), ProjectPrivilegeTypesEnum.READ_WRITE):
         raise_default_request_forbidden_error()
 
     can_submit_model_to_job = job.is_in_initialization()
@@ -47,7 +47,7 @@ def submit_job_start_model_controller(group_db, job_db, job_id, auth_context_pro
         presigned_url = None
 
     try:
-        termination_check(job, job_db, group_db)
+        termination_check(job, job_db, project_db)
     except:
         can_submit_model_to_job = False
 
