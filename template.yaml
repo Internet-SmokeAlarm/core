@@ -556,7 +556,7 @@ Outputs:
 
   ApiUrl:
     Description: URL for endpoint
-    Value: !Sub "https://${ApiGw}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+    Value: !Sub "https://${ApiGw}.execute-api.${AWS::Region}.amazonaws.com/"
 
   CognitoUserPoolId:
     Description: "Cognito User Pool Id"
