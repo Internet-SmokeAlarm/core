@@ -1,12 +1,12 @@
 import json
 
 from fmlaas.request_processor import IDProcessor
-from fmlaas import get_round_table_name_from_env
+from fmlaas import get_job_table_name_from_env
 from fmlaas import get_group_table_name_from_env
 from fmlaas.database import DynamoDBInterface
 from fmlaas.exception import RequestForbiddenException
 from fmlaas.request_processor import AuthContextProcessor
-from fmlaas.controller.submit_round_start_model import submit_round_start_model_controller
+from fmlaas.controller.submit_job_start_model import submit_job_start_model_controller
 
 def lambda_handler(event, context):
     req_json = json.loads(event.get('body'))
@@ -14,7 +14,7 @@ def lambda_handler(event, context):
 
     try:
         id_processor = IDProcessor(req_json)
-        round_id = id_processor.get_round_id()
+        job_id = id_processor.get_job_id()
 
         auth_context_processor = AuthContextProcessor(auth_json)
     except ValueError as error:
@@ -24,18 +24,18 @@ def lambda_handler(event, context):
         }
 
     group_db = DynamoDBInterface(get_group_table_name_from_env())
-    round_db = DynamoDBInterface(get_round_table_name_from_env())
+    job_db = DynamoDBInterface(get_job_table_name_from_env())
 
     try:
-        can_submit_start_model, presigned_url = submit_round_start_model_controller(group_db,
-                                                                                    round_db,
-                                                                                    round_id,
+        can_submit_start_model, presigned_url = submit_job_start_model_controller(group_db,
+                                                                                    job_db,
+                                                                                    job_id,
                                                                                     auth_context_processor)
 
         if not can_submit_start_model:
             return {
                 "statusCode" : 400,
-                "body" : json.dumps({"error_msg" : "Cannot submit model to this round because it is not in initialization state"})
+                "body" : json.dumps({"error_msg" : "Cannot submit model to this job because it is not in initialization state"})
             }
         else:
             return {

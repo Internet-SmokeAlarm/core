@@ -1,10 +1,11 @@
 import json
 
 from fmlaas import get_group_table_name_from_env
+from fmlaas import get_job_table_name_from_env
 from fmlaas.database import DynamoDBInterface
 from fmlaas.request_processor import IDProcessor
 from fmlaas.request_processor import AuthContextProcessor
-from fmlaas.controller.get_group_current_round_id import get_group_current_round_id_controller
+from fmlaas.controller.get_job import get_job_controller
 from fmlaas.exception import RequestForbiddenException
 
 def lambda_handler(event, context):
@@ -14,6 +15,7 @@ def lambda_handler(event, context):
     try:
         id_processor = IDProcessor(req_json)
         group_id = id_processor.get_group_id()
+        job_id = id_processor.get_job_id()
 
         auth_context_processor = AuthContextProcessor(auth_json)
     except ValueError as error:
@@ -22,16 +24,22 @@ def lambda_handler(event, context):
             "body" : json.dumps({"error_msg" : str(error)})
         }
 
-    dynamodb_ = DynamoDBInterface(get_group_table_name_from_env())
-
     try:
-        current_round_ids = get_group_current_round_id_controller(dynamodb_,
-                                                                 group_id,
-                                                                 auth_context_processor)
+        group_db_ = DynamoDBInterface(get_group_table_name_from_env())
+        job_db_ = DynamoDBInterface(get_job_table_name_from_env())
+
+        job = get_job_controller(group_db_,
+                                     job_db_,
+                                     group_id,
+                                     job_id,
+                                     auth_context_processor)
+
+        # TODO : Need to remove unnecessary content from return JSON.
+        #   Should probably happen inside the controller.
 
         return {
             "statusCode" : 200,
-            "body" : json.dumps({"round_ids" : current_round_ids})
+            "body" : json.dumps(job.to_json())
         }
     except RequestForbiddenException as error:
         return {

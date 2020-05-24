@@ -1,6 +1,6 @@
 import json
 
-from fmlaas import get_round_table_name_from_env
+from fmlaas import get_job_table_name_from_env
 from fmlaas import get_group_table_name_from_env
 from fmlaas.database import DynamoDBInterface
 from fmlaas.request_processor import IDProcessor
@@ -15,7 +15,7 @@ def lambda_handler(event, context):
     try:
         id_processor = IDProcessor(req_json)
         group_id = id_processor.get_group_id()
-        round_id = id_processor.get_round_id()
+        job_id = id_processor.get_job_id()
         device_id = id_processor.get_device_id()
 
         auth_context_processor = AuthContextProcessor(auth_json)
@@ -26,13 +26,13 @@ def lambda_handler(event, context):
         }
 
     group_db = DynamoDBInterface(get_group_table_name_from_env())
-    round_db = DynamoDBInterface(get_round_table_name_from_env())
+    job_db = DynamoDBInterface(get_job_table_name_from_env())
 
     try:
         is_device_active = is_device_active_controller(group_db,
-                                                       round_db,
+                                                       job_db,
                                                        group_id,
-                                                       round_id,
+                                                       job_id,
                                                        device_id,
                                                        auth_context_processor)
 

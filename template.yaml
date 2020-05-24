@@ -12,8 +12,8 @@ Globals:
     Environment:
       Variables:
         MODELS_BUCKET: !Join ["", [!Ref Stage, "-fedlearn-models"]]
-        GROUPS_TABLE_NAME: !Join ["", [!Ref Stage, "-fl-groups"]]
-        ROUNDS_TABLE_NAME: !Join ["", [!Ref Stage, "-fl-rounds"]]
+        GROUPS_TABLE_NAME: !Join ["", [!Ref Stage, "-fl-projects"]]
+        ROUNDS_TABLE_NAME: !Join ["", [!Ref Stage, "-fl-jobs"]]
         AUTH_KEY_TABLE_NAME: !Join ["", [!Ref Stage, "-fl-auth-key"]]
         AGGREGATION_LAMBDA_FUNCTION_NAME: !Join ["", [!Ref Stage, "-AggregateModels"]]
         COGNITO_USER_POOL_CLIENT_ID: !Ref FedLearnCognitoUserPoolClient
@@ -37,7 +37,7 @@ Resources:
 
 
   # ------------ DynamoDB ------------
-  GroupsTable:
+  ProjectsTable:
     Type: AWS::DynamoDB::Table
     Properties:
       BillingMode: PAY_PER_REQUEST
@@ -49,9 +49,9 @@ Resources:
         -
           AttributeName: "ID"
           KeyType: "HASH"
-      TableName: !Join ["", [!Ref Stage, "-fl-groups"]]
+      TableName: !Join ["", [!Ref Stage, "-fl-projects"]]
 
-  RoundsTable:
+  JobsTable:
     Type: AWS::DynamoDB::Table
     Properties:
       BillingMode: PAY_PER_REQUEST
@@ -63,7 +63,7 @@ Resources:
         -
           AttributeName: "ID"
           KeyType: "HASH"
-      TableName: !Join ["", [!Ref Stage, "-fl-rounds"]]
+      TableName: !Join ["", [!Ref Stage, "-fl-jobs"]]
 
   AuthKeyTable:
     Type: AWS::DynamoDB::Table
@@ -195,7 +195,7 @@ Resources:
     Properties:
       Timeout: 10
       MemorySize: 1536
-      CodeUri: api/group/post/register_device/
+      CodeUri: api/project/post/register_device/
       Handler: app.lambda_handler
       FunctionName: !Join ["", [!Ref Stage, "-RegisterDevice"]]
       Layers:
@@ -203,7 +203,7 @@ Resources:
       Policies:
         - AWSLambdaBasicExecutionRole
         - DynamoDBCrudPolicy:
-            TableName: !Ref GroupsTable
+            TableName: !Ref ProjectsTable
         - DynamoDBCrudPolicy:
             TableName: !Ref AuthKeyTable
       Events:
@@ -214,123 +214,123 @@ Resources:
             Path: /v1/device/create
             Method: post
 
-  CancelRoundFunction:
+  CancelJobFunction:
     Type: AWS::Serverless::Function
     Properties:
       Timeout: 3
       MemorySize: 128
-      CodeUri: api/round/post/cancel/
+      CodeUri: api/job/post/cancel/
       Handler: app.lambda_handler
-      FunctionName: !Join ["", [!Ref Stage, "-CancelRound"]]
+      FunctionName: !Join ["", [!Ref Stage, "-CancelJob"]]
       Layers:
         - !Ref FMLaaSCoreDependencyLayer
       Policies:
         - AWSLambdaBasicExecutionRole
         - DynamoDBCrudPolicy:
-            TableName: !Ref GroupsTable
+            TableName: !Ref ProjectsTable
         - DynamoDBCrudPolicy:
-            TableName: !Ref RoundsTable
+            TableName: !Ref JobsTable
       Events:
-        CancelRoundApiEvent:
+        CancelJobApiEvent:
           Type: Api
           Properties:
             RestApiId: !Ref FmlaasProdApi
-            Path: /v1/round/cancel
+            Path: /v1/job/cancel
             Method: post
 
-  SubmitRoundStartModelFunction:
+  SubmitJobStartModelFunction:
     Type: AWS::Serverless::Function
     Properties:
       Timeout: 3
       MemorySize: 128
-      CodeUri: api/round/post/submit_start_model/
+      CodeUri: api/job/post/submit_start_model/
       Handler: app.lambda_handler
-      FunctionName: !Join ["", [!Ref Stage, "-SubmitRoundStartModel"]]
+      FunctionName: !Join ["", [!Ref Stage, "-SubmitJobStartModel"]]
       Layers:
         - !Ref FMLaaSCoreDependencyLayer
       Policies:
         - AWSLambdaBasicExecutionRole
         - DynamoDBCrudPolicy:
-            TableName: !Ref GroupsTable
+            TableName: !Ref ProjectsTable
         - DynamoDBCrudPolicy:
-            TableName: !Ref RoundsTable
+            TableName: !Ref JobsTable
         - !Ref S3PutObjectPolicy
       Events:
-        SubmitRoundStartModelApiEvent:
+        SubmitJobStartModelApiEvent:
           Type: Api
           Properties:
             RestApiId: !Ref FmlaasProdApi
-            Path: /v1/round/submit_start_model
+            Path: /v1/job/submit_start_model
             Method: post
 
-  CreateRoundFunction:
+  CreateJobFunction:
     Type: AWS::Serverless::Function
     Properties:
       Timeout: 3
       MemorySize: 128
-      CodeUri: api/round/post/create/
+      CodeUri: api/job/post/create/
       Handler: app.lambda_handler
-      FunctionName: !Join ["", [!Ref Stage, "-CreateRound"]]
+      FunctionName: !Join ["", [!Ref Stage, "-CreateJob"]]
       Layers:
         - !Ref FMLaaSCoreDependencyLayer
       Policies:
         - AWSLambdaBasicExecutionRole
         - DynamoDBCrudPolicy:
-            TableName: !Ref GroupsTable
+            TableName: !Ref ProjectsTable
         - DynamoDBCrudPolicy:
-            TableName: !Ref RoundsTable
+            TableName: !Ref JobsTable
       Events:
-        CreateRoundApiEvent:
+        CreateJobApiEvent:
           Type: Api
           Properties:
             RestApiId: !Ref FmlaasProdApi
-            Path: /v1/round/create
+            Path: /v1/job/create
             Method: post
 
-  GetRoundFunction:
+  GetJobFunction:
     Type: AWS::Serverless::Function
     Properties:
       Timeout: 3
       MemorySize: 128
-      CodeUri: api/round/get/round/
+      CodeUri: api/job/get/job/
       Handler: app.lambda_handler
-      FunctionName: !Join ["", [!Ref Stage, "-GetRound"]]
+      FunctionName: !Join ["", [!Ref Stage, "-GetJob"]]
       Layers:
         - !Ref FMLaaSCoreDependencyLayer
       Policies:
         - AWSLambdaBasicExecutionRole
         - DynamoDBCrudPolicy:
-            TableName: !Ref RoundsTable
+            TableName: !Ref JobsTable
         - DynamoDBCrudPolicy:
-            TableName: !Ref GroupsTable
+            TableName: !Ref ProjectsTable
       Events:
-        GetRoundApiEvent:
+        GetJobApiEvent:
           Type: Api
           Properties:
             RestApiId: !Ref FmlaasProdApi
-            Path: /v1/round/get/{group_id}/{round_id}
+            Path: /v1/job/get/{project_id}/{job_id}
             Method: get
 
-  GetGroupFunction:
+  GetProjectFunction:
     Type: AWS::Serverless::Function
     Properties:
       Timeout: 3
       MemorySize: 128
-      CodeUri: api/group/get/group/
+      CodeUri: api/project/get/project/
       Handler: app.lambda_handler
-      FunctionName: !Join ["", [!Ref Stage, "-GetGroup"]]
+      FunctionName: !Join ["", [!Ref Stage, "-GetProject"]]
       Layers:
         - !Ref FMLaaSCoreDependencyLayer
       Policies:
         - AWSLambdaBasicExecutionRole
         - DynamoDBCrudPolicy:
-            TableName: !Ref GroupsTable
+            TableName: !Ref ProjectsTable
       Events:
-        GetGroupApiEvent:
+        GetProjectApiEvent:
           Type: Api
           Properties:
             RestApiId: !Ref FmlaasProdApi
-            Path: /v1/group/get/{group_id}
+            Path: /v1/project/get/{project_id}
             Method: get
 
   ModelUploadedFunction:
@@ -347,9 +347,9 @@ Resources:
         - AWSLambdaBasicExecutionRole
         - AWSLambdaRole
         - DynamoDBCrudPolicy:
-            TableName: !Ref GroupsTable
+            TableName: !Ref ProjectsTable
         - DynamoDBCrudPolicy:
-            TableName: !Ref RoundsTable
+            TableName: !Ref JobsTable
       Events:
         ModelUploadedEvent:
           Type: S3
@@ -357,77 +357,77 @@ Resources:
             Bucket: !Ref ModelBucket
             Events: s3:ObjectCreated:*
 
-  GetRoundAggregateModelFunction:
+  GetJobAggregateModelFunction:
     Type: AWS::Serverless::Function
     Properties:
       Timeout: 3
       MemorySize: 128
-      CodeUri: api/round/get/aggregate_model/
+      CodeUri: api/job/get/aggregate_model/
       Handler: app.lambda_handler
-      FunctionName: !Join ["", [!Ref Stage, "-GetRoundAggregateModel"]]
+      FunctionName: !Join ["", [!Ref Stage, "-GetJobAggregateModel"]]
       Layers:
         - !Ref FMLaaSCoreDependencyLayer
       Policies:
         - AWSLambdaBasicExecutionRole
         - DynamoDBCrudPolicy:
-            TableName: !Ref RoundsTable
+            TableName: !Ref JobsTable
         - DynamoDBCrudPolicy:
-            TableName: !Ref GroupsTable
+            TableName: !Ref ProjectsTable
         - !Ref S3GetObjectPolicy
       Events:
-        GetRoundAggregateModelApiEvent:
+        GetJobAggregateModelApiEvent:
           Type: Api
           Properties:
             RestApiId: !Ref FmlaasProdApi
-            Path: /v1/round/aggregate_model/{group_id}/{round_id}
+            Path: /v1/job/aggregate_model/{project_id}/{job_id}
             Method: get
 
-  CreateGroupFunction:
+  CreateProjectFunction:
     Type: AWS::Serverless::Function
     Properties:
       Timeout: 3
       MemorySize: 128
-      CodeUri: api/group/post/create/
+      CodeUri: api/project/post/create/
       Handler: app.lambda_handler
-      FunctionName: !Join ["", [!Ref Stage, "-CreateGroup"]]
+      FunctionName: !Join ["", [!Ref Stage, "-CreateProject"]]
       Layers:
         - !Ref FMLaaSCoreDependencyLayer
       Policies:
         - AWSLambdaBasicExecutionRole
         - DynamoDBCrudPolicy:
-            TableName: !Ref GroupsTable
+            TableName: !Ref ProjectsTable
       Events:
-        CreateGroupApiEvent:
+        CreateProjectApiEvent:
           Type: Api
           Properties:
             RestApiId: !Ref FmlaasProdApi
-            Path: /v1/group/create
+            Path: /v1/project/create
             Method: post
 
-  DeleteGroupFunction:
+  DeleteProjectFunction:
     Type: AWS::Serverless::Function
     Properties:
       Timeout: 3
       MemorySize: 128
-      CodeUri: api/group/delete/group/
+      CodeUri: api/project/delete/project/
       Handler: app.lambda_handler
-      FunctionName: !Join ["", [!Ref Stage, "-DeleteGroup"]]
+      FunctionName: !Join ["", [!Ref Stage, "-DeleteProject"]]
       Layers:
         - !Ref FMLaaSCoreDependencyLayer
       Policies:
         - AWSLambdaBasicExecutionRole
         - DynamoDBCrudPolicy:
-            TableName: !Ref GroupsTable
+            TableName: !Ref ProjectsTable
         - DynamoDBCrudPolicy:
-            TableName: !Ref RoundsTable
+            TableName: !Ref JobsTable
         - S3CrudPolicy:
             BucketName: !Ref ModelBucket
       Events:
-        DeleteGroupApiEvent:
+        DeleteProjectApiEvent:
           Type: Api
           Properties:
             RestApiId: !Ref FmlaasProdApi
-            Path: /v1/group/delete
+            Path: /v1/project/delete
             Method: post
 
   IsDeviceActiveFunction:
@@ -443,37 +443,37 @@ Resources:
       Policies:
         - AWSLambdaBasicExecutionRole
         - DynamoDBCrudPolicy:
-            TableName: !Ref RoundsTable
+            TableName: !Ref JobsTable
         - DynamoDBCrudPolicy:
-            TableName: !Ref GroupsTable
+            TableName: !Ref ProjectsTable
       Events:
         IsDeviceActiveApiEvent:
           Type: Api
           Properties:
             RestApiId: !Ref FmlaasProdApi
-            Path: /v1/device/is_active/{group_id}/{round_id}/{device_id}
+            Path: /v1/device/is_active/{project_id}/{job_id}/{device_id}
             Method: get
 
-  GetGroupActiveRoundsFunction:
+  GetProjectActiveJobsFunction:
     Type: AWS::Serverless::Function
     Properties:
       Timeout: 3
       MemorySize: 128
-      CodeUri: api/group/get/active_rounds/
+      CodeUri: api/project/get/active_jobs/
       Handler: app.lambda_handler
-      FunctionName: !Join ["", [!Ref Stage, "-GetGroupActiveRoundsFunction"]]
+      FunctionName: !Join ["", [!Ref Stage, "-GetProjectActiveJobsFunction"]]
       Layers:
         - !Ref FMLaaSCoreDependencyLayer
       Policies:
         - AWSLambdaBasicExecutionRole
         - DynamoDBCrudPolicy:
-            TableName: !Ref GroupsTable
+            TableName: !Ref ProjectsTable
       Events:
-        GetGroupActiveRoundsEvent:
+        GetProjectActiveJobsEvent:
           Type: Api
           Properties:
             RestApiId: !Ref FmlaasProdApi
-            Path: /v1/group/active_rounds/{group_id}
+            Path: /v1/project/active_jobs/{project_id}
             Method: get
 
   SubmitModelUpdateFunction:
@@ -488,9 +488,9 @@ Resources:
         - !Ref FMLaaSCoreDependencyLayer
       Policies:
         - DynamoDBCrudPolicy:
-            TableName: !Ref GroupsTable
+            TableName: !Ref ProjectsTable
         - DynamoDBCrudPolicy:
-            TableName: !Ref RoundsTable
+            TableName: !Ref JobsTable
         - AWSLambdaBasicExecutionRole
         - !Ref S3PutObjectPolicy
       Events:
@@ -501,29 +501,29 @@ Resources:
             Path: /v1/device/submit_model_update
             Method: post
 
-  GetRoundStartModelFunction:
+  GetJobStartModelFunction:
     Type: AWS::Serverless::Function
     Properties:
       Timeout: 3
       MemorySize: 128
-      CodeUri: api/round/get/start_model/
+      CodeUri: api/job/get/start_model/
       Handler: app.lambda_handler
-      FunctionName: !Join ["", [!Ref Stage, "-GetRoundStartModel"]]
+      FunctionName: !Join ["", [!Ref Stage, "-GetJobStartModel"]]
       Layers:
         - !Ref FMLaaSCoreDependencyLayer
       Policies:
         - AWSLambdaBasicExecutionRole
         - DynamoDBCrudPolicy:
-            TableName: !Ref RoundsTable
+            TableName: !Ref JobsTable
         - DynamoDBCrudPolicy:
-            TableName: !Ref GroupsTable
+            TableName: !Ref ProjectsTable
         - !Ref S3GetObjectPolicy
       Events:
-        GetRoundStartModelApiEvent:
+        GetJobStartModelApiEvent:
           Type: Api
           Properties:
             RestApiId: !Ref FmlaasProdApi
-            Path: /v1/round/start_model/{group_id}/{round_id}
+            Path: /v1/job/start_model/{project_id}/{job_id}
             Method: get
 
   AggregateModelsFunction:
@@ -539,9 +539,9 @@ Resources:
       Policies:
         - AWSLambdaBasicExecutionRole
         - DynamoDBCrudPolicy:
-            TableName: !Ref GroupsTable
+            TableName: !Ref ProjectsTable
         - DynamoDBCrudPolicy:
-            TableName: !Ref RoundsTable
+            TableName: !Ref JobsTable
         - !Ref S3GetObjectPolicy
         - !Ref S3PutObjectPolicy
 

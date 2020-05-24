@@ -1,12 +1,11 @@
 import json
 
-from fmlaas import get_round_table_name_from_env
 from fmlaas import get_group_table_name_from_env
 from fmlaas.database import DynamoDBInterface
 from fmlaas.request_processor import IDProcessor
 from fmlaas.request_processor import AuthContextProcessor
+from fmlaas.controller.get_group_current_job_id import get_group_current_job_id_controller
 from fmlaas.exception import RequestForbiddenException
-from fmlaas.controller.get_round_start_model import get_round_start_model_controller
 
 def lambda_handler(event, context):
     req_json = event.get("pathParameters")
@@ -15,7 +14,6 @@ def lambda_handler(event, context):
     try:
         id_processor = IDProcessor(req_json)
         group_id = id_processor.get_group_id()
-        round_id = id_processor.get_round_id()
 
         auth_context_processor = AuthContextProcessor(auth_json)
     except ValueError as error:
@@ -24,18 +22,16 @@ def lambda_handler(event, context):
             "body" : json.dumps({"error_msg" : str(error)})
         }
 
-    group_db = DynamoDBInterface(get_group_table_name_from_env())
-    round_db = DynamoDBInterface(get_round_table_name_from_env())
+    dynamodb_ = DynamoDBInterface(get_group_table_name_from_env())
 
     try:
-        presigned_url = get_round_start_model_controller(group_db,
-                                                         round_db,
-                                                         group_id,
-                                                         round_id,
-                                                         auth_context_processor)
+        current_job_ids = get_group_current_job_id_controller(dynamodb_,
+                                                                 group_id,
+                                                                 auth_context_processor)
+
         return {
             "statusCode" : 200,
-            "body" : json.dumps({"model_url" : presigned_url})
+            "body" : json.dumps({"job_ids" : current_job_ids})
         }
     except RequestForbiddenException as error:
         return {

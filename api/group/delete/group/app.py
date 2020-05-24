@@ -1,7 +1,7 @@
 import json
 
 from fmlaas import get_group_table_name_from_env
-from fmlaas import get_round_table_name_from_env
+from fmlaas import get_job_table_name_from_env
 from fmlaas.aws import delete_s3_objects_with_prefix
 from fmlaas.aws import get_models_bucket_name
 from fmlaas.database import DynamoDBInterface
@@ -26,11 +26,11 @@ def lambda_handler(event, context):
         }
 
     group_db = DynamoDBInterface(get_group_table_name_from_env())
-    round_db = DynamoDBInterface(get_round_table_name_from_env())
+    job_db = DynamoDBInterface(get_job_table_name_from_env())
 
     try:
         delete_group_controller(group_db,
-                                round_db,
+                                job_db,
                                 group_id,
                                 auth_context_processor)
         delete_s3_objects_with_prefix(get_models_bucket_name(), group_id)
