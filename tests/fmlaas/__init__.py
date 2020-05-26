@@ -3,7 +3,7 @@ import os
 sys.path.insert(0, os.path.join(os.getcwd(), "dependencies", "python"))
 
 from .auth import *
-from .controller import *
+#from .controller import *
 from .aws import *
 from .request_processor import *
 from .aggregation import *

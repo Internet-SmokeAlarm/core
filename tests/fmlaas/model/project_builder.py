@@ -1,23 +1,13 @@
-import unittest
-
 from dependencies.python.fmlaas.model import ProjectBuilder
+from .abstract_model_testcase import AbstractModelTestCase
 
 
-class ProjectBuilderTestCase(unittest.TestCase):
+class ProjectBuilderTestCase(AbstractModelTestCase):
 
-    def test_build_pass_1(self):
-        builder = ProjectBuilder()
-        builder.set_id("test_id")
-        builder.set_name("test_name")
-        project = builder.build()
+    def test_build_pass(self):
+        project = self._build_simple_project(1)
 
-        self.assertEqual(project.get_name(), "test_name")
-        self.assertEqual(project.get_id(), "test_id")
-        self.assertEqual(project.get_devices(), {})
-        self.assertEqual(project.get_job_info(), {})
-        self.assertEqual(project.get_current_job_ids(), [])
-        self.assertEqual(project.get_job_paths(), [])
-        self.assertEqual(project.get_billing(), {})
+        self.assertEqual(project.to_json(), self._get_simple_project_json(1))
 
     def test_build_fail_1(self):
         builder = ProjectBuilder()

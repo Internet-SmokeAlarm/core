@@ -1,12 +1,12 @@
 from .device_builder import DeviceBuilder
 from .job_builder import JobBuilder
 from .job_status import JobStatus
+from .job_sequence import JobSequence
 from .job import Job
 from .model import Model
 from .project_privilege_types import ProjectPrivilegeTypesEnum
 from ..generate_unique_id import generate_unique_id
 from ..device_selection import DeviceSelectorFactory
-
 from .db_object import DBObject
 
 
@@ -16,27 +16,21 @@ class Project(DBObject):
                  name,
                  id,
                  devices,
-                 job_info,
-                 job_paths,
-                 current_job_ids,
+                 job_sequences,
                  members,
                  billing):
         """
         :param name: string
         :param id: string
         :param devices: dict
-        :param job_info: dict
-        :param job_paths: list(list(string))
-        :param current_job_ids: list(string)
+        :param job_sequences: dict
         :param members: dict
         :param billing: dict
         """
         self.id = id
         self.name = name
         self.devices = devices
-        self.job_info = job_info
-        self.job_paths = job_paths
-        self.current_job_ids = current_job_ids
+        self.job_sequences = job_sequences
         self.members = members
         self.billing = billing
 
@@ -56,69 +50,17 @@ class Project(DBObject):
         """
         return device_id in self.devices
 
-    def add_job_to_path_prev_id(self, prev_job_id, job_id):
+    def add_or_update_job_sequence(self, job_sequence):
         """
-        Add a job to a path using the last job ID of that path.
+        :param job_sequence: JobSequence
+        """
+        self.job_sequences[job_sequence.id] = job_sequence.to_json()
 
-        :param previous_job_id: string
-        :param job_id: string
+    def get_job_sequence(self, id):
         """
-        for path_idx in range(len(self.job_paths)):
-            if self.job_paths[path_idx][-1] == prev_job_id:
-                self.job_paths[path_idx].append(job_id)
-                self._add_job_info(job_id)
-
-                return
-
-    def create_job_path(self, job_id):
+        :param id: string
         """
-        :param job_id: string
-        """
-        if self.contains_job(job_id):
-            return
-
-        self.job_paths.append([job_id])
-        self._add_job_info(job_id)
-
-    def _add_job_info(self, job_id):
-        """
-        :param job_id: string
-        """
-        self.job_info[job_id] = {}
-
-    def add_current_job_id(self, job_id):
-        """
-        Adds a job ID to active jobs.
-
-        :param job_id: string
-        """
-        self.current_job_ids.append(job_id)
-
-    def remove_current_job_id(self, job_id):
-        """
-        Remove a job ID from active jobs.
-
-        :param job_id: string
-        """
-        self.current_job_ids.remove(job_id)
-
-    def contains_job(self, job_id):
-        """
-        :param job_id: string
-        :return: boolean
-        """
-        return job_id in self.job_info
-
-    def get_next_job_in_sequence(self, job_id):
-        """
-        :param job_id: string
-        """
-        for job_path in self.job_paths:
-            for idx in range(0, len(job_path) - 1):
-                if job_path[idx] == job_id:
-                    return job_path[idx + 1]
-
-        return None
+        return JobSequence.from_json(self.job_sequences[id])
 
     def get_id(self):
         return self.id
@@ -183,20 +125,19 @@ class Project(DBObject):
             "name": self.name,
             "ID": self.id,
             "devices": self.devices,
-            "job_info": self.job_info,
-            "job_paths": self.job_paths,
-            "current_job_ids": self.current_job_ids,
+            "job_sequences": self.job_sequences,
             "members": self.members,
             "billing": self.billing
         }
+
+    def __eq__(self, other):
+        return (other.name == self.name) and (self.job_sequences == other.job_sequences) and (self.devices == other.devices) and (self.members == other.members) and (self.billing == other.billing) and (self.id == other.id)
 
     @staticmethod
     def from_json(json_data):
         return Project(json_data["name"],
                        json_data["ID"],
                        json_data["devices"],
-                       json_data["job_info"],
-                       json_data["job_paths"],
-                       json_data["current_job_ids"],
+                       json_data["job_sequences"],
                        json_data["members"],
                        json_data["billing"])

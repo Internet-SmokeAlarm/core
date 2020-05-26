@@ -182,3 +182,36 @@ class JobSequenceTestCase(AbstractModelTestCase):
         sequence.proceed_to_next_job()
 
         self.assertFalse(sequence.is_active)
+
+    def test_is_active_pass_2(self):
+        sequence, _ = self._build_default_job_sequence()
+
+        job_1 = self._build_job(1)
+        job_2 = self._build_job(2)
+        job_3 = self._build_job(3)
+        job_4 = self._build_job(4)
+        job_5 = self._build_job(5)
+
+        self.assertFalse(sequence.is_active)
+
+        sequence.add_job(job_1)
+        sequence.add_job(job_2)
+        sequence.add_job(job_3)
+        sequence.add_job(job_4)
+
+        start_model = Model(
+            "123dafasdf34sdfsdf",
+            "adfsfsdfs/123dafasdf34sdfsdf/start_model",
+            "12312311")
+        sequence.start_model = start_model
+
+        sequence.proceed_to_next_job()
+        sequence.proceed_to_next_job()
+        sequence.proceed_to_next_job()
+        sequence.proceed_to_next_job()
+
+        self.assertFalse(sequence.is_active)
+
+        sequence.add_job(job_5)
+
+        self.assertTrue(sequence.is_active)

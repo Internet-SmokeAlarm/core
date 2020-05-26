@@ -107,7 +107,7 @@ class JobSequence(DBObject):
         """
         self._jobs.append(job.get_id())
 
-        if self.current_job == "NONE":
+        if self.current_job == "NONE" or not self.is_active:
             self.current_job = job.get_id()
             self.is_active = True
 

@@ -8,9 +8,7 @@ class ProjectBuilder(Builder):
         self.name = None
         self.id = None
         self.devices = {}
-        self.job_info = {}
-        self.job_paths = []
-        self.current_job_ids = []
+        self.job_sequences = {}
         self.members = {}
         self.billing = {}
 
@@ -32,23 +30,11 @@ class ProjectBuilder(Builder):
         """
         self.devices = devices
 
-    def set_job_info(self, job_info):
+    def set_job_sequences(self, job_sequences):
         """
-        :param jobs: dict
+        :param job_sequences: dict
         """
-        self.job_info = job_info
-
-    def set_job_paths(self, job_paths):
-        """
-        :param job_paths: list(list(string))
-        """
-        self.job_paths = job_paths
-
-    def set_current_job_ids(self, current_job_ids):
-        """
-        :param current_job_ids: list(string)
-        """
-        self.current_job_ids = current_job_ids
+        self.job_sequences = job_sequences
 
     def set_billing(self, billing):
         """
@@ -59,8 +45,7 @@ class ProjectBuilder(Builder):
     def build(self):
         self._validate_parameters()
 
-        return Project(self.name, self.id, self.devices, self.job_info,
-                       self.job_paths, self.current_job_ids, self.members, self.billing)
+        return Project(self.name, self.id, self.devices, self.job_sequences, self.members, self.billing)
 
     def _validate_parameters(self):
         if self.id is None:
