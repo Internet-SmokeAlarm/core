@@ -6,6 +6,7 @@ from dependencies.python.fmlaas.model import DBObject
 from dependencies.python.fmlaas.model import ProjectBuilder
 from dependencies.python.fmlaas.model import Model
 from dependencies.python.fmlaas.model import JobBuilder
+from dependencies.python.fmlaas.model import JobSequenceBuilder
 from dependencies.python.fmlaas.model import JobConfiguration
 from dependencies.python.fmlaas.model import ProjectPrivilegeTypesEnum
 from dependencies.python.fmlaas.controller.is_device_active import is_device_active_controller
@@ -21,8 +22,6 @@ class IsDeviceActiveControllerTestCase(unittest.TestCase):
 
         project = project_builder.build()
         project.add_device("12344")
-        project.create_job_path("1234432414")
-        project.add_current_job_id("1234432414")
         project.add_or_update_member(
             "user_12345", ProjectPrivilegeTypesEnum.READ_ONLY)
 
@@ -32,6 +31,7 @@ class IsDeviceActiveControllerTestCase(unittest.TestCase):
         job_builder = JobBuilder()
         job_builder.set_id("job_test_id")
         job_builder.set_parent_project_id("test_id")
+        job_builder.set_parent_job_sequence_id("test_job_sequence_1")
         job_builder.set_configuration(
             JobConfiguration(
                 1, 0, "RANDOM", []).to_json())
@@ -58,8 +58,14 @@ class IsDeviceActiveControllerTestCase(unittest.TestCase):
         job.save_to_db(job_db_)
 
         project = self._build_default_project()
-        project.create_job_path(job.get_id())
-        project.add_current_job_id(job.get_id())
+
+        builder = JobSequenceBuilder()
+        builder.id = "test_job_sequence_1"
+        job_sequence = builder.build()
+
+        job_sequence.add_job(job)
+        project.add_or_update_job_sequence(job_sequence)
+
         project.save_to_db(project_db_)
 
         auth_json = {
@@ -83,8 +89,14 @@ class IsDeviceActiveControllerTestCase(unittest.TestCase):
         job.save_to_db(job_db_)
 
         project = self._build_default_project()
-        project.create_job_path(job.get_id())
-        project.add_current_job_id(job.get_id())
+
+        builder = JobSequenceBuilder()
+        builder.id = "test_job_sequence_1"
+        job_sequence = builder.build()
+
+        job_sequence.add_job(job)
+        project.add_or_update_job_sequence(job_sequence)
+
         project.save_to_db(project_db_)
 
         auth_json = {
@@ -116,8 +128,14 @@ class IsDeviceActiveControllerTestCase(unittest.TestCase):
         job.save_to_db(job_db_)
 
         project = self._build_default_project()
-        project.create_job_path(job.get_id())
-        project.add_current_job_id(job.get_id())
+
+        builder = JobSequenceBuilder()
+        builder.id = "test_job_sequence_1"
+        job_sequence = builder.build()
+
+        job_sequence.add_job(job)
+        project.add_or_update_job_sequence(job_sequence)
+
         project.save_to_db(project_db_)
 
         auth_json = {
@@ -143,8 +161,14 @@ class IsDeviceActiveControllerTestCase(unittest.TestCase):
         job.save_to_db(job_db_)
 
         project = self._build_default_project()
-        project.create_job_path(job.get_id())
-        project.add_current_job_id(job.get_id())
+
+        builder = JobSequenceBuilder()
+        builder.id = "test_job_sequence_1"
+        job_sequence = builder.build()
+
+        job_sequence.add_job(job)
+        project.add_or_update_job_sequence(job_sequence)
+
         project.save_to_db(project_db_)
 
         auth_json = {
@@ -195,8 +219,14 @@ class IsDeviceActiveControllerTestCase(unittest.TestCase):
         job.save_to_db(job_db_)
 
         project = self._build_default_project()
-        project.create_job_path(job.get_id())
-        project.add_current_job_id(job.get_id())
+
+        builder = JobSequenceBuilder()
+        builder.id = "test_job_sequence_1"
+        job_sequence = builder.build()
+
+        job_sequence.add_job(job)
+        project.add_or_update_job_sequence(job_sequence)
+
         project.save_to_db(project_db_)
 
         auth_json = {

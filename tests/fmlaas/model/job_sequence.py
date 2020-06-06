@@ -215,3 +215,14 @@ class JobSequenceTestCase(AbstractModelTestCase):
         sequence.add_job(job_5)
 
         self.assertTrue(sequence.is_active)
+
+    def test_is_start_model_set_pass(self):
+        sequence, _ = self._build_default_job_sequence()
+
+        self.assertFalse(sequence.is_start_model_set())
+
+    def test_is_start_model_set_pass_2(self):
+        sequence, _ = self._build_default_job_sequence()
+        sequence.start_model = Model("123123", "123123/start_model", "1231213")
+
+        self.assertTrue(sequence.is_start_model_set())

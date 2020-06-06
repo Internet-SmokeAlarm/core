@@ -4,6 +4,7 @@ from dependencies.python.fmlaas.device_selection import RandomDeviceSelector
 from dependencies.python.fmlaas.model import JobConfiguration
 from dependencies.python.fmlaas.model import ProjectBuilder
 from dependencies.python.fmlaas.model import JobBuilder
+from dependencies.python.fmlaas.model import JobSequenceBuilder
 from dependencies.python.fmlaas.model import Model
 from dependencies.python.fmlaas.model import Job
 from dependencies.python.fmlaas.model import DBObject
@@ -29,11 +30,12 @@ class StartJobControllerTestCase(unittest.TestCase):
         devices = ["123", "234", "345", "3456"]
         job_config = JobConfiguration(4, 0, "RANDOM", [])
 
-        new_job = create_job(devices, "test_id123", job_config)
+        new_job = create_job(devices, "test_id123", "job_sequence_id_123", job_config)
 
         self.assertIsNotNone(new_job.get_id())
         self.assertEqual(new_job.get_devices(), devices)
         self.assertEqual(new_job.get_parent_project_id(), "test_id123")
+        self.assertEqual(new_job.get_parent_job_sequence_id(), "job_sequence_id_123")
         self.assertEqual(
             job_config.to_json(),
             new_job.get_configuration().to_json())
@@ -54,6 +56,7 @@ class StartJobControllerTestCase(unittest.TestCase):
         job_builder = JobBuilder()
         job_builder.set_id("job_test_id")
         job_builder.set_parent_project_id("test_id")
+        job_builder.set_parent_job_sequence_id("job_sequence_id_123")
         job_builder.set_configuration(
             JobConfiguration(
                 1, 0, "RANDOM", []).to_json())
@@ -65,8 +68,12 @@ class StartJobControllerTestCase(unittest.TestCase):
         job_builder.set_devices(["34553"])
         job = job_builder.build()
 
-        project.create_job_path(job.get_id())
-        project.add_current_job_id(job.get_id())
+        builder = JobSequenceBuilder()
+        builder.id = "job_sequence_id_123"
+        job_sequence = builder.build()
+
+        job_sequence.add_job(job)
+        project.add_or_update_job_sequence(job_sequence)
 
         job.save_to_db(job_db)
         project.save_to_db(project_db)
@@ -78,14 +85,14 @@ class StartJobControllerTestCase(unittest.TestCase):
         auth_context_processor = AuthContextProcessor(auth_json)
 
         new_job_id = start_job_controller(
-            job_db, project_db, project.get_id(), JobConfiguration(
-                1, 0, "RANDOM", []), job.get_id(), auth_context_processor)
+            job_db, project_db, project.get_id(), job_sequence.id, JobConfiguration(
+                1, 0, "RANDOM", []), auth_context_processor)
         new_job = DBObject.load_from_db(Job, new_job_id, job_db)
 
         updated_project = DBObject.load_from_db(
             Project, project.get_id(), project_db)
 
-        self.assertEqual(updated_project.get_current_job_ids(), [job.get_id()])
+        self.assertEqual(updated_project.get_active_jobs(), [job.get_id()])
         self.assertTrue(updated_project.contains_job(new_job_id))
 
     def test_start_job_controller_pass_2(self):
@@ -101,6 +108,11 @@ class StartJobControllerTestCase(unittest.TestCase):
         project.add_or_update_member(
             "user_12345", ProjectPrivilegeTypesEnum.ADMIN)
 
+        builder = JobSequenceBuilder()
+        builder.id = "job_sequence_id_123"
+        job_sequence = builder.build()
+        project.add_or_update_job_sequence(job_sequence)
+
         project.save_to_db(project_db)
 
         auth_json = {
@@ -110,16 +122,15 @@ class StartJobControllerTestCase(unittest.TestCase):
         auth_context_processor = AuthContextProcessor(auth_json)
 
         new_job_id = start_job_controller(
-            job_db, project_db, project.get_id(), JobConfiguration(
-                1, 0, "RANDOM", []), "", auth_context_processor)
+            job_db, project_db, project.get_id(), job_sequence.id, JobConfiguration(
+                1, 0, "RANDOM", []), auth_context_processor)
         new_job = DBObject.load_from_db(Job, new_job_id, job_db)
         updated_project = DBObject.load_from_db(
             Project, project.get_id(), project_db)
 
         self.assertEqual(new_job.get_devices(), ["34553"])
 
-        self.assertEqual(updated_project.get_current_job_ids(), [new_job_id])
-        self.assertEqual(updated_project.get_job_paths(), [[new_job_id]])
+        self.assertEqual(updated_project.get_active_jobs(), [new_job_id])
         self.assertTrue(updated_project.contains_job(new_job_id))
 
     def test_start_job_controller_pass_3(self):
@@ -138,6 +149,7 @@ class StartJobControllerTestCase(unittest.TestCase):
         job_builder = JobBuilder()
         job_builder.set_id("job_test_id")
         job_builder.set_parent_project_id("test_id")
+        job_builder.set_parent_job_sequence_id("job_sequence_id_123")
         job_builder.set_configuration(
             JobConfiguration(
                 1, 0, "RANDOM", []).to_json())
@@ -150,7 +162,12 @@ class StartJobControllerTestCase(unittest.TestCase):
         job = job_builder.build()
         job.cancel()
 
-        project.create_job_path(job.get_id())
+        builder = JobSequenceBuilder()
+        builder.id = "job_sequence_id_123"
+        job_sequence = builder.build()
+        job_sequence.add_job(job)
+        job_sequence.proceed_to_next_job()
+        project.add_or_update_job_sequence(job_sequence)
 
         job.save_to_db(job_db)
         project.save_to_db(project_db)
@@ -162,8 +179,8 @@ class StartJobControllerTestCase(unittest.TestCase):
         auth_context_processor = AuthContextProcessor(auth_json)
 
         new_job_id = start_job_controller(
-            job_db, project_db, project.get_id(), JobConfiguration(
-                1, 0, "RANDOM", []), job.get_id(), auth_context_processor)
+            job_db, project_db, project.get_id(), job_sequence.id, JobConfiguration(
+                1, 0, "RANDOM", []), auth_context_processor)
         new_job = DBObject.load_from_db(Job, new_job_id, job_db)
 
         updated_project = DBObject.load_from_db(
@@ -172,7 +189,7 @@ class StartJobControllerTestCase(unittest.TestCase):
         self.assertEqual(
             job.get_end_model().to_json(),
             new_job.get_start_model().to_json())
-        self.assertEqual(updated_project.get_current_job_ids(), [new_job_id])
+        self.assertEqual(updated_project.get_active_jobs(), [new_job_id])
         self.assertTrue(updated_project.contains_job(new_job_id))
 
     def test_start_job_controller_pass_4(self):
@@ -191,6 +208,7 @@ class StartJobControllerTestCase(unittest.TestCase):
         job_builder = JobBuilder()
         job_builder.set_id("job_test_id")
         job_builder.set_parent_project_id("test_id")
+        job_builder.set_parent_job_sequence_id("job_sequence_id_123")
         job_builder.set_configuration(
             JobConfiguration(
                 1, 0, "RANDOM", []).to_json())
@@ -202,7 +220,11 @@ class StartJobControllerTestCase(unittest.TestCase):
         job_builder.set_devices(["34553"])
         job = job_builder.build()
 
-        project.create_job_path(job.get_id())
+        builder = JobSequenceBuilder()
+        builder.id = "job_sequence_id_123"
+        job_sequence = builder.build()
+        job_sequence.add_job(job)
+        project.add_or_update_job_sequence(job_sequence)
 
         job.save_to_db(job_db)
         project.save_to_db(project_db)
@@ -214,17 +236,17 @@ class StartJobControllerTestCase(unittest.TestCase):
         auth_context_processor = AuthContextProcessor(auth_json)
 
         new_job_id = start_job_controller(
-            job_db, project_db, project.get_id(), JobConfiguration(
-                1, 0, "RANDOM", []), job.get_id(), auth_context_processor)
+            job_db, project_db, project.get_id(), job_sequence.id, JobConfiguration(
+                1, 0, "RANDOM", []), auth_context_processor)
         new_job_id_2 = start_job_controller(
-            job_db, project_db, project.get_id(), JobConfiguration(
-                1, 0, "RANDOM", []), new_job_id, auth_context_processor)
+            job_db, project_db, project.get_id(), job_sequence.id, JobConfiguration(
+                1, 0, "RANDOM", []), auth_context_processor)
         new_job_id_3 = start_job_controller(
-            job_db, project_db, project.get_id(), JobConfiguration(
-                1, 0, "RANDOM", []), new_job_id_2, auth_context_processor)
+            job_db, project_db, project.get_id(), job_sequence.id, JobConfiguration(
+                1, 0, "RANDOM", []), auth_context_processor)
         new_job_id_4 = start_job_controller(
-            job_db, project_db, project.get_id(), JobConfiguration(
-                1, 0, "RANDOM", []), new_job_id_3, auth_context_processor)
+            job_db, project_db, project.get_id(), job_sequence.id, JobConfiguration(
+                1, 0, "RANDOM", []), auth_context_processor)
         new_job = DBObject.load_from_db(Job, new_job_id, job_db)
 
         updated_project = DBObject.load_from_db(
@@ -233,7 +255,7 @@ class StartJobControllerTestCase(unittest.TestCase):
         self.assertEqual(
             job.get_end_model().to_json(),
             new_job.get_start_model().to_json())
-        self.assertEqual(updated_project.get_current_job_ids(), [new_job_id])
+        self.assertEqual(updated_project.get_active_jobs(), [new_job_id])
         self.assertTrue(updated_project.contains_job(new_job_id))
 
     def test_start_job_controller_fail_no_devices(self):
@@ -246,6 +268,11 @@ class StartJobControllerTestCase(unittest.TestCase):
         project = builder.build()
         project.add_or_update_member(
             "user_12345", ProjectPrivilegeTypesEnum.ADMIN)
+
+        builder = JobSequenceBuilder()
+        builder.id = "job_sequence_id_123"
+        job_sequence = builder.build()
+        project.add_or_update_job_sequence(job_sequence)
 
         project.save_to_db(project_db)
 
@@ -261,12 +288,12 @@ class StartJobControllerTestCase(unittest.TestCase):
             job_db,
             project_db,
             project.get_id(),
+            job_sequence.id,
             JobConfiguration(
                 1,
                 0,
                 "RANDOM",
                 []),
-            "",
             auth_context_processor)
 
     def test_start_job_controller_fail(self):
@@ -284,6 +311,11 @@ class StartJobControllerTestCase(unittest.TestCase):
         project.add_or_update_member(
             "user_123456", ProjectPrivilegeTypesEnum.READ_ONLY)
 
+        builder = JobSequenceBuilder()
+        builder.id = "job_sequence_id_123"
+        job_sequence = builder.build()
+        project.add_or_update_job_sequence(job_sequence)
+
         project.save_to_db(project_db)
 
         auth_json = {
@@ -298,12 +330,12 @@ class StartJobControllerTestCase(unittest.TestCase):
             job_db,
             project_db,
             project.get_id(),
+            job_sequence.id,
             JobConfiguration(
                 1,
                 0,
                 "RANDOM",
                 []),
-            None,
             auth_context_processor)
 
     def test_start_job_controller_fail_2(self):
@@ -321,6 +353,11 @@ class StartJobControllerTestCase(unittest.TestCase):
         project.add_or_update_member(
             "user_123456", ProjectPrivilegeTypesEnum.READ_ONLY)
 
+        builder = JobSequenceBuilder()
+        builder.id = "job_sequence_id_123"
+        job_sequence = builder.build()
+        project.add_or_update_job_sequence(job_sequence)
+
         project.save_to_db(project_db)
 
         auth_json = {
@@ -335,12 +372,12 @@ class StartJobControllerTestCase(unittest.TestCase):
             job_db,
             project_db,
             project.get_id(),
+            job_sequence.id,
             JobConfiguration(
                 1,
                 0,
                 "RANDOM",
                 []),
-            None,
             auth_context_processor)
 
     def test_start_job_controller_fail_3(self):
@@ -358,6 +395,11 @@ class StartJobControllerTestCase(unittest.TestCase):
         project.add_or_update_member(
             "user_123456", ProjectPrivilegeTypesEnum.READ_ONLY)
 
+        builder = JobSequenceBuilder()
+        builder.id = "job_sequence_id_123"
+        job_sequence = builder.build()
+        project.add_or_update_job_sequence(job_sequence)
+
         project.save_to_db(project_db)
 
         auth_json = {
@@ -372,10 +414,10 @@ class StartJobControllerTestCase(unittest.TestCase):
             job_db,
             project_db,
             project.get_id(),
+            job_sequence.id,
             JobConfiguration(
                 1,
                 0,
                 "RANDOM",
                 []),
-            None,
             auth_context_processor)

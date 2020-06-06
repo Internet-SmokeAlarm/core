@@ -62,6 +62,34 @@ class Project(DBObject):
         """
         return JobSequence.from_json(self.job_sequences[id])
 
+    def get_job_sequences(self):
+        return [self.get_job_sequence(x) for x in self.job_sequences.keys()]
+
+    def contains_job_sequence(self, job_sequence_id):
+        """
+        :param job_sequence_id: string
+        """
+        return job_sequence_id in self.job_sequences
+
+    def contains_job(self, job_id):
+        """
+        :param id: string
+        """
+        for i in self.job_sequences.keys():
+            if self.get_job_sequence(i).contains_job(job_id):
+                return True
+
+        return False
+
+    def get_active_jobs(self):
+        active_jobs = []
+        for i in self.job_sequences.keys():
+            sequence = self.get_job_sequence(i)
+            if sequence.is_active:
+                active_jobs.append(sequence.current_job)
+
+        return active_jobs
+
     def get_id(self):
         return self.id
 
@@ -119,6 +147,16 @@ class Project(DBObject):
 
     def get_members(self):
         return self.members
+
+    def get_all_job_ids(self):
+        """
+        :param project: Project
+        """
+        jobs = []
+        for sequence in self.get_job_sequences():
+            jobs.extend(sequence.jobs)
+
+        return jobs
 
     def to_json(self):
         return {

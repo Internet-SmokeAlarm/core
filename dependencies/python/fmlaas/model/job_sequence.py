@@ -10,6 +10,7 @@ class JobSequence(DBObject):
                  learning_parameters,
                  current_job,
                  start_model,
+                 current_model,
                  is_active):
         """
         :param id: string
@@ -17,6 +18,7 @@ class JobSequence(DBObject):
         :param learning_parameters: dict(string : string)
         :param current_job: string
         :param start_model: json
+        :param current_model: json
         :param is_active: bool
         """
         self._id = id
@@ -24,6 +26,7 @@ class JobSequence(DBObject):
         self._learning_parameters = learning_parameters
         self._current_job = current_job
         self._start_model = start_model
+        self._current_model = current_model
         self._is_active = is_active
 
     @property
@@ -74,6 +77,26 @@ class JobSequence(DBObject):
         """
         self._start_model = value.to_json()
 
+    @property
+    def current_model(self):
+        return Model.from_json(self._current_model)
+
+    @current_model.setter
+    def current_model(self, value):
+        """
+        :param value: Model
+        """
+        self._current_model = value.to_json()
+
+    def is_start_model_set(self):
+        return Model.is_valid_json(self._start_model)
+
+    def contains_job(self, job_id):
+        """
+        :param job_id: string
+        """
+        return job_id in self.jobs
+
     @staticmethod
     def from_json(json_data):
         return JobSequence(json_data["ID"],
@@ -81,6 +104,7 @@ class JobSequence(DBObject):
                            json_data["learning_parameters"],
                            json_data["current_job"],
                            json_data["start_model"],
+                           json_data["current_model"],
                            json_data["is_active"])
 
     def to_json(self):
@@ -90,6 +114,7 @@ class JobSequence(DBObject):
             "learning_parameters" : self._learning_parameters,
             "current_job" : self._current_job,
             "start_model" : self._start_model,
+            "current_model" : self._current_model,
             "is_active" : self._is_active
         }
 
@@ -112,4 +137,4 @@ class JobSequence(DBObject):
             self.is_active = True
 
     def __eq__(self, other):
-        return (self._id == other._id) and (self._jobs == other._jobs) and (self._learning_parameters == other._learning_parameters) and (self._current_job == other._current_job) and (self._start_model == other._start_model) and (self.is_active == other.is_active)
+        return (self._id == other._id) and (self._jobs == other._jobs) and (self._learning_parameters == other._learning_parameters) and (self._current_job == other._current_job) and (self._start_model == other._start_model) and (self.is_active == other.is_active) and (self._current_model == other._current_model)

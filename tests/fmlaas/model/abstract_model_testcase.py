@@ -1,31 +1,32 @@
 import unittest
 from dependencies.python.fmlaas.model import JobBuilder
 from dependencies.python.fmlaas.model import JobConfiguration
-from dependencies.python.fmlaas.model import JobSequence
+from dependencies.python.fmlaas.model import JobSequenceBuilder
 from dependencies.python.fmlaas.model import ProjectBuilder
 
 
 class AbstractModelTestCase(unittest.TestCase):
 
     def _build_default_job_sequence(self):
-        sequence = JobSequence(
-            "123dafasdf34sdfsdf",
-            [],
-            {},
-            "NONE",
-            {},
-            False)
+        sequence = self._build_parameterized_job_sequence(1)
 
         sequence_json = {
-            "ID" : "123dafasdf34sdfsdf",
+            "ID" : "123dafasdf34sdfsdf_1",
             "jobs" : [],
             "current_job" : "NONE",
             "start_model" : {},
+            "current_model" : {},
             "learning_parameters" : {},
             "is_active" : False
         }
 
         return sequence, sequence_json
+
+    def _build_parameterized_job_sequence(self, id):
+        builder = JobSequenceBuilder()
+        builder.id = "123dafasdf34sdfsdf_{}".format(id)
+
+        return builder.build()
 
     def _build_job(self, id):
         builder = JobBuilder()
@@ -46,18 +47,6 @@ class AbstractModelTestCase(unittest.TestCase):
         return builder.build()
 
     def _get_simple_project_json(self, id):
-        return {
-            'name': 'my_name',
-            'ID': 'id_{}'.format(id),
-            'devices': {},
-            "job_sequences": {},
-            "members": {},
-            "billing": {}}
-
-    def _build_complex_project(self, id):
-        pass
-
-    def _get_complex_project_json(self, id):
         return {
             'name': 'my_name',
             'ID': 'id_{}'.format(id),

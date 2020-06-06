@@ -1,39 +1,43 @@
-import unittest
-
 from dependencies.python.fmlaas.device_selection import RandomDeviceSelector
 from dependencies.python.fmlaas.model import JobConfiguration
 from dependencies.python.fmlaas.model import ProjectBuilder
 from dependencies.python.fmlaas.model import JobBuilder
+from dependencies.python.fmlaas.model import JobSequenceBuilder
 from dependencies.python.fmlaas.model import Model
 from dependencies.python.fmlaas.model import Job
 from dependencies.python.fmlaas.model import DBObject
 from dependencies.python.fmlaas.model import Project
 from dependencies.python.fmlaas.model import ProjectPrivilegeTypesEnum
 from dependencies.python.fmlaas.database import InMemoryDBInterface
-from dependencies.python.fmlaas.controller.utils import update_job_path
+from dependencies.python.fmlaas.controller.utils import update_job_sequence
 from dependencies.python.fmlaas.utils import get_epoch_time
 from dependencies.python.fmlaas.model.termination_criteria import DurationTerminationCriteria
 from dependencies.python.fmlaas.controller.utils import termination_check
+from ..abstract_controller_testcase import AbstractControllerTestCase
 
 
-class ProjectOperationsTestCase(unittest.TestCase):
+class ProjectOperationsTestCase(AbstractControllerTestCase):
 
-    def test_update_job_path_pass(self):
+    def test_update_job_sequence_pass(self):
         project_db = InMemoryDBInterface()
         job_db = InMemoryDBInterface()
 
         builder = ProjectBuilder()
         builder.set_id("test_id")
         builder.set_name("test_name")
-        builder.set_devices(
-            {"34553": {"ID": "34553", "registered_on": "213123144.2342"}})
         project = builder.build()
         project.add_or_update_member(
             "user_12345", ProjectPrivilegeTypesEnum.ADMIN)
+        project.add_device("device_1")
+
+        builder = JobSequenceBuilder()
+        builder.id = "123dafasdf34sdfsdf"
+        job_sequence = builder.build()
 
         job_builder = JobBuilder()
         job_builder.set_id("job_test_id")
         job_builder.set_parent_project_id("test_id")
+        job_builder.set_parent_job_sequence_id("123dafasdf34sdfsdf")
         job_builder.set_configuration(
             JobConfiguration(
                 1, 0, "RANDOM", []).to_json())
@@ -45,21 +49,21 @@ class ProjectOperationsTestCase(unittest.TestCase):
         job_builder.set_devices(["34553"])
         job = job_builder.build()
 
-        project.create_job_path(job.get_id())
-        project.add_current_job_id(job.get_id())
+        job_sequence.add_job(job)
+        project.add_or_update_job_sequence(job_sequence)
 
         job.save_to_db(job_db)
         project.save_to_db(project_db)
 
-        update_job_path(job, job_db, project_db)
+        update_job_sequence(job, job_db, project_db)
 
         updated_project = DBObject.load_from_db(
             Project, project.get_id(), project_db)
 
-        self.assertEqual(updated_project.get_current_job_ids(), [])
+        self.assertEqual(updated_project.get_active_jobs(), [])
         self.assertTrue(updated_project.contains_job(job.get_id()))
 
-    def test_update_job_path_pass_2(self):
+    def test_update_job_sequence_pass_2(self):
         project_db = InMemoryDBInterface()
         job_db = InMemoryDBInterface()
 
@@ -72,9 +76,14 @@ class ProjectOperationsTestCase(unittest.TestCase):
         project.add_or_update_member(
             "user_12345", ProjectPrivilegeTypesEnum.ADMIN)
 
+        builder = JobSequenceBuilder()
+        builder.id = "123dafasdf34sdfsdf"
+        job_sequence = builder.build()
+
         job_builder = JobBuilder()
         job_builder.set_id("job_test_id")
         job_builder.set_parent_project_id("test_id")
+        job_builder.set_parent_job_sequence_id("123dafasdf34sdfsdf")
         job_builder.set_configuration(
             JobConfiguration(
                 1, 0, "RANDOM", []).to_json())
@@ -90,28 +99,29 @@ class ProjectOperationsTestCase(unittest.TestCase):
         job_builder_2 = JobBuilder()
         job_builder_2.set_id("job_test_id_2")
         job_builder_2.set_parent_project_id("test_id")
+        job_builder_2.set_parent_job_sequence_id("123dafasdf34sdfsdf")
         job_builder_2.set_configuration(
             JobConfiguration(
                 1, 0, "RANDOM", []).to_json())
         job_builder_2.set_devices(["34553"])
         job_2 = job_builder_2.build()
 
-        project.create_job_path(job.get_id())
-        project.add_current_job_id(job.get_id())
-        project.add_job_to_path_prev_id(job.get_id(), job_2.get_id())
+        job_sequence.add_job(job)
+        job_sequence.add_job(job_2)
+        project.add_or_update_job_sequence(job_sequence)
 
         job.save_to_db(job_db)
         job_2.save_to_db(job_db)
         project.save_to_db(project_db)
 
-        update_job_path(job, job_db, project_db)
+        update_job_sequence(job, job_db, project_db)
 
         updated_project = DBObject.load_from_db(
             Project, project.get_id(), project_db)
         update_job_2 = DBObject.load_from_db(Job, job_2.get_id(), job_db)
 
         self.assertEqual(
-            updated_project.get_current_job_ids(), [
+            updated_project.get_active_jobs(), [
                 job_2.get_id()])
         self.assertTrue(update_job_2.is_in_progress())
         self.assertEqual(
@@ -120,7 +130,7 @@ class ProjectOperationsTestCase(unittest.TestCase):
         self.assertTrue(updated_project.contains_job(job.get_id()))
         self.assertTrue(updated_project.contains_job(job_2.get_id()))
 
-    def test_update_job_path_pass_3(self):
+    def test_update_job_sequence_pass_3(self):
         project_db = InMemoryDBInterface()
         job_db = InMemoryDBInterface()
 
@@ -133,9 +143,14 @@ class ProjectOperationsTestCase(unittest.TestCase):
         project.add_or_update_member(
             "user_12345", ProjectPrivilegeTypesEnum.ADMIN)
 
+        builder = JobSequenceBuilder()
+        builder.id = "123dafasdf34sdfsdf"
+        job_sequence = builder.build()
+
         job_builder = JobBuilder()
         job_builder.set_id("job_test_id")
         job_builder.set_parent_project_id("test_id")
+        job_builder.set_parent_job_sequence_id("123dafasdf34sdfsdf")
         job_builder.set_configuration(
             JobConfiguration(
                 1, 0, "RANDOM", []).to_json())
@@ -151,6 +166,7 @@ class ProjectOperationsTestCase(unittest.TestCase):
         job_builder_2 = JobBuilder()
         job_builder_2.set_id("job_test_id_2")
         job_builder_2.set_parent_project_id("test_id")
+        job_builder_2.set_parent_job_sequence_id("123dafasdf34sdfsdf")
         job_builder_2.set_configuration(
             JobConfiguration(
                 1, 0, "RANDOM", [
@@ -159,9 +175,9 @@ class ProjectOperationsTestCase(unittest.TestCase):
         job_builder_2.set_devices(["34553"])
         job_2 = job_builder_2.build()
 
-        project.create_job_path(job.get_id())
-        project.add_current_job_id(job.get_id())
-        project.add_job_to_path_prev_id(job.get_id(), job_2.get_id())
+        job_sequence.add_job(job)
+        job_sequence.add_job(job_2)
+        project.add_or_update_job_sequence(job_sequence)
 
         job.save_to_db(job_db)
         job_2.save_to_db(job_db)
@@ -169,14 +185,14 @@ class ProjectOperationsTestCase(unittest.TestCase):
 
         self.assertTrue(job_2.should_terminate())
 
-        update_job_path(job, job_db, project_db)
+        update_job_sequence(job, job_db, project_db)
 
         updated_project = DBObject.load_from_db(
             Project, project.get_id(), project_db)
         update_job_2 = DBObject.load_from_db(Job, job_2.get_id(), job_db)
 
         self.assertEqual(
-            updated_project.get_current_job_ids(), [
+            updated_project.get_active_jobs(), [
                 job_2.get_id()])
         self.assertTrue(update_job_2.is_in_progress())
         self.assertEqual(
@@ -199,9 +215,14 @@ class ProjectOperationsTestCase(unittest.TestCase):
         project.add_or_update_member(
             "user_12345", ProjectPrivilegeTypesEnum.ADMIN)
 
+        builder = JobSequenceBuilder()
+        builder.id = "123dafasdf34sdfsdf"
+        job_sequence = builder.build()
+
         job_builder = JobBuilder()
         job_builder.set_id("job_test_id")
         job_builder.set_parent_project_id("test_id")
+        job_builder.set_parent_job_sequence_id("123dafasdf34sdfsdf")
         config = JobConfiguration(1, 0, "RANDOM", [])
         config.add_termination_criteria(
             DurationTerminationCriteria(
@@ -218,15 +239,16 @@ class ProjectOperationsTestCase(unittest.TestCase):
         job_builder_2 = JobBuilder()
         job_builder_2.set_id("job_test_id_2")
         job_builder_2.set_parent_project_id("test_id")
+        job_builder_2.set_parent_job_sequence_id("123dafasdf34sdfsdf")
         job_builder_2.set_configuration(
             JobConfiguration(
                 1, 0, "RANDOM", []).to_json())
         job_builder_2.set_devices(["34553"])
         job_2 = job_builder_2.build()
 
-        project.create_job_path(job.get_id())
-        project.add_current_job_id(job.get_id())
-        project.add_job_to_path_prev_id(job.get_id(), job_2.get_id())
+        job_sequence.add_job(job)
+        job_sequence.add_job(job_2)
+        project.add_or_update_job_sequence(job_sequence)
 
         job.save_to_db(job_db)
         job_2.save_to_db(job_db)
@@ -239,7 +261,7 @@ class ProjectOperationsTestCase(unittest.TestCase):
         update_job_2 = DBObject.load_from_db(Job, job_2.get_id(), job_db)
 
         self.assertEqual(
-            updated_project.get_current_job_ids(), [
+            updated_project.get_active_jobs(), [
                 job_2.get_id()])
         self.assertTrue(update_job_2.is_in_progress())
         self.assertEqual(
@@ -262,9 +284,14 @@ class ProjectOperationsTestCase(unittest.TestCase):
         project.add_or_update_member(
             "user_12345", ProjectPrivilegeTypesEnum.ADMIN)
 
+        builder = JobSequenceBuilder()
+        builder.id = "123dafasdf34sdfsdf"
+        job_sequence = builder.build()
+
         job_builder = JobBuilder()
         job_builder.set_id("job_test_id")
         job_builder.set_parent_project_id("test_id")
+        job_builder.set_parent_job_sequence_id("123dafasdf34sdfsdf")
         config = JobConfiguration(1, 0, "RANDOM", [])
         config.add_termination_criteria(
             DurationTerminationCriteria(
@@ -281,15 +308,16 @@ class ProjectOperationsTestCase(unittest.TestCase):
         job_builder_2 = JobBuilder()
         job_builder_2.set_id("job_test_id_2")
         job_builder_2.set_parent_project_id("test_id")
+        job_builder_2.set_parent_job_sequence_id("123dafasdf34sdfsdf")
         job_builder_2.set_configuration(
             JobConfiguration(
                 1, 0, "RANDOM", []).to_json())
         job_builder_2.set_devices(["34553"])
         job_2 = job_builder_2.build()
 
-        project.create_job_path(job.get_id())
-        project.add_current_job_id(job.get_id())
-        project.add_job_to_path_prev_id(job.get_id(), job_2.get_id())
+        job_sequence.add_job(job)
+        job_sequence.add_job(job_2)
+        project.add_or_update_job_sequence(job_sequence)
 
         job.save_to_db(job_db)
         job_2.save_to_db(job_db)
@@ -301,7 +329,7 @@ class ProjectOperationsTestCase(unittest.TestCase):
             Project, project.get_id(), project_db)
         update_job_2 = DBObject.load_from_db(Job, job_2.get_id(), job_db)
 
-        self.assertEqual(updated_project.get_current_job_ids(), [job.get_id()])
+        self.assertEqual(updated_project.get_active_jobs(), [job.get_id()])
         self.assertFalse(update_job_2.is_in_progress())
         self.assertTrue(updated_project.contains_job(job.get_id()))
         self.assertTrue(updated_project.contains_job(job_2.get_id()))

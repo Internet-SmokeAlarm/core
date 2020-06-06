@@ -3,7 +3,7 @@ from ...model import Job
 from ...model import JobStatus
 from ...aws import trigger_lambda_function
 from ...utils import get_aggregation_lambda_func_name
-from ..utils import update_job_path
+from ..utils import update_job_sequence
 from .lambda_trigger_helper import generate_aggregation_func_payload
 
 
@@ -69,4 +69,4 @@ def handle_job_aggregate_model(model, project_db, job_db):
     job.complete()
     job.save_to_db(job_db)
 
-    update_job_path(job, job_db, project_db)
+    update_job_sequence(job, job_db, project_db)

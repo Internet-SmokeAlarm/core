@@ -4,7 +4,7 @@ from ...model import Job
 from ...model import Project
 from ...exception import raise_default_request_forbidden_error
 from ...model import ProjectPrivilegeTypesEnum
-from ..utils import update_job_path
+from ..utils import update_job_sequence
 
 
 def cancel_job_controller(project_db, job_db, job_id, auth_context_processor):
@@ -34,4 +34,4 @@ def cancel_job_controller(project_db, job_db, job_id, auth_context_processor):
     job.cancel()
     job.save_to_db(job_db)
 
-    update_job_path(job, job_db, project_db)
+    update_job_sequence(job, job_db, project_db)

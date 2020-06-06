@@ -24,8 +24,7 @@ def delete_project_controller(
             auth_context_processor.get_entity_id(), ProjectPrivilegeTypesEnum.ADMIN):
         raise_default_request_forbidden_error()
 
-    job_ids = project.get_job_info().keys()
-    for job_id in job_ids:
+    for job_id in project.get_all_job_ids():
         job_db.delete_object(job_id)
 
     project_db.delete_object(project_id)

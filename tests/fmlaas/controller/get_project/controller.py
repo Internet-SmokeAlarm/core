@@ -1,16 +1,16 @@
-import unittest
-
 from dependencies.python.fmlaas.controller.get_project import get_project_controller
 from dependencies.python.fmlaas.database import InMemoryDBInterface
 from dependencies.python.fmlaas.exception import RequestForbiddenException
 from dependencies.python.fmlaas.model import DBObject
 from dependencies.python.fmlaas.model import ProjectBuilder
 from dependencies.python.fmlaas.model import Model
+from dependencies.python.fmlaas.model import JobSequenceBuilder
 from dependencies.python.fmlaas.model import ProjectPrivilegeTypesEnum
 from dependencies.python.fmlaas.request_processor import AuthContextProcessor
+from ..abstract_controller_testcase import AbstractControllerTestCase
 
 
-class GetProjectControllerTestCase(unittest.TestCase):
+class GetProjectControllerTestCase(AbstractControllerTestCase):
 
     def _build_default_project(self):
         project_builder = ProjectBuilder()
@@ -19,7 +19,7 @@ class GetProjectControllerTestCase(unittest.TestCase):
 
         return project_builder.build()
 
-    def test_pass(self):
+    def test_pass_simple(self):
         db = InMemoryDBInterface()
         project = self._build_default_project()
         project.add_or_update_member(
@@ -39,10 +39,8 @@ class GetProjectControllerTestCase(unittest.TestCase):
                          {'name': 'test_name',
                           'ID': 'test_id',
                           'devices': {},
-                             'job_paths': [],
-                             'current_job_ids': [],
+                             'job_sequences': {},
                              'members': {'user123': {'permission_level': 10}},
-                             "job_info": {},
                              "billing": {}})
 
     def test_not_authorized_1(self):
