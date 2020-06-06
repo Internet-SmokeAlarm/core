@@ -10,9 +10,9 @@ def update_job_sequence(current_job, job_db, project_db):
     :param project_db: DB
     """
     project = DBObject.load_from_db(
-        Project, current_job.get_parent_project_id(), project_db)
+        Project, current_job.get_project_id(), project_db)
 
-    job_sequence = project.get_job_sequence(current_job.get_parent_job_sequence_id())
+    job_sequence = project.get_job_sequence(current_job.get_job_sequence_id())
 
     job_sequence.proceed_to_next_job()
     while job_sequence.is_active:

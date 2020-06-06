@@ -33,7 +33,7 @@ class SubmitJobStartModelControllerTestCase(unittest.TestCase):
     def _build_default_job(self, id):
         job_builder = JobBuilder()
         job_builder.set_id(id)
-        job_builder.set_parent_project_id("test_id")
+        job_builder.set_project_id("test_id")
         job_builder.set_configuration(
             JobConfiguration(
                 1, 0, "RANDOM", []).to_json())

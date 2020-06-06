@@ -31,8 +31,8 @@ class AbstractModelTestCase(unittest.TestCase):
     def _build_job(self, id):
         builder = JobBuilder()
         builder.set_id("test_id_{}".format(id))
-        builder.set_parent_job_sequence_id("123dafasdf34sdfsdf")
-        builder.set_parent_project_id("fl_group_1232234")
+        builder.set_job_sequence_id("123dafasdf34sdfsdf")
+        builder.set_project_id("fl_group_1232234")
         builder.set_devices(["123", "234"])
         configuration = JobConfiguration(2, 0, "RANDOM", [])
         builder.set_configuration(configuration.to_json())

@@ -34,8 +34,8 @@ class StartJobControllerTestCase(unittest.TestCase):
 
         self.assertIsNotNone(new_job.get_id())
         self.assertEqual(new_job.get_devices(), devices)
-        self.assertEqual(new_job.get_parent_project_id(), "test_id123")
-        self.assertEqual(new_job.get_parent_job_sequence_id(), "job_sequence_id_123")
+        self.assertEqual(new_job.get_project_id(), "test_id123")
+        self.assertEqual(new_job.get_job_sequence_id(), "job_sequence_id_123")
         self.assertEqual(
             job_config.to_json(),
             new_job.get_configuration().to_json())
@@ -55,8 +55,8 @@ class StartJobControllerTestCase(unittest.TestCase):
 
         job_builder = JobBuilder()
         job_builder.set_id("job_test_id")
-        job_builder.set_parent_project_id("test_id")
-        job_builder.set_parent_job_sequence_id("job_sequence_id_123")
+        job_builder.set_project_id("test_id")
+        job_builder.set_job_sequence_id("job_sequence_id_123")
         job_builder.set_configuration(
             JobConfiguration(
                 1, 0, "RANDOM", []).to_json())
@@ -148,8 +148,8 @@ class StartJobControllerTestCase(unittest.TestCase):
 
         job_builder = JobBuilder()
         job_builder.set_id("job_test_id")
-        job_builder.set_parent_project_id("test_id")
-        job_builder.set_parent_job_sequence_id("job_sequence_id_123")
+        job_builder.set_project_id("test_id")
+        job_builder.set_job_sequence_id("job_sequence_id_123")
         job_builder.set_configuration(
             JobConfiguration(
                 1, 0, "RANDOM", []).to_json())
@@ -207,8 +207,8 @@ class StartJobControllerTestCase(unittest.TestCase):
 
         job_builder = JobBuilder()
         job_builder.set_id("job_test_id")
-        job_builder.set_parent_project_id("test_id")
-        job_builder.set_parent_job_sequence_id("job_sequence_id_123")
+        job_builder.set_project_id("test_id")
+        job_builder.set_job_sequence_id("job_sequence_id_123")
         job_builder.set_configuration(
             JobConfiguration(
                 1, 0, "RANDOM", []).to_json())

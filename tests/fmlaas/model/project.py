@@ -296,8 +296,8 @@ class ProjectTestCase(AbstractModelTestCase):
             for j in range(5):
                 job_builder = JobBuilder()
                 job_builder.set_id("job_test_id_{}_{}".format(i, j))
-                job_builder.set_parent_project_id("test_id")
-                job_builder.set_parent_job_sequence_id(id)
+                job_builder.set_project_id("test_id")
+                job_builder.set_job_sequence_id(id)
                 config = JobConfiguration(1, 0, "RANDOM", [])
                 job_builder.set_configuration(config.to_json())
                 job_builder.set_devices(["34553"])

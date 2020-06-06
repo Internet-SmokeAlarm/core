@@ -28,7 +28,7 @@ def submit_job_start_model_controller(
     try:
         job = DBObject.load_from_db(Job, job_id, job_db)
         project = DBObject.load_from_db(
-            Project, job.get_parent_project_id(), project_db)
+            Project, job.get_project_id(), project_db)
     except BaseException:
         raise_default_request_forbidden_error()
 

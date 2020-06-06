@@ -27,8 +27,8 @@ class DeleteProjectControllerTestCase(unittest.TestCase):
     def _build_default_job(self):
         job_builder = JobBuilder()
         job_builder.set_id("2345")
-        job_builder.set_parent_project_id("test_id")
-        job_builder.set_parent_job_sequence_id("test_id_2")
+        job_builder.set_project_id("test_id")
+        job_builder.set_job_sequence_id("test_id_2")
         configuration = JobConfiguration(1, 0, "RANDOM", [])
         job_builder.set_configuration(configuration.to_json())
         job_builder.set_devices(["3456"])

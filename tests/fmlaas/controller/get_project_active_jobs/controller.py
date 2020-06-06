@@ -31,10 +31,10 @@ class GetProjectActiveJobIdsControllerTestCase(AbstractControllerTestCase):
 
         job_builder = JobBuilder()
         job_builder.set_id("1234432414")
-        job_builder.set_parent_project_id("fl_project_123123")
+        job_builder.set_project_id("fl_project_123123")
         configuration = JobConfiguration(50, 0, "RANDOM", [])
         job_builder.set_configuration(configuration.to_json())
-        job_builder.set_parent_job_sequence_id("sequence_id_1")
+        job_builder.set_job_sequence_id("sequence_id_1")
         job = job_builder.build()
 
         job_sequence.add_job(job)

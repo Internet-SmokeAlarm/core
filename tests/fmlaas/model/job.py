@@ -63,8 +63,8 @@ class JobTestCase(AbstractModelTestCase):
                             "size": "2134235"}},
             'created_on': 'December 19th, 2019',
             "billable_size": "0",
-            "parent_project_id": "fl_project_12312313",
-            "parent_job_sequence_id": "123121231232131231"}
+            "project_id": "fl_project_12312313",
+            "job_sequence_id": "123121231232131231"}
 
         return job, job_json
 

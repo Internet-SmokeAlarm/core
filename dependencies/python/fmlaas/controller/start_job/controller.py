@@ -19,19 +19,19 @@ def get_device_selector(job_configuration):
         job_configuration.get_device_selection_strategy())
 
 
-def create_job(devices, parent_project_id, parent_job_sequence_id, job_config):
+def create_job(devices, project_id, job_sequence_id, job_config):
     """
     :param devices: list
-    :param parent_project_id: string
-    :param parent_job_sequence_id: string
+    :param project_id: string
+    :param job_sequence_id: string
     :param job_config: JobConfiguration
     """
     job_id = generate_unique_id()
 
     builder = JobBuilder()
     builder.set_id(job_id)
-    builder.set_parent_project_id(parent_project_id)
-    builder.set_parent_job_sequence_id(parent_job_sequence_id)
+    builder.set_project_id(project_id)
+    builder.set_job_sequence_id(job_sequence_id)
     builder.set_configuration(job_config.to_json())
     builder.set_devices(devices)
 

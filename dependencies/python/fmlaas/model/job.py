@@ -16,8 +16,8 @@ class Job(DBObject):
                  models,
                  created_on,
                  billable_size,
-                 parent_project_id,
-                 parent_job_sequence_id):
+                 project_id,
+                 job_sequence_id):
         """
         :param id: string
         :param devices: list(string)
@@ -28,8 +28,8 @@ class Job(DBObject):
         :param models: dict
         :param created_on: string
         :param billable_size: string
-        :param parent_project_id: string
-        :param parent_job_sequence_id: string
+        :param project_id: string
+        :param job_sequence_id: string
         """
         self.id = id
         self.devices = devices
@@ -40,8 +40,8 @@ class Job(DBObject):
         self.models = models
         self.created_on = created_on
         self.billable_size = billable_size
-        self.parent_project_id = parent_project_id
-        self.parent_job_sequence_id = parent_job_sequence_id
+        self.project_id = project_id
+        self.job_sequence_id = job_sequence_id
 
     def get_id(self):
         return self.id
@@ -83,8 +83,8 @@ class Job(DBObject):
     def get_created_on(self):
         return self.created_on
 
-    def get_parent_job_sequence_id(self):
-        return self.parent_job_sequence_id
+    def get_job_sequence_id(self):
+        return self.job_sequence_id
 
     def add_model(self, model):
         """
@@ -244,8 +244,8 @@ class Job(DBObject):
     def get_billable_size(self):
         return int(self.billable_size)
 
-    def get_parent_project_id(self):
-        return self.parent_project_id
+    def get_project_id(self):
+        return self.project_id
 
     def should_terminate(self):
         """
@@ -278,12 +278,12 @@ class Job(DBObject):
             "models": self.models,
             "created_on": self.created_on,
             "billable_size": self.billable_size,
-            "parent_project_id": self.parent_project_id,
-            "parent_job_sequence_id" : self.parent_job_sequence_id
+            "project_id": self.project_id,
+            "job_sequence_id" : self.job_sequence_id
         }
 
     def __eq__(self, other):
-        return (self.id == other.id) and (self.status == other.status) and (self.devices == other.devices) and (self.start_model == other.start_model) and (self.parent_project_id == other.parent_project_id) and (self.parent_job_sequence_id == other.parent_job_sequence_id) and (self.configuration == other.configuration)
+        return (self.id == other.id) and (self.status == other.status) and (self.devices == other.devices) and (self.start_model == other.start_model) and (self.project_id == other.project_id) and (self.job_sequence_id == other.job_sequence_id) and (self.configuration == other.configuration)
 
     @staticmethod
     def from_json(json_data):
@@ -296,5 +296,5 @@ class Job(DBObject):
                    json_data["models"],
                    json_data["created_on"],
                    json_data["billable_size"],
-                   json_data["parent_project_id"],
-                   json_data["parent_job_sequence_id"])
+                   json_data["project_id"],
+                   json_data["job_sequence_id"])
