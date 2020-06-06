@@ -7,7 +7,7 @@ class JobSequence(DBObject):
     def __init__(self,
                  id,
                  jobs,
-                 learning_parameters,
+                 hyperparameters,
                  current_job,
                  start_model,
                  current_model,
@@ -15,7 +15,7 @@ class JobSequence(DBObject):
         """
         :param id: string
         :param jobs: List(string)
-        :param learning_parameters: dict(string : string)
+        :param hyperparameters: dict(string : string)
         :param current_job: string
         :param start_model: json
         :param current_model: json
@@ -23,7 +23,7 @@ class JobSequence(DBObject):
         """
         self._id = id
         self._jobs = jobs
-        self._learning_parameters = learning_parameters
+        self._hyperparameters = hyperparameters
         self._current_job = current_job
         self._start_model = start_model
         self._current_model = current_model
@@ -101,7 +101,7 @@ class JobSequence(DBObject):
     def from_json(json_data):
         return JobSequence(json_data["ID"],
                            json_data["jobs"],
-                           json_data["learning_parameters"],
+                           json_data["hyperparameters"],
                            json_data["current_job"],
                            json_data["start_model"],
                            json_data["current_model"],
@@ -111,7 +111,7 @@ class JobSequence(DBObject):
         return {
             "ID" : self._id,
             "jobs" : self._jobs,
-            "learning_parameters" : self._learning_parameters,
+            "hyperparameters" : self._hyperparameters,
             "current_job" : self._current_job,
             "start_model" : self._start_model,
             "current_model" : self._current_model,
@@ -137,4 +137,4 @@ class JobSequence(DBObject):
             self.is_active = True
 
     def __eq__(self, other):
-        return (self._id == other._id) and (self._jobs == other._jobs) and (self._learning_parameters == other._learning_parameters) and (self._current_job == other._current_job) and (self._start_model == other._start_model) and (self.is_active == other.is_active) and (self._current_model == other._current_model)
+        return (self._id == other._id) and (self._jobs == other._jobs) and (self._hyperparameters == other._hyperparameters) and (self._current_job == other._current_job) and (self._start_model == other._start_model) and (self.is_active == other.is_active) and (self._current_model == other._current_model)

@@ -16,7 +16,7 @@ class AbstractModelTestCase(unittest.TestCase):
             "current_job" : "NONE",
             "start_model" : {},
             "current_model" : {},
-            "learning_parameters" : {},
+            "hyperparameters" : {},
             "is_active" : False
         }
 

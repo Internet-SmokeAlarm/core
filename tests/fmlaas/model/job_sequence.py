@@ -123,15 +123,15 @@ class JobSequenceTestCase(AbstractModelTestCase):
 
         self.assertEqual("test_id_4", sequence.current_job)
 
-    def test_set_get_learning_parameters_pass(self):
+    def test_set_get_hyperparameters_pass(self):
         sequence, _ = self._build_default_job_sequence()
 
-        learning_parameters = {
+        hyperparameters = {
             "lr" : "0.005"
         }
-        sequence.learning_parameters = learning_parameters
+        sequence.hyperparameters = hyperparameters
 
-        self.assertEqual(learning_parameters, sequence.learning_parameters)
+        self.assertEqual(hyperparameters, sequence.hyperparameters)
 
     def test_equals_pass(self):
         sequence, _ = self._build_default_job_sequence()

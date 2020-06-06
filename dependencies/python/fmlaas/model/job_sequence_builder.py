@@ -7,7 +7,7 @@ class JobSequenceBuilder(Builder):
     def __init__(self):
         self._id = None
         self._jobs = []
-        self._learning_parameters = {}
+        self._hyperparameters = {}
         self._current_job = "NONE"
         self._start_model = {}
         self._current_model = {}
@@ -30,7 +30,7 @@ class JobSequenceBuilder(Builder):
         return JobSequence(
             self._id,
             self._jobs,
-            self._learning_parameters,
+            self._hyperparameters,
             self._current_job,
             self._start_model,
             self._current_model,
