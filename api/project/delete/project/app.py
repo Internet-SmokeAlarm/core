@@ -8,7 +8,7 @@ from fmlaas.database import DynamoDBInterface
 from fmlaas.request_processor import IDProcessor
 from fmlaas.request_processor import AuthContextProcessor
 from fmlaas.exception import RequestForbiddenException
-from fmlaas.controller.delete_project import delete_project_controller
+from fmlaas.controller.delete_project import DeleteProjectController
 
 
 def lambda_handler(event, context):
@@ -30,10 +30,10 @@ def lambda_handler(event, context):
     job_db = DynamoDBInterface(get_job_table_name_from_env())
 
     try:
-        delete_project_controller(project_db,
-                                  job_db,
-                                  project_id,
-                                  auth_context_processor)
+        DeleteProjectController(project_db,
+                                job_db,
+                                project_id,
+                                auth_context_processor).execute()
         delete_s3_objects_with_prefix(get_models_bucket_name(), project_id)
 
         return {

@@ -1,6 +1,8 @@
 import unittest
 
-from dependencies.python.fmlaas.controller.delete_project import delete_project_controller
+from dependencies.python.fmlaas.controller.delete_project import DeleteProjectController
+from dependencies.python.fmlaas.controller.utils.auth.conditions import IsUser
+from dependencies.python.fmlaas.controller.utils.auth.conditions import HasProjectPermissions
 from dependencies.python.fmlaas.database import InMemoryDBInterface
 from dependencies.python.fmlaas.exception import RequestForbiddenException
 from dependencies.python.fmlaas.model import DBObject
@@ -40,7 +42,31 @@ class DeleteProjectControllerTestCase(unittest.TestCase):
 
         return job_builder.build()
 
-    def test_pass_1(self):
+    def test_load_data_pass(self):
+        project_db = InMemoryDBInterface()
+        job_db = InMemoryDBInterface()
+
+        project = self._build_default_project()
+
+        project.add_or_update_member(
+            "user12344", ProjectPrivilegeTypesEnum.OWNER)
+        project.save_to_db(project_db)
+
+        auth_json = {
+            "authentication_type": "JWT",
+            "entity_id": "user12344"
+        }
+        auth_context = AuthContextProcessor(auth_json)
+
+        controller = DeleteProjectController(project_db,
+                                             job_db,
+                                             project.get_id(),
+                                             auth_context)
+        controller.load_data()
+
+        self.assertEqual(controller.project, project)
+
+    def test_execute_pass(self):
         project_db = InMemoryDBInterface()
         job_db = InMemoryDBInterface()
 
@@ -63,13 +89,13 @@ class DeleteProjectControllerTestCase(unittest.TestCase):
             "authentication_type": "JWT",
             "entity_id": "user12344"
         }
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
 
-        delete_project_controller(
+        DeleteProjectController(
             project_db,
             job_db,
             project.get_id(),
-            auth_context_processor)
+            auth_context).execute()
 
         self.assertRaises(
             KeyError,
@@ -84,68 +110,26 @@ class DeleteProjectControllerTestCase(unittest.TestCase):
             job.get_id(),
             job_db)
 
-    def test_fail_device_not_authorized(self):
+    def test_get_auth_conditions(self):
         project_db = InMemoryDBInterface()
         job_db = InMemoryDBInterface()
 
         project = self._build_default_project()
-        job = self._build_default_job()
-
-        builder = JobSequenceBuilder()
-        builder.id = "dfaslkfskljf"
-        job_sequence = builder.build()
-
-        job_sequence.add_job(job)
-        project.add_or_update_job_sequence(job_sequence)
 
         project.add_or_update_member(
             "user12344", ProjectPrivilegeTypesEnum.OWNER)
         project.save_to_db(project_db)
-        job.save_to_db(job_db)
-
-        auth_json = {
-            "authentication_type": "DEVICE",
-            "entity_id": "user12344"
-        }
-        auth_context_processor = AuthContextProcessor(auth_json)
-
-        self.assertRaises(
-            RequestForbiddenException,
-            delete_project_controller,
-            project_db,
-            job_db,
-            project.get_id(),
-            auth_context_processor)
-
-    def test_fail_not_authorized_to_access_project(self):
-        project_db = InMemoryDBInterface()
-        job_db = InMemoryDBInterface()
-
-        project = self._build_default_project()
-        job = self._build_default_job()
-
-        builder = JobSequenceBuilder()
-        builder.id = "dfaslkfskljf"
-        job_sequence = builder.build()
-
-        job_sequence.add_job(job)
-        project.add_or_update_job_sequence(job_sequence)
-
-        project.add_or_update_member(
-            "user12344", ProjectPrivilegeTypesEnum.OWNER)
-        project.save_to_db(project_db)
-        job.save_to_db(job_db)
 
         auth_json = {
             "authentication_type": "JWT",
             "entity_id": "user123445"
         }
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
 
-        self.assertRaises(
-            RequestForbiddenException,
-            delete_project_controller,
-            project_db,
-            job_db,
-            project.get_id(),
-            auth_context_processor)
+        controller = DeleteProjectController(project_db, job_db, project.get_id(), auth_context)
+        controller.load_data()
+        auth_conditions = controller.get_auth_conditions()
+
+        self.assertEqual(len(auth_conditions), 2)
+        self.assertEqual(auth_conditions[0], IsUser())
+        self.assertEqual(auth_conditions[1], HasProjectPermissions(project, ProjectPrivilegeTypesEnum.ADMIN))

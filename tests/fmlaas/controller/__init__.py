@@ -2,7 +2,7 @@
 # from .start_job import *
 # from .auth import *
 from .create_project import *
-# from .delete_project import *
+from .delete_project import *
 # from .create_api_key import *
 # from .get_project import *
 # from .get_project_active_jobs import *

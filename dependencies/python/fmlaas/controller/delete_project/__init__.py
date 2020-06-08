@@ -1,1 +1,1 @@
-from .controller import delete_project_controller
+from .controller import DeleteProjectController
