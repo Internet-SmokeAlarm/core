@@ -3,23 +3,34 @@ from ...model import ApiKeyTypeEnum
 from ...exception import raise_default_request_forbidden_error
 from fedlearn_auth import generate_key_pair
 from fedlearn_auth import hash_secret
+from ..abstract_controller import AbstractController
+from ..utils.auth.conditions import IsUser
 
 
-def create_api_key_controller(db_, auth_context_processor):
-    """
-    :param db_: DB
-    :param auth_context_processor: AuthContextProcessor
-    """
-    if auth_context_processor.is_type_device():
-        raise_default_request_forbidden_error()
+class CreateApiKeyController(AbstractController):
 
-    id, key_plaintext = generate_key_pair()
-    key_hash = hash_secret(key_plaintext)
-    builder = ApiKeyBuilder(id, key_hash)
-    builder.set_key_type(ApiKeyTypeEnum.USER.value)
-    builder.set_entity_id(auth_context_processor.get_entity_id())
-    api_key = builder.build()
+    def __init__(self, key_db, auth_context):
+        """
+        :param key_db: DB
+        :param auth_context_processor: AuthContextProcessor
+        """
+        super(CreateApiKeyController, self).__init__(auth_context)
 
-    api_key.save_to_db(db_)
+        self.key_db = key_db
 
-    return key_plaintext
+    def get_auth_conditions(self):
+        return [
+            IsUser()
+        ]
+
+    def execute_controller(self):
+        id, key_plaintext = generate_key_pair()
+        key_hash = hash_secret(key_plaintext)
+        builder = ApiKeyBuilder(id, key_hash)
+        builder.set_key_type(ApiKeyTypeEnum.USER.value)
+        builder.set_entity_id(self.auth_context.get_entity_id())
+        api_key = builder.build()
+
+        api_key.save_to_db(self.key_db)
+
+        return key_plaintext

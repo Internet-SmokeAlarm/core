@@ -110,7 +110,7 @@ class DeleteProjectControllerTestCase(unittest.TestCase):
             job.get_id(),
             job_db)
 
-    def test_get_auth_conditions(self):
+    def test_get_auth_conditions_pass(self):
         project_db = InMemoryDBInterface()
         job_db = InMemoryDBInterface()
 
