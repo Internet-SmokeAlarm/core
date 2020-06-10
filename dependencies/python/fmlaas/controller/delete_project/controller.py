@@ -1,7 +1,6 @@
 from ...model import Project
 from ...model import DBObject
 from ...model import ProjectPrivilegeTypesEnum
-from ...exception import raise_default_request_forbidden_error
 from ..utils.auth.conditions import IsUser
 from ..utils.auth.conditions import HasProjectPermissions
 from ..abstract_controller import AbstractController
@@ -23,10 +22,7 @@ class DeleteProjectController(AbstractController):
         self.project_id = project_id
 
     def load_data(self):
-        try:
-            self.project = DBObject.load_from_db(Project, self.project_id, self.project_db)
-        except BaseException:
-            raise_default_request_forbidden_error()
+        self.project = DBObject.load_from_db(Project, self.project_id, self.project_db)
 
     def get_auth_conditions(self):
         return [

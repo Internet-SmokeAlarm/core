@@ -37,11 +37,11 @@ class RegisterDeviceControllerTestCase(unittest.TestCase):
             "authentication_type": "USER",
             "entity_id": "user_12345"
         }
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
         id, key_plaintext = register_device_controller(project_db_,
                                                        key_db_,
                                                        project.get_id(),
-                                                       auth_context_processor)
+                                                       auth_context)
         self.assertIsNotNone(id)
         self.assertIsNotNone(key_plaintext)
         self.assertEqual(
@@ -59,14 +59,14 @@ class RegisterDeviceControllerTestCase(unittest.TestCase):
             "authentication_type": "USER",
             "entity_id": "user_123456"
         }
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
         self.assertRaises(
             RequestForbiddenException,
             register_device_controller,
             project_db_,
             key_db_,
             project.get_id(),
-            auth_context_processor)
+            auth_context)
 
     def test_fail_not_authorized_user_2(self):
         project_db_ = InMemoryDBInterface()
@@ -79,14 +79,14 @@ class RegisterDeviceControllerTestCase(unittest.TestCase):
             "authentication_type": "USER",
             "entity_id": "user_1234567"
         }
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
         self.assertRaises(
             RequestForbiddenException,
             register_device_controller,
             project_db_,
             key_db_,
             project.get_id(),
-            auth_context_processor)
+            auth_context)
 
     def test_fail_not_authorized_device(self):
         project_db_ = InMemoryDBInterface()
@@ -99,11 +99,11 @@ class RegisterDeviceControllerTestCase(unittest.TestCase):
             "authentication_type": "DEVICE",
             "entity_id": "12344"
         }
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
         self.assertRaises(
             RequestForbiddenException,
             register_device_controller,
             project_db_,
             key_db_,
             project.get_id(),
-            auth_context_processor)
+            auth_context)

@@ -12,7 +12,7 @@ class CreateApiKeyController(AbstractController):
     def __init__(self, key_db, auth_context):
         """
         :param key_db: DB
-        :param auth_context_processor: AuthContextProcessor
+        :param auth_context: AuthContextProcessor
         """
         super(CreateApiKeyController, self).__init__(auth_context)
 

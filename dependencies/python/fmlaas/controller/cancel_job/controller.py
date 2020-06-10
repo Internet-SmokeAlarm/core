@@ -5,33 +5,41 @@ from ...model import Project
 from ...exception import raise_default_request_forbidden_error
 from ...model import ProjectPrivilegeTypesEnum
 from ..utils import update_job_sequence
+from ..utils.auth.conditions import IsUser
+from ..utils.auth.conditions import HasProjectPermissions
+from ..abstract_controller import AbstractController
 
 
-def cancel_job_controller(project_db, job_db, job_id, auth_context_processor):
-    """
-    :param project_db: DB
-    :param job_db: DB
-    :param job_id: string
-    :param auth_context_processor: AuthContextProcessor
-    """
-    if auth_context_processor.is_type_device():
-        raise_default_request_forbidden_error()
+class CancelJobController(AbstractController):
 
-    try:
-        job = DBObject.load_from_db(Job, job_id, job_db)
-        project = DBObject.load_from_db(
-            Project, job.get_project_id(), project_db)
-    except BaseException:
-        raise_default_request_forbidden_error()
+    def __init__(self, project_db, job_db, job_id, auth_context):
+        """
+        :param project_db: DB
+        :param job_db: DB
+        :param job_id: string
+        :param auth_context: AuthContextProcessor
+        """
+        super(CancelJobController, self).__init__(auth_context)
 
-    if not project.does_member_have_auth(
-            auth_context_processor.get_entity_id(), ProjectPrivilegeTypesEnum.READ_WRITE):
-        raise_default_request_forbidden_error()
+        self.project_db = project_db
+        self.job_db = job_db
+        self.job_id = job_id
 
-    if job.is_complete():
-        raise Exception("cannot cancel a job that has already been completed.")
+    def load_data(self):
+        self.job = DBObject.load_from_db(Job, self.job_id, self.job_db)
+        self.project = DBObject.load_from_db(Project, self.job.get_project_id(), self.project_db)
 
-    job.cancel()
-    job.save_to_db(job_db)
+    def get_auth_conditions(self):
+        return [
+            IsUser(),
+            HasProjectPermissions(self.project, ProjectPrivilegeTypesEnum.READ_WRITE)
+        ]
 
-    update_job_sequence(job, job_db, project_db)
+    def execute_controller(self):
+        if self.job.is_complete():
+            raise Exception("cannot cancel a job that has already been completed.")
+
+        self.job.cancel()
+        self.job.save_to_db(self.job_db)
+
+        update_job_sequence(self.job, self.job_db, self.project_db)

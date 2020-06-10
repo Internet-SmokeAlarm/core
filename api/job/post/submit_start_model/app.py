@@ -17,7 +17,7 @@ def lambda_handler(event, context):
         id_processor = IDProcessor(req_json)
         job_id = id_processor.get_job_id()
 
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
     except ValueError as error:
         return {
             "statusCode": 400,
@@ -31,7 +31,7 @@ def lambda_handler(event, context):
         can_submit_start_model, presigned_url = submit_job_start_model_controller(group_db,
                                                                                   job_db,
                                                                                   job_id,
-                                                                                  auth_context_processor)
+                                                                                  auth_context)
 
         if not can_submit_start_model:
             return {

@@ -12,5 +12,5 @@ from .create_api_key import *
 # from .is_device_active import *
 # from .register_device import *
 # from .submit_model_update import *
-# from .cancel_job import *
+from .cancel_job import *
 from .utils import *

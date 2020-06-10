@@ -11,7 +11,7 @@ def lambda_handler(event, context):
     auth_json = event["requestContext"]["authorizer"]
 
     try:
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
     except ValueError as error:
         return {
             "statusCode": 400,
@@ -22,7 +22,7 @@ def lambda_handler(event, context):
 
     try:
         key_plaintext = CreateApiKeyController(
-            dynamodb_, auth_context_processor).execute()
+            dynamodb_, auth_context).execute()
 
         return {
             "statusCode": 200,

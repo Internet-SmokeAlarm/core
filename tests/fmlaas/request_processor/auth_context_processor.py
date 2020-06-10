@@ -11,31 +11,31 @@ class AuthContextProcessorTestCase(unittest.TestCase):
             "authentication_type": "JWT"
         }
 
-        auth_context_processor = AuthContextProcessor(data)
+        auth_context = AuthContextProcessor(data)
 
-        self.assertEqual(ApiKeyTypeEnum.JWT, auth_context_processor.get_type())
-        self.assertTrue(auth_context_processor.is_type_user())
-        self.assertFalse(auth_context_processor.is_type_device())
+        self.assertEqual(ApiKeyTypeEnum.JWT, auth_context.get_type())
+        self.assertTrue(auth_context.is_type_user())
+        self.assertFalse(auth_context.is_type_device())
 
     def test_get_auth_type_fail(self):
         data = {}
 
-        auth_context_processor = AuthContextProcessor(data)
+        auth_context = AuthContextProcessor(data)
 
-        self.assertRaises(ValueError, auth_context_processor.get_type)
+        self.assertRaises(ValueError, auth_context.get_type)
 
     def test_get_entity_id_pass(self):
         data = {
             "entity_id": "12344"
         }
 
-        auth_context_processor = AuthContextProcessor(data)
+        auth_context = AuthContextProcessor(data)
 
-        self.assertEqual("12344", auth_context_processor.get_entity_id())
+        self.assertEqual("12344", auth_context.get_entity_id())
 
     def test_get_entity_id_fail(self):
         data = {}
 
-        auth_context_processor = AuthContextProcessor(data)
+        auth_context = AuthContextProcessor(data)
 
-        self.assertRaises(ValueError, auth_context_processor.get_entity_id)
+        self.assertRaises(ValueError, auth_context.get_entity_id)

@@ -5,7 +5,7 @@ from fmlaas import get_job_table_name_from_env
 from fmlaas.database import DynamoDBInterface
 from fmlaas.request_processor import IDProcessor
 from fmlaas.request_processor import AuthContextProcessor
-from fmlaas.controller.cancel_job import cancel_job_controller
+from fmlaas.controller.cancel_job import CancelJobController
 from fmlaas.exception import RequestForbiddenException
 
 
@@ -17,7 +17,7 @@ def lambda_handler(event, context):
         id_processor = IDProcessor(req_json)
         job_id = id_processor.get_job_id()
 
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
     except ValueError as error:
         return {
             "statusCode": 400,
@@ -28,10 +28,10 @@ def lambda_handler(event, context):
     job_db = DynamoDBInterface(get_job_table_name_from_env())
 
     try:
-        cancel_job_controller(group_db,
-                              job_db,
-                              job_id,
-                              auth_context_processor)
+        CancelJobController(group_db,
+                            job_db,
+                            job_id,
+                            auth_context).execute()
 
         return {
             "statusCode": 200,

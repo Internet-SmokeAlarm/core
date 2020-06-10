@@ -74,12 +74,12 @@ class GetJobAggregateModelControllerTestCase(unittest.TestCase):
             "authentication_type": "USER",
             "entity_id": "user_12345"
         }
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
         is_job_complete, presigned_url = get_job_aggregate_model_controller(project_db_,
                                                                             job_db_,
                                                                             project.get_id(),
                                                                             job.get_id(),
-                                                                            auth_context_processor)
+                                                                            auth_context)
         self.assertTrue(is_job_complete)
         self.assertIsNotNone(presigned_url)
 
@@ -105,12 +105,12 @@ class GetJobAggregateModelControllerTestCase(unittest.TestCase):
             "authentication_type": "USER",
             "entity_id": "user_12345"
         }
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
         is_job_complete, presigned_url = get_job_aggregate_model_controller(project_db_,
                                                                             job_db_,
                                                                             project.get_id(),
                                                                             job.get_id(),
-                                                                            auth_context_processor)
+                                                                            auth_context)
         self.assertFalse(is_job_complete)
         self.assertIsNone(presigned_url)
 
@@ -138,7 +138,7 @@ class GetJobAggregateModelControllerTestCase(unittest.TestCase):
             "authentication_type": "DEVICE",
             "entity_id": "user_12345"
         }
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
         self.assertRaises(
             RequestForbiddenException,
             get_job_aggregate_model_controller,
@@ -146,7 +146,7 @@ class GetJobAggregateModelControllerTestCase(unittest.TestCase):
             job_db_,
             project.get_id(),
             job.get_id(),
-            auth_context_processor)
+            auth_context)
 
     def test_fail_not_authorized_2(self):
         project_db_ = InMemoryDBInterface()
@@ -164,7 +164,7 @@ class GetJobAggregateModelControllerTestCase(unittest.TestCase):
             "authentication_type": "USER",
             "entity_id": "user_12345"
         }
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
         self.assertRaises(
             RequestForbiddenException,
             get_job_aggregate_model_controller,
@@ -172,7 +172,7 @@ class GetJobAggregateModelControllerTestCase(unittest.TestCase):
             job_db_,
             project.get_id(),
             job.get_id(),
-            auth_context_processor)
+            auth_context)
 
     def test_fail_not_authorized_3(self):
         project_db_ = InMemoryDBInterface()
@@ -199,7 +199,7 @@ class GetJobAggregateModelControllerTestCase(unittest.TestCase):
             "authentication_type": "USER",
             "entity_id": "user_123456"
         }
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
         self.assertRaises(
             RequestForbiddenException,
             get_job_aggregate_model_controller,
@@ -207,4 +207,4 @@ class GetJobAggregateModelControllerTestCase(unittest.TestCase):
             job_db_,
             project.get_id(),
             job.get_id(),
-            auth_context_processor)
+            auth_context)

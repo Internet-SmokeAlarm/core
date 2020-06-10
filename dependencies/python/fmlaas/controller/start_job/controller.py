@@ -43,21 +43,21 @@ def start_job_controller(job_db,
                          project_id,
                          job_sequence_id,
                          job_config,
-                         auth_context_processor):
+                         auth_context):
     """
     :param job_db: DB
     :param project_db: DB
     :param project_id: string
     :param job_sequence_id: string
     :param job_config: JobConfiguration
-    :param auth_context_processor: AuthContextProcessor
+    :param auth_context: AuthContextProcessor
     """
-    if auth_context_processor.is_type_device():
+    if auth_context.is_type_device():
         raise_default_request_forbidden_error()
 
     project = DBObject.load_from_db(Project, project_id, project_db)
     if not project.does_member_have_auth(
-            auth_context_processor.get_entity_id(), ProjectPrivilegeTypesEnum.READ_WRITE):
+            auth_context.get_entity_id(), ProjectPrivilegeTypesEnum.READ_WRITE):
         raise_default_request_forbidden_error()
 
     if not project.contains_job_sequence(job_sequence_id):

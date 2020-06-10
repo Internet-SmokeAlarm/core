@@ -66,13 +66,13 @@ class GetJobControllerTestCase(AbstractControllerTestCase):
             "authentication_type": "USER",
             "entity_id": "user_12345"
         }
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
         retrieved_job = get_job_controller(
             project_db_,
             job_db_,
             project.get_id(),
             job.get_id(),
-            auth_context_processor)
+            auth_context)
         self.assertEqual(retrieved_job.get_id(), job.get_id())
 
     def test_fail_not_authorized_1(self):
@@ -89,7 +89,7 @@ class GetJobControllerTestCase(AbstractControllerTestCase):
             "authentication_type": "USER",
             "entity_id": "user_12345"
         }
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
         self.assertRaises(
             RequestForbiddenException,
             get_job_controller,
@@ -97,7 +97,7 @@ class GetJobControllerTestCase(AbstractControllerTestCase):
             job_db_,
             project.get_id(),
             job.get_id(),
-            auth_context_processor)
+            auth_context)
 
     def test_fail_not_authorized_2(self):
         project_db_ = InMemoryDBInterface()
@@ -117,7 +117,7 @@ class GetJobControllerTestCase(AbstractControllerTestCase):
             "authentication_type": "DEVICE",
             "entity_id": "12344"
         }
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
         self.assertRaises(
             RequestForbiddenException,
             get_job_controller,
@@ -125,7 +125,7 @@ class GetJobControllerTestCase(AbstractControllerTestCase):
             job_db_,
             project.get_id(),
             job.get_id(),
-            auth_context_processor)
+            auth_context)
 
     def test_fail_not_authorized_3(self):
         project_db_ = InMemoryDBInterface()
@@ -145,7 +145,7 @@ class GetJobControllerTestCase(AbstractControllerTestCase):
             "authentication_type": "USER",
             "entity_id": "user_123456"
         }
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
         self.assertRaises(
             RequestForbiddenException,
             get_job_controller,
@@ -153,4 +153,4 @@ class GetJobControllerTestCase(AbstractControllerTestCase):
             job_db_,
             project.get_id(),
             job.get_id(),
-            auth_context_processor)
+            auth_context)

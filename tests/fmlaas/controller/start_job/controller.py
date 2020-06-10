@@ -82,11 +82,11 @@ class StartJobControllerTestCase(unittest.TestCase):
             "authentication_type": "USER",
             "entity_id": "user_12345"
         }
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
 
         new_job_id = start_job_controller(
             job_db, project_db, project.get_id(), job_sequence.id, JobConfiguration(
-                1, 0, "RANDOM", []), auth_context_processor)
+                1, 0, "RANDOM", []), auth_context)
         new_job = DBObject.load_from_db(Job, new_job_id, job_db)
 
         updated_project = DBObject.load_from_db(
@@ -119,11 +119,11 @@ class StartJobControllerTestCase(unittest.TestCase):
             "authentication_type": "USER",
             "entity_id": "user_12345"
         }
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
 
         new_job_id = start_job_controller(
             job_db, project_db, project.get_id(), job_sequence.id, JobConfiguration(
-                1, 0, "RANDOM", []), auth_context_processor)
+                1, 0, "RANDOM", []), auth_context)
         new_job = DBObject.load_from_db(Job, new_job_id, job_db)
         updated_project = DBObject.load_from_db(
             Project, project.get_id(), project_db)
@@ -176,11 +176,11 @@ class StartJobControllerTestCase(unittest.TestCase):
             "authentication_type": "USER",
             "entity_id": "user_12345"
         }
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
 
         new_job_id = start_job_controller(
             job_db, project_db, project.get_id(), job_sequence.id, JobConfiguration(
-                1, 0, "RANDOM", []), auth_context_processor)
+                1, 0, "RANDOM", []), auth_context)
         new_job = DBObject.load_from_db(Job, new_job_id, job_db)
 
         updated_project = DBObject.load_from_db(
@@ -233,20 +233,20 @@ class StartJobControllerTestCase(unittest.TestCase):
             "authentication_type": "USER",
             "entity_id": "user_12345"
         }
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
 
         new_job_id = start_job_controller(
             job_db, project_db, project.get_id(), job_sequence.id, JobConfiguration(
-                1, 0, "RANDOM", []), auth_context_processor)
+                1, 0, "RANDOM", []), auth_context)
         new_job_id_2 = start_job_controller(
             job_db, project_db, project.get_id(), job_sequence.id, JobConfiguration(
-                1, 0, "RANDOM", []), auth_context_processor)
+                1, 0, "RANDOM", []), auth_context)
         new_job_id_3 = start_job_controller(
             job_db, project_db, project.get_id(), job_sequence.id, JobConfiguration(
-                1, 0, "RANDOM", []), auth_context_processor)
+                1, 0, "RANDOM", []), auth_context)
         new_job_id_4 = start_job_controller(
             job_db, project_db, project.get_id(), job_sequence.id, JobConfiguration(
-                1, 0, "RANDOM", []), auth_context_processor)
+                1, 0, "RANDOM", []), auth_context)
         new_job = DBObject.load_from_db(Job, new_job_id, job_db)
 
         updated_project = DBObject.load_from_db(
@@ -280,7 +280,7 @@ class StartJobControllerTestCase(unittest.TestCase):
             "authentication_type": "USER",
             "entity_id": "user_12345"
         }
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
 
         self.assertRaises(
             ValueError,
@@ -294,7 +294,7 @@ class StartJobControllerTestCase(unittest.TestCase):
                 0,
                 "RANDOM",
                 []),
-            auth_context_processor)
+            auth_context)
 
     def test_start_job_controller_fail(self):
         project_db = InMemoryDBInterface()
@@ -322,7 +322,7 @@ class StartJobControllerTestCase(unittest.TestCase):
             "authentication_type": "USER",
             "entity_id": "user_123456"
         }
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
 
         self.assertRaises(
             RequestForbiddenException,
@@ -336,7 +336,7 @@ class StartJobControllerTestCase(unittest.TestCase):
                 0,
                 "RANDOM",
                 []),
-            auth_context_processor)
+            auth_context)
 
     def test_start_job_controller_fail_2(self):
         project_db = InMemoryDBInterface()
@@ -364,7 +364,7 @@ class StartJobControllerTestCase(unittest.TestCase):
             "authentication_type": "USER",
             "entity_id": "user_1234567"
         }
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
 
         self.assertRaises(
             RequestForbiddenException,
@@ -378,7 +378,7 @@ class StartJobControllerTestCase(unittest.TestCase):
                 0,
                 "RANDOM",
                 []),
-            auth_context_processor)
+            auth_context)
 
     def test_start_job_controller_fail_3(self):
         project_db = InMemoryDBInterface()
@@ -406,7 +406,7 @@ class StartJobControllerTestCase(unittest.TestCase):
             "authentication_type": "DEVICE",
             "entity_id": "34553"
         }
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
 
         self.assertRaises(
             RequestForbiddenException,
@@ -420,4 +420,4 @@ class StartJobControllerTestCase(unittest.TestCase):
                 0,
                 "RANDOM",
                 []),
-            auth_context_processor)
+            auth_context)

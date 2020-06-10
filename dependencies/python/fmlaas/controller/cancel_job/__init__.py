@@ -1,1 +1,1 @@
-from .controller import cancel_job_controller
+from .controller import CancelJobController

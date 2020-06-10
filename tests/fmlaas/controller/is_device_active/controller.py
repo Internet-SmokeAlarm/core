@@ -72,13 +72,13 @@ class IsDeviceActiveControllerTestCase(unittest.TestCase):
             "authentication_type": "DEVICE",
             "entity_id": "12344"
         }
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
         is_device_active = is_device_active_controller(project_db_,
                                                        job_db_,
                                                        project.get_id(),
                                                        job.get_id(),
                                                        "12344",
-                                                       auth_context_processor)
+                                                       auth_context)
         self.assertTrue(is_device_active)
 
     def test_pass_user(self):
@@ -103,13 +103,13 @@ class IsDeviceActiveControllerTestCase(unittest.TestCase):
             "authentication_type": "USER",
             "entity_id": "user_12345"
         }
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
         is_device_active = is_device_active_controller(project_db_,
                                                        job_db_,
                                                        project.get_id(),
                                                        job.get_id(),
                                                        "12344",
-                                                       auth_context_processor)
+                                                       auth_context)
         self.assertTrue(is_device_active)
 
         is_device_active = is_device_active_controller(project_db_,
@@ -117,7 +117,7 @@ class IsDeviceActiveControllerTestCase(unittest.TestCase):
                                                        project.get_id(),
                                                        job.get_id(),
                                                        "123445",
-                                                       auth_context_processor)
+                                                       auth_context)
         self.assertFalse(is_device_active)
 
     def test_fail_not_authorized_device(self):
@@ -142,7 +142,7 @@ class IsDeviceActiveControllerTestCase(unittest.TestCase):
             "authentication_type": "DEVICE",
             "entity_id": "123445"
         }
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
         self.assertRaises(
             RequestForbiddenException,
             is_device_active_controller,
@@ -151,7 +151,7 @@ class IsDeviceActiveControllerTestCase(unittest.TestCase):
             project.get_id(),
             job.get_id(),
             "12344",
-            auth_context_processor)
+            auth_context)
 
     def test_fail_not_authorized_user(self):
         project_db_ = InMemoryDBInterface()
@@ -175,7 +175,7 @@ class IsDeviceActiveControllerTestCase(unittest.TestCase):
             "authentication_type": "USER",
             "entity_id": "user_123456"
         }
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
         self.assertRaises(
             RequestForbiddenException,
             is_device_active_controller,
@@ -184,7 +184,7 @@ class IsDeviceActiveControllerTestCase(unittest.TestCase):
             project.get_id(),
             job.get_id(),
             "12344",
-            auth_context_processor)
+            auth_context)
 
     def test_fail_not_authorized_job(self):
         project_db_ = InMemoryDBInterface()
@@ -200,7 +200,7 @@ class IsDeviceActiveControllerTestCase(unittest.TestCase):
             "authentication_type": "USER",
             "entity_id": "user_12345"
         }
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
         self.assertRaises(
             RequestForbiddenException,
             is_device_active_controller,
@@ -209,7 +209,7 @@ class IsDeviceActiveControllerTestCase(unittest.TestCase):
             project.get_id(),
             job.get_id(),
             "12344",
-            auth_context_processor)
+            auth_context)
 
     def test_fail_not_authorized_device_2(self):
         project_db_ = InMemoryDBInterface()
@@ -233,7 +233,7 @@ class IsDeviceActiveControllerTestCase(unittest.TestCase):
             "authentication_type": "DEVICE",
             "entity_id": "12344"
         }
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
         self.assertRaises(
             RequestForbiddenException,
             is_device_active_controller,
@@ -242,4 +242,4 @@ class IsDeviceActiveControllerTestCase(unittest.TestCase):
             project.get_id(),
             job.get_id(),
             "123445",
-            auth_context_processor)
+            auth_context)

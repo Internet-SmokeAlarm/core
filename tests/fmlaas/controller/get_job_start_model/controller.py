@@ -72,12 +72,12 @@ class GetJobStartModelControllerTestCase(unittest.TestCase):
             "authentication_type": "USER",
             "entity_id": "user_12345"
         }
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
         presigned_url = get_job_start_model_controller(project_db_,
                                                        job_db_,
                                                        project.get_id(),
                                                        job.get_id(),
-                                                       auth_context_processor)
+                                                       auth_context)
         self.assertIsNotNone(presigned_url)
 
     def test_pass_2(self):
@@ -102,12 +102,12 @@ class GetJobStartModelControllerTestCase(unittest.TestCase):
             "authentication_type": "DEVICE",
             "entity_id": "34553"
         }
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
         presigned_url = get_job_start_model_controller(project_db_,
                                                        job_db_,
                                                        project.get_id(),
                                                        job.get_id(),
-                                                       auth_context_processor)
+                                                       auth_context)
         self.assertIsNotNone(presigned_url)
 
     def test_fail_not_authorized_1(self):
@@ -132,7 +132,7 @@ class GetJobStartModelControllerTestCase(unittest.TestCase):
             "authentication_type": "DEVICE",
             "entity_id": "123445"
         }
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
         self.assertRaises(
             RequestForbiddenException,
             get_job_start_model_controller,
@@ -140,7 +140,7 @@ class GetJobStartModelControllerTestCase(unittest.TestCase):
             job_db_,
             project.get_id(),
             job.get_id(),
-            auth_context_processor)
+            auth_context)
 
     def test_fail_not_authorized_2(self):
         project_db_ = InMemoryDBInterface()
@@ -164,7 +164,7 @@ class GetJobStartModelControllerTestCase(unittest.TestCase):
             "authentication_type": "USER",
             "entity_id": "123445"
         }
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
         self.assertRaises(
             RequestForbiddenException,
             get_job_start_model_controller,
@@ -172,7 +172,7 @@ class GetJobStartModelControllerTestCase(unittest.TestCase):
             job_db_,
             project.get_id(),
             job.get_id(),
-            auth_context_processor)
+            auth_context)
 
     def test_fail_not_authorized_3(self):
         project_db_ = InMemoryDBInterface()
@@ -188,7 +188,7 @@ class GetJobStartModelControllerTestCase(unittest.TestCase):
             "authentication_type": "DEVICE",
             "entity_id": "12344"
         }
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
         self.assertRaises(
             RequestForbiddenException,
             get_job_start_model_controller,
@@ -196,7 +196,7 @@ class GetJobStartModelControllerTestCase(unittest.TestCase):
             job_db_,
             project.get_id(),
             job.get_id(),
-            auth_context_processor)
+            auth_context)
 
     def test_fail_not_authorized_4(self):
         project_db_ = InMemoryDBInterface()
@@ -220,7 +220,7 @@ class GetJobStartModelControllerTestCase(unittest.TestCase):
             "authentication_type": "DEVICE",
             "entity_id": "12344"
         }
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
         self.assertRaises(
             RequestForbiddenException,
             get_job_start_model_controller,
@@ -228,4 +228,4 @@ class GetJobStartModelControllerTestCase(unittest.TestCase):
             job_db_,
             project.get_id(),
             job.get_id(),
-            auth_context_processor)
+            auth_context)

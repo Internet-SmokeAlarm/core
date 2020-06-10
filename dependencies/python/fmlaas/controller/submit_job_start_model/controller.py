@@ -11,14 +11,14 @@ from ..utils import termination_check
 
 
 def submit_job_start_model_controller(
-        project_db, job_db, job_id, auth_context_processor):
+        project_db, job_db, job_id, auth_context):
     """
     :param project_db: DB
     :param job_db: DB
     :param job_id: string
-    :param auth_context_processor: AuthContextProcessor
+    :param auth_context: AuthContextProcessor
     """
-    if auth_context_processor.is_type_device():
+    if auth_context.is_type_device():
         raise_default_request_forbidden_error()
 
     EXPIRATION_SEC = 60 * 10
@@ -33,7 +33,7 @@ def submit_job_start_model_controller(
         raise_default_request_forbidden_error()
 
     if not project.does_member_have_auth(
-            auth_context_processor.get_entity_id(), ProjectPrivilegeTypesEnum.READ_WRITE):
+            auth_context.get_entity_id(), ProjectPrivilegeTypesEnum.READ_WRITE):
         raise_default_request_forbidden_error()
 
     can_submit_model_to_job = job.is_in_initialization()

@@ -18,7 +18,7 @@ def lambda_handler(event, context):
         group_id = id_processor.get_group_id()
         job_id = id_processor.get_job_id()
 
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
     except ValueError as error:
         return {
             "statusCode": 400,
@@ -33,7 +33,7 @@ def lambda_handler(event, context):
                                                                                 job_db,
                                                                                 group_id,
                                                                                 job_id,
-                                                                                auth_context_processor)
+                                                                                auth_context)
 
         if not can_submit_model_to_job:
             return {

@@ -9,26 +9,26 @@ from fedlearn_auth import hash_secret
 
 
 def register_device_controller(
-        project_db, key_db, project_id, auth_context_processor):
+        project_db, key_db, project_id, auth_context):
     """
     :param project_db: DB
     :param key_db: DB
     :param project_id: string
-    :param auth_context_processor: AuthContextProcessor
+    :param auth_context: AuthContextProcessor
     """
-    if auth_context_processor.is_type_device():
+    if auth_context.is_type_device():
         raise_default_request_forbidden_error()
 
     project = DBObject.load_from_db(Project, project_id, project_db)
     if not project.does_member_have_auth(
-            auth_context_processor.get_entity_id(), ProjectPrivilegeTypesEnum.READ_WRITE):
+            auth_context.get_entity_id(), ProjectPrivilegeTypesEnum.READ_WRITE):
         raise_default_request_forbidden_error()
 
     id, key_plaintext = generate_key_pair()
     key_hash = hash_secret(key_plaintext)
     builder = ApiKeyBuilder(id, key_hash)
     builder.set_key_type(ApiKeyTypeEnum.DEVICE.value)
-    builder.set_entity_id(auth_context_processor.get_entity_id())
+    builder.set_entity_id(auth_context.get_entity_id())
     api_key = builder.build()
     api_key.save_to_db(key_db)
 

@@ -30,10 +30,10 @@ class GetProjectControllerTestCase(AbstractControllerTestCase):
             "authentication_type": "JWT",
             "entity_id": "user123"
         }
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
 
         project_json = get_project_controller(
-            db, project.get_id(), auth_context_processor)
+            db, project.get_id(), auth_context)
 
         self.assertEqual(project_json,
                          {'name': 'test_name',
@@ -54,14 +54,14 @@ class GetProjectControllerTestCase(AbstractControllerTestCase):
             "authentication_type": "DEVICE",
             "entity_id": "user123"
         }
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
 
         self.assertRaises(
             RequestForbiddenException,
             get_project_controller,
             db,
             project.get_id(),
-            auth_context_processor)
+            auth_context)
 
     def test_not_authorized_2(self):
         db = InMemoryDBInterface()
@@ -74,11 +74,11 @@ class GetProjectControllerTestCase(AbstractControllerTestCase):
             "authentication_type": "JWT",
             "entity_id": "user1234"
         }
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
 
         self.assertRaises(
             RequestForbiddenException,
             get_project_controller,
             db,
             project.get_id(),
-            auth_context_processor)
+            auth_context)

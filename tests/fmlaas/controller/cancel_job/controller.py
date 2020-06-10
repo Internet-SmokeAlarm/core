@@ -10,7 +10,9 @@ from dependencies.python.fmlaas.model import ProjectPrivilegeTypesEnum
 from dependencies.python.fmlaas.request_processor import AuthContextProcessor
 from dependencies.python.fmlaas.exception import RequestForbiddenException
 from dependencies.python.fmlaas.database import InMemoryDBInterface
-from dependencies.python.fmlaas.controller.cancel_job import cancel_job_controller
+from dependencies.python.fmlaas.controller.cancel_job import CancelJobController
+from dependencies.python.fmlaas.controller.utils.auth.conditions import IsUser
+from dependencies.python.fmlaas.controller.utils.auth.conditions import HasProjectPermissions
 from ..abstract_controller_testcase import AbstractControllerTestCase
 
 
@@ -31,16 +33,16 @@ class CancelJobControllerTestCase(AbstractControllerTestCase):
             "authentication_type": "USER",
             "entity_id": "user_12345"
         }
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
 
         project.save_to_db(project_db)
         job.save_to_db(job_db)
 
-        cancel_job_controller(
+        CancelJobController(
             project_db,
             job_db,
             job.get_id(),
-            auth_context_processor)
+            auth_context).execute()
 
         db_project = DBObject.load_from_db(
             Project, project.get_id(), project_db)
@@ -57,11 +59,14 @@ class CancelJobControllerTestCase(AbstractControllerTestCase):
         project = self._build_simple_project()
         job_sequence = self._build_simple_job_sequence()
 
+        job_sequence.start_model = Model("12312414", "12312414/start_model", "123211")
+        job_sequence.current_model = Model("12312414", "12312414/start_model", "123211")
+
         auth_json = {
             "authentication_type": "USER",
             "entity_id": "user_12345"
         }
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
 
         job_builder = JobBuilder()
         job_builder.set_id("job_test_id")
@@ -110,11 +115,11 @@ class CancelJobControllerTestCase(AbstractControllerTestCase):
         job_2.save_to_db(job_db)
         job_3.save_to_db(job_db)
 
-        cancel_job_controller(
+        CancelJobController(
             project_db,
             job_db,
             job.get_id(),
-            auth_context_processor)
+            auth_context).execute()
 
         db_project = DBObject.load_from_db(
             Project, project.get_id(), project_db)
@@ -151,124 +156,64 @@ class CancelJobControllerTestCase(AbstractControllerTestCase):
             "authentication_type": "USER",
             "entity_id": "user_12345"
         }
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
 
         self.assertRaises(
             Exception,
-            cancel_job_controller,
-            project_db_,
-            job_db_,
-            job.get_id(),
-            auth_context_processor)
+            CancelJobController(project_db_,
+                                job_db_,
+                                job.get_id(),
+                                auth_context).execute)
 
-    def test_fail_not_authorized_user(self):
-        project_db = InMemoryDBInterface()
+    def test_load_data_pass(self):
         job_db = InMemoryDBInterface()
+        project_db = InMemoryDBInterface()
 
-        builder = ProjectBuilder()
-        builder.set_id("test_id")
-        builder.set_name("test_name")
-        builder.set_devices(
-            {"34553": {"ID": "34553", "registered_on": "213123144.2342"}})
-        project = builder.build()
-        project.add_or_update_member(
-            "user_12345", ProjectPrivilegeTypesEnum.ADMIN)
-        project.add_or_update_member(
-            "user_123456", ProjectPrivilegeTypesEnum.READ_ONLY)
+        project = self._build_simple_project()
+        job = self._build_simple_job()
 
-        job_builder = JobBuilder()
-        job_builder.set_id("job_test_id")
-        job_builder.set_project_id("test_id")
-        job_builder.set_job_sequence_id("test_id_2")
-        job_builder.set_configuration(
-            JobConfiguration(
-                1, 0, "RANDOM", []).to_json())
-        job_builder.set_start_model(
-            Model(
-                "12312414",
-                "12312414/start_model",
-                "123211").to_json())
-        job_builder.set_devices(["34553"])
-        job = job_builder.build()
+        auth_json = {
+            "authentication_type": "USER",
+            "entity_id": "user_12345"
+        }
+        auth_context = AuthContextProcessor(auth_json)
 
         project.save_to_db(project_db)
         job.save_to_db(job_db)
 
+        controller = CancelJobController(project_db,
+                                         job_db,
+                                         job.get_id(),
+                                         auth_context)
+        controller.load_data()
+
+        self.assertEqual(controller.job, job)
+        self.assertEqual(controller.project, project)
+
+    def test_get_auth_conditions_pass(self):
+        job_db = InMemoryDBInterface()
+        project_db = InMemoryDBInterface()
+
+        project = self._build_simple_project()
+        job = self._build_simple_job()
+
         auth_json = {
             "authentication_type": "USER",
-            "entity_id": "user_123456"
+            "entity_id": "user_12345"
         }
-        auth_context_processor = AuthContextProcessor(auth_json)
-
-        self.assertRaises(
-            RequestForbiddenException,
-            cancel_job_controller,
-            project_db,
-            job_db,
-            "job_test_id",
-            auth_context_processor)
-
-    def test_fail_not_authorized_device(self):
-        project_db = InMemoryDBInterface()
-        job_db = InMemoryDBInterface()
-
-        builder = ProjectBuilder()
-        builder.set_id("test_id")
-        builder.set_name("test_name")
-        builder.set_devices(
-            {"34553": {"ID": "34553", "registered_on": "213123144.2342"}})
-        project = builder.build()
-        project.add_or_update_member(
-            "user_12345", ProjectPrivilegeTypesEnum.ADMIN)
-        project.add_or_update_member(
-            "user_123456", ProjectPrivilegeTypesEnum.READ_ONLY)
-
-        job_builder = JobBuilder()
-        job_builder.set_id("job_test_id")
-        job_builder.set_project_id("test_id")
-        job_builder.set_job_sequence_id("test_id_2")
-        job_builder.set_configuration(
-            JobConfiguration(
-                1, 0, "RANDOM", []).to_json())
-        job_builder.set_start_model(
-            Model(
-                "12312414",
-                "12312414/start_model",
-                "123211").to_json())
-        job_builder.set_devices(["34553"])
-        job = job_builder.build()
+        auth_context = AuthContextProcessor(auth_json)
 
         project.save_to_db(project_db)
         job.save_to_db(job_db)
 
-        auth_json = {
-            "authentication_type": "DEVICE",
-            "entity_id": "34553"
-        }
-        auth_context_processor = AuthContextProcessor(auth_json)
+        controller = CancelJobController(project_db,
+                                         job_db,
+                                         job.get_id(),
+                                         auth_context)
+        controller.load_data()
 
-        self.assertRaises(
-            RequestForbiddenException,
-            cancel_job_controller,
-            project_db,
-            job_db,
-            "job_test_id",
-            auth_context_processor)
+        auth_conditions = controller.get_auth_conditions()
 
-    def test_fail_not_authorized(self):
-        project_db = InMemoryDBInterface()
-        job_db = InMemoryDBInterface()
-
-        auth_json = {
-            "authentication_type": "USER",
-            "entity_id": "user_123456"
-        }
-        auth_context_processor = AuthContextProcessor(auth_json)
-
-        self.assertRaises(
-            RequestForbiddenException,
-            cancel_job_controller,
-            job_db,
-            project_db,
-            "woot",
-            auth_context_processor)
+        self.assertEqual(len(auth_conditions), 2)
+        self.assertEqual(auth_conditions[0], IsUser())
+        self.assertEqual(auth_conditions[1], HasProjectPermissions(project, ProjectPrivilegeTypesEnum.READ_WRITE))

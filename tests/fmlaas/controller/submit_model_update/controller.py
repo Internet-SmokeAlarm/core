@@ -66,12 +66,12 @@ class SubmitModelUpdateControllerTestCase(unittest.TestCase):
             "authentication_type": "DEVICE",
             "entity_id": "12344"
         }
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
         can_submit_model_to_job, presigned_url = submit_model_update_controller(project_db_,
                                                                                 job_db_,
                                                                                 project.get_id(),
                                                                                 job.get_id(),
-                                                                                auth_context_processor)
+                                                                                auth_context)
         self.assertTrue(can_submit_model_to_job)
         self.assertIsNotNone(presigned_url)
         self.assertTrue("device_models" in presigned_url["fields"]["key"])
@@ -92,7 +92,7 @@ class SubmitModelUpdateControllerTestCase(unittest.TestCase):
             "authentication_type": "USER",
             "entity_id": "user_123456"
         }
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
         self.assertRaises(
             RequestForbiddenException,
             submit_model_update_controller,
@@ -100,7 +100,7 @@ class SubmitModelUpdateControllerTestCase(unittest.TestCase):
             job_db_,
             project.get_id(),
             job.get_id(),
-            auth_context_processor)
+            auth_context)
 
     def test_fail_not_authorized_device(self):
         project_db_ = InMemoryDBInterface()
@@ -118,7 +118,7 @@ class SubmitModelUpdateControllerTestCase(unittest.TestCase):
             "authentication_type": "DEVICE",
             "entity_id": "123445"
         }
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
         self.assertRaises(
             RequestForbiddenException,
             submit_model_update_controller,
@@ -126,7 +126,7 @@ class SubmitModelUpdateControllerTestCase(unittest.TestCase):
             job_db_,
             project.get_id(),
             job.get_id(),
-            auth_context_processor)
+            auth_context)
 
     def test_fail_not_authorized_job(self):
         project_db_ = InMemoryDBInterface()
@@ -142,7 +142,7 @@ class SubmitModelUpdateControllerTestCase(unittest.TestCase):
             "authentication_type": "DEVICE",
             "entity_id": "12344"
         }
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
         self.assertRaises(
             RequestForbiddenException,
             submit_model_update_controller,
@@ -150,4 +150,4 @@ class SubmitModelUpdateControllerTestCase(unittest.TestCase):
             job_db_,
             project.get_id(),
             job.get_id(),
-            auth_context_processor)
+            auth_context)

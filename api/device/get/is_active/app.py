@@ -19,7 +19,7 @@ def lambda_handler(event, context):
         job_id = id_processor.get_job_id()
         device_id = id_processor.get_device_id()
 
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
     except ValueError as error:
         return {
             "statusCode": 400,
@@ -35,7 +35,7 @@ def lambda_handler(event, context):
                                                        group_id,
                                                        job_id,
                                                        device_id,
-                                                       auth_context_processor)
+                                                       auth_context)
 
         return {
             "statusCode": 200,

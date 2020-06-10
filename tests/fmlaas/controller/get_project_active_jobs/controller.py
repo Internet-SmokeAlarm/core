@@ -51,18 +51,18 @@ class GetProjectActiveJobIdsControllerTestCase(AbstractControllerTestCase):
             "authentication_type": "DEVICE",
             "entity_id": "12344"
         }
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
         current_job_id = get_project_active_jobs_controller(
-            db_, project.get_id(), auth_context_processor)
+            db_, project.get_id(), auth_context)
         self.assertEqual("1234432414", current_job_id[0])
 
         auth_json = {
             "authentication_type": "USER",
             "entity_id": "user_12345"
         }
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
         current_job_id_2 = get_project_active_jobs_controller(
-            db_, project.get_id(), auth_context_processor)
+            db_, project.get_id(), auth_context)
         self.assertEqual("1234432414", current_job_id_2[0])
 
     def test_not_authorized_1(self):
@@ -74,13 +74,13 @@ class GetProjectActiveJobIdsControllerTestCase(AbstractControllerTestCase):
             "authentication_type": "DEVICE",
             "entity_id": "34"
         }
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
         self.assertRaises(
             RequestForbiddenException,
             get_project_active_jobs_controller,
             db_,
             project.get_id(),
-            auth_context_processor)
+            auth_context)
 
     def test_not_authorized_2(self):
         db_ = InMemoryDBInterface()
@@ -91,10 +91,10 @@ class GetProjectActiveJobIdsControllerTestCase(AbstractControllerTestCase):
             "authentication_type": "USER",
             "entity_id": "user_1234"
         }
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
         self.assertRaises(
             RequestForbiddenException,
             get_project_active_jobs_controller,
             db_,
             project.get_id(),
-            auth_context_processor)
+            auth_context)

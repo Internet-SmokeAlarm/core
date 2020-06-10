@@ -17,7 +17,7 @@ def lambda_handler(event, context):
         id_processor = IDProcessor(req_json)
         project_id = id_processor.get_project_id()
 
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
     except ValueError as error:
         return {
             "statusCode": 400,
@@ -29,7 +29,7 @@ def lambda_handler(event, context):
     try:
         project_json = get_project_controller(dynamodb_,
                                               project_id,
-                                              auth_context_processor)
+                                              auth_context)
 
         return {
             "statusCode": 200,

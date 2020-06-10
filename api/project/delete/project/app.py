@@ -19,7 +19,7 @@ def lambda_handler(event, context):
         id_processor = IDProcessor(req_json)
         project_id = id_processor.get_project_id()
 
-        auth_context_processor = AuthContextProcessor(auth_json)
+        auth_context = AuthContextProcessor(auth_json)
     except ValueError as error:
         return {
             "statusCode": 400,
@@ -33,7 +33,7 @@ def lambda_handler(event, context):
         DeleteProjectController(project_db,
                                 job_db,
                                 project_id,
-                                auth_context_processor).execute()
+                                auth_context).execute()
         delete_s3_objects_with_prefix(get_models_bucket_name(), project_id)
 
         return {
