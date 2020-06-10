@@ -5,7 +5,7 @@ from fmlaas import get_group_table_name_from_env
 from fmlaas.database import DynamoDBInterface
 from fmlaas.request_processor import IDProcessor
 from fmlaas.request_processor import AuthContextProcessor
-from fmlaas.controller.get_job_aggregate_model import get_job_aggregate_model_controller
+from fmlaas.controller.get_job_aggregate_model import GetJobAggregateModelController
 from fmlaas.exception import RequestForbiddenException
 
 
@@ -29,11 +29,11 @@ def lambda_handler(event, context):
     job_db = DynamoDBInterface(get_job_table_name_from_env())
 
     try:
-        is_job_complete, presigned_url = get_job_aggregate_model_controller(group_db,
-                                                                            job_db,
-                                                                            group_id,
-                                                                            job_id,
-                                                                            auth_context)
+        is_job_complete, presigned_url = GetJobAggregateModelController(group_db,
+                                                                        job_db,
+                                                                        group_id,
+                                                                        job_id,
+                                                                        auth_context)
 
         if is_job_complete:
             return {

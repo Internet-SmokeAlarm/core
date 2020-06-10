@@ -1,5 +1,3 @@
-import unittest
-
 from dependencies.python.fmlaas.database import InMemoryDBInterface
 from dependencies.python.fmlaas.exception import RequestForbiddenException
 from dependencies.python.fmlaas.model import DBObject
@@ -9,181 +7,25 @@ from dependencies.python.fmlaas.model import JobBuilder
 from dependencies.python.fmlaas.model import JobSequenceBuilder
 from dependencies.python.fmlaas.model import JobConfiguration
 from dependencies.python.fmlaas.model import ProjectPrivilegeTypesEnum
-from dependencies.python.fmlaas.controller.get_job_aggregate_model import get_job_aggregate_model_controller
+from dependencies.python.fmlaas.controller.get_job_aggregate_model import GetJobAggregateModelController
 from dependencies.python.fmlaas.request_processor import AuthContextProcessor
+from dependencies.python.fmlaas.controller.utils.auth.conditions import IsUser
+from dependencies.python.fmlaas.controller.utils.auth.conditions import HasProjectPermissions
+from dependencies.python.fmlaas.controller.utils.auth.conditions import ProjectContainsJob
+from ..abstract_controller_testcase import AbstractControllerTestCase
 
 
-class GetJobAggregateModelControllerTestCase(unittest.TestCase):
-
-    def _build_default_project(self):
-        project_builder = ProjectBuilder()
-        project_builder.set_id("test_id")
-        project_builder.set_name("test_name")
-
-        project = project_builder.build()
-        project.add_device("12344")
-        project.add_or_update_member(
-            "user_12345", ProjectPrivilegeTypesEnum.READ_ONLY)
-
-        return project
-
-    def _build_default_job(self):
-        job_builder = JobBuilder()
-        job_builder.set_id("job_test_id")
-        job_builder.set_project_id("test_id")
-        job_builder.set_job_sequence_id("job_sequence_1")
-        job_builder.set_configuration(
-            JobConfiguration(
-                1, 0, "RANDOM", []).to_json())
-        job_builder.set_start_model(
-            Model(
-                "12312414",
-                "12312414/start_model",
-                "123211").to_json())
-        job_builder.set_aggregate_model(
-            Model(
-                "1234",
-                "1234/aggregate_model",
-                "123211").to_json())
-        job_builder.set_devices(["34553"])
-        job = job_builder.build()
-
-        return job
+class GetJobAggregateModelControllerTestCase(AbstractControllerTestCase):
 
     def test_pass(self):
         project_db_ = InMemoryDBInterface()
         job_db_ = InMemoryDBInterface()
 
-        job = self._build_default_job()
-        job.set_aggregate_model(Model("1234", "1234/1234", "123211"))
+        job = self._build_simple_job()
         job.complete()
         job.save_to_db(job_db_)
 
-        project = self._build_default_project()
-
-        builder = JobSequenceBuilder()
-        builder.id = "job_sequence_1"
-        job_sequence = builder.build()
-
-        job_sequence.add_job(job)
-        project.add_or_update_job_sequence(job_sequence)
-
-        project.save_to_db(project_db_)
-
-        auth_json = {
-            "authentication_type": "USER",
-            "entity_id": "user_12345"
-        }
-        auth_context = AuthContextProcessor(auth_json)
-        is_job_complete, presigned_url = get_job_aggregate_model_controller(project_db_,
-                                                                            job_db_,
-                                                                            project.get_id(),
-                                                                            job.get_id(),
-                                                                            auth_context)
-        self.assertTrue(is_job_complete)
-        self.assertIsNotNone(presigned_url)
-
-    def test_pass_not_complete(self):
-        project_db_ = InMemoryDBInterface()
-        job_db_ = InMemoryDBInterface()
-
-        job = self._build_default_job()
-        job.save_to_db(job_db_)
-
-        project = self._build_default_project()
-
-        builder = JobSequenceBuilder()
-        builder.id = "job_sequence_1"
-        job_sequence = builder.build()
-
-        job_sequence.add_job(job)
-        project.add_or_update_job_sequence(job_sequence)
-
-        project.save_to_db(project_db_)
-
-        auth_json = {
-            "authentication_type": "USER",
-            "entity_id": "user_12345"
-        }
-        auth_context = AuthContextProcessor(auth_json)
-        is_job_complete, presigned_url = get_job_aggregate_model_controller(project_db_,
-                                                                            job_db_,
-                                                                            project.get_id(),
-                                                                            job.get_id(),
-                                                                            auth_context)
-        self.assertFalse(is_job_complete)
-        self.assertIsNone(presigned_url)
-
-    def test_fail_not_authorized_1(self):
-        project_db_ = InMemoryDBInterface()
-        job_db_ = InMemoryDBInterface()
-
-        job = self._build_default_job()
-        job.set_aggregate_model(Model("1234", "1234/1234", "123211"))
-        job.complete()
-        job.save_to_db(job_db_)
-
-        project = self._build_default_project()
-
-        builder = JobSequenceBuilder()
-        builder.id = "job_sequence_1"
-        job_sequence = builder.build()
-
-        job_sequence.add_job(job)
-        project.add_or_update_job_sequence(job_sequence)
-
-        project.save_to_db(project_db_)
-
-        auth_json = {
-            "authentication_type": "DEVICE",
-            "entity_id": "user_12345"
-        }
-        auth_context = AuthContextProcessor(auth_json)
-        self.assertRaises(
-            RequestForbiddenException,
-            get_job_aggregate_model_controller,
-            project_db_,
-            job_db_,
-            project.get_id(),
-            job.get_id(),
-            auth_context)
-
-    def test_fail_not_authorized_2(self):
-        project_db_ = InMemoryDBInterface()
-        job_db_ = InMemoryDBInterface()
-
-        job = self._build_default_job()
-        job.set_aggregate_model(Model("1234", "1234/1234", "123211"))
-        job.complete()
-        job.save_to_db(job_db_)
-
-        project = self._build_default_project()
-        project.save_to_db(project_db_)
-
-        auth_json = {
-            "authentication_type": "USER",
-            "entity_id": "user_12345"
-        }
-        auth_context = AuthContextProcessor(auth_json)
-        self.assertRaises(
-            RequestForbiddenException,
-            get_job_aggregate_model_controller,
-            project_db_,
-            job_db_,
-            project.get_id(),
-            job.get_id(),
-            auth_context)
-
-    def test_fail_not_authorized_3(self):
-        project_db_ = InMemoryDBInterface()
-        job_db_ = InMemoryDBInterface()
-
-        job = self._build_default_job()
-        job.set_aggregate_model(Model("1234", "1234/1234", "123211"))
-        job.complete()
-        job.save_to_db(job_db_)
-
-        project = self._build_default_project()
+        project = self._build_simple_project()
 
         builder = JobSequenceBuilder()
         builder.id = "job_sequence_1"
@@ -197,14 +39,111 @@ class GetJobAggregateModelControllerTestCase(unittest.TestCase):
 
         auth_json = {
             "authentication_type": "USER",
-            "entity_id": "user_123456"
+            "entity_id": "user_12345"
         }
         auth_context = AuthContextProcessor(auth_json)
-        self.assertRaises(
-            RequestForbiddenException,
-            get_job_aggregate_model_controller,
-            project_db_,
-            job_db_,
-            project.get_id(),
-            job.get_id(),
-            auth_context)
+
+        is_job_complete, presigned_url = GetJobAggregateModelController(project_db_,
+                                                                        job_db_,
+                                                                        project.get_id(),
+                                                                        job.get_id(),
+                                                                        auth_context).execute()
+        self.assertTrue(is_job_complete)
+        self.assertIsNotNone(presigned_url)
+
+    def test_pass_not_complete(self):
+        project_db_ = InMemoryDBInterface()
+        job_db_ = InMemoryDBInterface()
+
+        job = self._build_simple_job()
+        job.save_to_db(job_db_)
+
+        project = self._build_simple_project()
+
+        builder = JobSequenceBuilder()
+        builder.id = "job_sequence_1"
+        job_sequence = builder.build()
+
+        job_sequence.add_job(job)
+        project.add_or_update_job_sequence(job_sequence)
+
+        project.save_to_db(project_db_)
+
+        auth_json = {
+            "authentication_type": "USER",
+            "entity_id": "user_12345"
+        }
+        auth_context = AuthContextProcessor(auth_json)
+
+        is_job_complete, presigned_url = GetJobAggregateModelController(project_db_,
+                                                                        job_db_,
+                                                                        project.get_id(),
+                                                                        job.get_id(),
+                                                                        auth_context).execute()
+        self.assertFalse(is_job_complete)
+        self.assertIsNone(presigned_url)
+
+    def test_load_data_pass(self):
+        project_db_ = InMemoryDBInterface()
+        job_db_ = InMemoryDBInterface()
+
+        job = self._build_simple_job()
+        job.complete()
+        job.save_to_db(job_db_)
+
+        project = self._build_simple_project()
+
+        project.save_to_db(project_db_)
+
+        auth_json = {
+            "authentication_type": "USER",
+            "entity_id": "user_12345"
+        }
+        auth_context = AuthContextProcessor(auth_json)
+
+        controller = GetJobAggregateModelController(project_db_,
+                                                    job_db_,
+                                                    project.get_id(),
+                                                    job.get_id(),
+                                                    auth_context)
+        controller.load_data()
+
+        self.assertEqual(controller.project, project)
+        self.assertEqual(controller.job, job)
+
+    def test_get_auth_conditions_pass(self):
+        project_db_ = InMemoryDBInterface()
+        job_db_ = InMemoryDBInterface()
+
+        job = self._build_simple_job()
+        job.save_to_db(job_db_)
+
+        project = self._build_simple_project()
+
+        builder = JobSequenceBuilder()
+        builder.id = "job_sequence_1"
+        job_sequence = builder.build()
+
+        job_sequence.add_job(job)
+        project.add_or_update_job_sequence(job_sequence)
+
+        project.save_to_db(project_db_)
+
+        auth_json = {
+            "authentication_type": "USER",
+            "entity_id": "user_12345"
+        }
+        auth_context = AuthContextProcessor(auth_json)
+
+        controller = GetJobAggregateModelController(project_db_,
+                                                    job_db_,
+                                                    project.get_id(),
+                                                    job.get_id(),
+                                                    auth_context)
+        controller.load_data()
+        auth_conditions = controller.get_auth_conditions()
+
+        self.assertEqual(len(auth_conditions), 3)
+        self.assertEqual(auth_conditions[0], IsUser())
+        self.assertEqual(auth_conditions[1], HasProjectPermissions(project, ProjectPrivilegeTypesEnum.READ_ONLY))
+        self.assertEqual(auth_conditions[2], ProjectContainsJob(project, job))

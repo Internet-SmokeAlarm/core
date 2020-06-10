@@ -39,9 +39,13 @@ def termination_check(current_job, job_db, project_db):
     :param job_db: DB
     :param project_db: DB
     """
-    if current_job.should_terminate():
+    is_terminated = current_job.should_terminate()
+
+    if is_terminated:
         current_job.cancel()
 
         update_job_sequence(current_job, job_db, project_db)
 
         current_job.save_to_db(job_db)
+
+    return is_terminated

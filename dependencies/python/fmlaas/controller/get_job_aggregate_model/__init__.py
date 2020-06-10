@@ -1,1 +1,1 @@
-from .controller import get_job_aggregate_model_controller
+from .controller import GetJobAggregateModelController
