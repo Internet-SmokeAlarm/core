@@ -5,7 +5,7 @@ from fmlaas import get_job_table_name_from_env
 from fmlaas.database import DynamoDBInterface
 from fmlaas.request_processor import IDProcessor
 from fmlaas.request_processor import AuthContextProcessor
-from fmlaas.controller.get_job import get_job_controller
+from fmlaas.controller.get_job import GetJobController
 from fmlaas.exception import RequestForbiddenException
 
 
@@ -29,11 +29,11 @@ def lambda_handler(event, context):
         group_db_ = DynamoDBInterface(get_group_table_name_from_env())
         job_db_ = DynamoDBInterface(get_job_table_name_from_env())
 
-        job = get_job_controller(group_db_,
-                                 job_db_,
-                                 group_id,
-                                 job_id,
-                                 auth_context)
+        job = GetJobController(group_db_,
+                               job_db_,
+                               group_id,
+                               job_id,
+                               auth_context).execute()
 
         # TODO : Need to remove unnecessary content from return JSON.
         #   Should probably happen inside the controller.

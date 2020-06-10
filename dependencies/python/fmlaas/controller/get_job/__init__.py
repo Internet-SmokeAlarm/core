@@ -1,1 +1,1 @@
-from .controller import get_job_controller
+from .controller import GetJobController
