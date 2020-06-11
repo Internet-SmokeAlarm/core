@@ -26,8 +26,10 @@ class DeleteProjectController(AbstractController):
 
     def get_auth_conditions(self):
         return [
-            IsUser(),
-            HasProjectPermissions(self.project, ProjectPrivilegeTypesEnum.ADMIN)
+            [
+                IsUser(),
+                HasProjectPermissions(self.project, ProjectPrivilegeTypesEnum.ADMIN)
+            ]
         ]
 
     def execute_controller(self):

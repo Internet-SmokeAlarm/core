@@ -24,8 +24,10 @@ class GetProjectController(AbstractController):
 
     def get_auth_conditions(self):
         return [
-            IsUser(),
-            HasProjectPermissions(self.project, ProjectPrivilegeTypesEnum.READ_ONLY)
+            [
+                IsUser(),
+                HasProjectPermissions(self.project, ProjectPrivilegeTypesEnum.READ_ONLY)
+            ]
         ]
 
     def execute_controller(self):

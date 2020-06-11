@@ -17,13 +17,24 @@ class AbstractController:
         conditions are not satisfied, will throw a request forbidden
         error.
 
-        :param conditions: list(AuthorizationCondition)
+        Each inner list is ANDed, and the outer lists are ORed.
+
+        :param conditions: list(list(AuthorizationCondition))
         """
         conditions = self.get_auth_conditions()
 
-        for cond in conditions:
-            if not cond.verify(self.auth_context):
-                raise_default_request_forbidden_error()
+        for cond_group in conditions:
+            local_is_true = True
+            for cond in cond_group:
+                if not cond.verify(self.auth_context):
+                    local_is_true = False
+
+                    break
+
+            if local_is_true:
+                return
+
+        raise_default_request_forbidden_error()
 
     def load_data(self):
         """

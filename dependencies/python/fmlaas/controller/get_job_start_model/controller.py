@@ -34,8 +34,10 @@ class GetJobStartModelController(AbstractController):
 
     def get_auth_conditions(self):
         return [
-            IsReadOnlyJobEntity(self.project, self.job),
-            ProjectContainsJob(self.project, self.job)
+            [
+                IsReadOnlyJobEntity(self.project, self.job),
+                ProjectContainsJob(self.project, self.job)
+            ]
         ]
 
     def execute_controller(self):

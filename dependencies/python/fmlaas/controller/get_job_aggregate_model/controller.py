@@ -35,9 +35,11 @@ class GetJobAggregateModelController(AbstractController):
 
     def get_auth_conditions(self):
         return [
-            IsUser(),
-            HasProjectPermissions(self.project, ProjectPrivilegeTypesEnum.READ_ONLY),
-            ProjectContainsJob(self.project, self.job)
+            [
+                IsUser(),
+                HasProjectPermissions(self.project, ProjectPrivilegeTypesEnum.READ_ONLY),
+                ProjectContainsJob(self.project, self.job)
+            ]
         ]
 
     def execute_controller(self):

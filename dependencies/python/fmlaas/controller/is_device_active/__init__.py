@@ -1,1 +1,1 @@
-from .controller import is_device_active_controller
+from .controller import IsDeviceActiveController

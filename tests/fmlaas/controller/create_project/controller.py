@@ -24,7 +24,7 @@ class CreateProjectControllerTestCase(unittest.TestCase):
 
         controller = CreateProjectController(project_db, project_name, auth_context)
 
-        auth_conditions = controller.get_auth_conditions()
+        auth_conditions = controller.get_auth_conditions()[0]
 
         self.assertEqual(len(auth_conditions), 1)
         self.assertEqual(auth_conditions[0], IsUser())

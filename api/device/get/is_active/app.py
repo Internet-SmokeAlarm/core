@@ -6,7 +6,7 @@ from fmlaas.database import DynamoDBInterface
 from fmlaas.request_processor import IDProcessor
 from fmlaas.request_processor import AuthContextProcessor
 from fmlaas.exception import RequestForbiddenException
-from fmlaas.controller.is_device_active import is_device_active_controller
+from fmlaas.controller.is_device_active import IsDeviceActiveController
 
 
 def lambda_handler(event, context):
@@ -30,12 +30,12 @@ def lambda_handler(event, context):
     job_db = DynamoDBInterface(get_job_table_name_from_env())
 
     try:
-        is_device_active = is_device_active_controller(group_db,
-                                                       job_db,
-                                                       group_id,
-                                                       job_id,
-                                                       device_id,
-                                                       auth_context)
+        is_device_active = IsDeviceActiveController(group_db,
+                                                    job_db,
+                                                    group_id,
+                                                    job_id,
+                                                    device_id,
+                                                    auth_context).execute()
 
         return {
             "statusCode": 200,

@@ -23,7 +23,9 @@ class GetProjectActiveJobsController(AbstractController):
 
     def get_auth_conditions(self):
         return [
-            IsReadOnlyProjectEntity(self.project),
+            [
+                IsReadOnlyProjectEntity(self.project),
+            ]
         ]
 
     def execute_controller(self):

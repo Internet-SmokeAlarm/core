@@ -212,7 +212,7 @@ class CancelJobControllerTestCase(AbstractControllerTestCase):
                                          auth_context)
         controller.load_data()
 
-        auth_conditions = controller.get_auth_conditions()
+        auth_conditions = controller.get_auth_conditions()[0]
 
         self.assertEqual(len(auth_conditions), 2)
         self.assertEqual(auth_conditions[0], IsUser())

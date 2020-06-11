@@ -31,7 +31,7 @@ class CreateApiKeyControllerTestCase(unittest.TestCase):
         }
         auth_context = AuthContextProcessor(auth_json)
 
-        auth_conditions = CreateApiKeyController(key_db, auth_context).get_auth_conditions()
+        auth_conditions = CreateApiKeyController(key_db, auth_context).get_auth_conditions()[0]
 
         self.assertEqual(len(auth_conditions), 1)
         self.assertEqual(auth_conditions[0], IsUser())

@@ -20,7 +20,9 @@ class CreateApiKeyController(AbstractController):
 
     def get_auth_conditions(self):
         return [
-            IsUser()
+            [
+                IsUser()
+            ]
         ]
 
     def execute_controller(self):

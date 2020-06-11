@@ -6,3 +6,4 @@ from .is_read_only_project_entity import IsReadOnlyProjectEntity
 from .is_read_only_job_entity import IsReadOnlyJobEntity
 from .job_contains_device import JobContainsDevice
 from .project_contains_device import ProjectContainsDevice
+from .is_equal_to_auth_entity import IsEqualToAuthEntity

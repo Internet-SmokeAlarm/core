@@ -31,8 +31,10 @@ class CancelJobController(AbstractController):
 
     def get_auth_conditions(self):
         return [
-            IsUser(),
-            HasProjectPermissions(self.project, ProjectPrivilegeTypesEnum.READ_WRITE)
+            [
+                IsUser(),
+                HasProjectPermissions(self.project, ProjectPrivilegeTypesEnum.READ_WRITE)
+            ]
         ]
 
     def execute_controller(self):
