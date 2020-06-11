@@ -1,1 +1,1 @@
-from .controller import get_project_controller
+from .controller import GetProjectController

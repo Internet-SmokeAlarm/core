@@ -4,7 +4,7 @@ from fmlaas import get_project_table_name_from_env
 from fmlaas.database import DynamoDBInterface
 from fmlaas.request_processor import IDProcessor
 from fmlaas.request_processor import AuthContextProcessor
-from fmlaas.controller.get_project import get_project_controller
+from fmlaas.controller.get_project import GetProjectController
 from fmlaas.exception import RequestForbiddenException
 from fmlaas import DecimalEncoder
 
@@ -27,9 +27,9 @@ def lambda_handler(event, context):
     dynamodb_ = DynamoDBInterface(get_project_table_name_from_env())
 
     try:
-        project_json = get_project_controller(dynamodb_,
-                                              project_id,
-                                              auth_context)
+        project_json = GetProjectController(dynamodb_,
+                                            project_id,
+                                            auth_context).execute()
 
         return {
             "statusCode": 200,

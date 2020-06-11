@@ -6,7 +6,7 @@ from fmlaas.database import DynamoDBInterface
 from fmlaas.request_processor import IDProcessor
 from fmlaas.request_processor import AuthContextProcessor
 from fmlaas.exception import RequestForbiddenException
-from fmlaas.controller.get_job_start_model import get_job_start_model_controller
+from fmlaas.controller.get_job_start_model import GetJobStartModelController
 
 
 def lambda_handler(event, context):
@@ -29,11 +29,11 @@ def lambda_handler(event, context):
     job_db = DynamoDBInterface(get_job_table_name_from_env())
 
     try:
-        presigned_url = get_job_start_model_controller(group_db,
-                                                       job_db,
-                                                       group_id,
-                                                       job_id,
-                                                       auth_context)
+        presigned_url = GetJobStartModelController(group_db,
+                                                   job_db,
+                                                   group_id,
+                                                   job_id,
+                                                   auth_context).execute()
         return {
             "statusCode": 200,
             "body": json.dumps({"model_url": presigned_url})

@@ -1,4 +1,4 @@
-from dependencies.python.fmlaas.controller.get_project import get_project_controller
+from dependencies.python.fmlaas.controller.get_project import GetProjectController
 from dependencies.python.fmlaas.database import InMemoryDBInterface
 from dependencies.python.fmlaas.exception import RequestForbiddenException
 from dependencies.python.fmlaas.model import DBObject
@@ -7,78 +7,60 @@ from dependencies.python.fmlaas.model import Model
 from dependencies.python.fmlaas.model import JobSequenceBuilder
 from dependencies.python.fmlaas.model import ProjectPrivilegeTypesEnum
 from dependencies.python.fmlaas.request_processor import AuthContextProcessor
+from dependencies.python.fmlaas.controller.utils.auth.conditions import IsUser
+from dependencies.python.fmlaas.controller.utils.auth.conditions import HasProjectPermissions
 from ..abstract_controller_testcase import AbstractControllerTestCase
 
 
 class GetProjectControllerTestCase(AbstractControllerTestCase):
 
-    def _build_default_project(self):
-        project_builder = ProjectBuilder()
-        project_builder.set_id("test_id")
-        project_builder.set_name("test_name")
-
-        return project_builder.build()
-
-    def test_pass_simple(self):
+    def test_execute_pass(self):
         db = InMemoryDBInterface()
-        project = self._build_default_project()
-        project.add_or_update_member(
-            "user123", ProjectPrivilegeTypesEnum.ADMIN)
+        project = self._build_simple_project()
         project.save_to_db(db)
 
         auth_json = {
             "authentication_type": "JWT",
-            "entity_id": "user123"
+            "entity_id": "user_12345"
         }
         auth_context = AuthContextProcessor(auth_json)
 
-        project_json = get_project_controller(
-            db, project.get_id(), auth_context)
+        project_json = GetProjectController(
+            db, project.get_id(), auth_context).execute()
 
-        self.assertEqual(project_json,
-                         {'name': 'test_name',
-                          'ID': 'test_id',
-                          'devices': {},
-                             'job_sequences': {},
-                             'members': {'user123': {'permission_level': 10}},
-                             "billing": {}})
+        self.assertEqual(project.to_json(), project_json)
 
-    def test_not_authorized_1(self):
+    def test_load_data(self):
         db = InMemoryDBInterface()
-        project = self._build_default_project()
-        project.add_or_update_member(
-            "user123", ProjectPrivilegeTypesEnum.ADMIN)
-        project.save_to_db(db)
-
-        auth_json = {
-            "authentication_type": "DEVICE",
-            "entity_id": "user123"
-        }
-        auth_context = AuthContextProcessor(auth_json)
-
-        self.assertRaises(
-            RequestForbiddenException,
-            get_project_controller,
-            db,
-            project.get_id(),
-            auth_context)
-
-    def test_not_authorized_2(self):
-        db = InMemoryDBInterface()
-        project = self._build_default_project()
-        project.add_or_update_member(
-            "user123", ProjectPrivilegeTypesEnum.ADMIN)
+        project = self._build_simple_project()
         project.save_to_db(db)
 
         auth_json = {
             "authentication_type": "JWT",
-            "entity_id": "user1234"
+            "entity_id": "user_12345"
         }
         auth_context = AuthContextProcessor(auth_json)
 
-        self.assertRaises(
-            RequestForbiddenException,
-            get_project_controller,
-            db,
-            project.get_id(),
-            auth_context)
+        controller = GetProjectController(db, project.get_id(), auth_context)
+        controller.load_data()
+
+        self.assertEqual(controller.project, project)
+
+    def test_get_auth_conditions(self):
+        db = InMemoryDBInterface()
+        project = self._build_simple_project()
+        project.save_to_db(db)
+
+        auth_json = {
+            "authentication_type": "JWT",
+            "entity_id": "user_12345"
+        }
+        auth_context = AuthContextProcessor(auth_json)
+
+        controller = GetProjectController(db, project.get_id(), auth_context)
+        controller.load_data()
+        auth_conditions = controller.get_auth_conditions()
+
+        self.assertEqual(len(auth_conditions), 2)
+        self.assertEqual(auth_conditions[0], IsUser())
+        self.assertEqual(auth_conditions[1], HasProjectPermissions(project, ProjectPrivilegeTypesEnum.READ_ONLY))
