@@ -1,1 +1,1 @@
-from .controller import get_project_active_jobs_controller
+from .controller import GetProjectActiveJobsController

@@ -4,7 +4,7 @@ from fmlaas import get_project_table_name_from_env
 from fmlaas.database import DynamoDBInterface
 from fmlaas.request_processor import IDProcessor
 from fmlaas.request_processor import AuthContextProcessor
-from fmlaas.controller.get_project_current_job_id import get_project_current_job_id_controller
+from fmlaas.controller.get_project_active_jobs import GetProjectActiveJobsController
 from fmlaas.exception import RequestForbiddenException
 
 
@@ -26,9 +26,9 @@ def lambda_handler(event, context):
     dynamodb_ = DynamoDBInterface(get_project_table_name_from_env())
 
     try:
-        current_job_ids = get_project_current_job_id_controller(dynamodb_,
-                                                                project_id,
-                                                                auth_context)
+        current_job_ids = GetProjectActiveJobsController(dynamodb_,
+                                                         project_id,
+                                                         auth_context).execute()
 
         return {
             "statusCode": 200,

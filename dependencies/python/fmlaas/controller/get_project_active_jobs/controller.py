@@ -1,19 +1,30 @@
 from ...model import Project
 from ...model import DBObject
-from ...exception import raise_default_request_forbidden_error
+from ...model import ProjectPrivilegeTypesEnum
+from ..utils.auth.conditions import IsReadOnlyProjectEntity
+from ..abstract_controller import AbstractController
 
 
-def get_project_active_jobs_controller(
-        db, project_id, auth_context):
-    """
-    :param db: DB
-    :param project_id: string
-    :param auth_context: AuthContextProcessor
-    """
-    project = DBObject.load_from_db(Project, project_id, db)
+class GetProjectActiveJobsController(AbstractController):
 
-    if (auth_context.is_type_device() and not project.contains_device(auth_context.get_entity_id())) or (
-            auth_context.is_type_user() and not project.is_member(auth_context.get_entity_id())):
-        raise_default_request_forbidden_error()
+    def __init__(self, project_db, project_id, auth_context):
+        """
+        :param project_db: DB
+        :param project_id: string
+        :param auth_context: AuthContextProcessor
+        """
+        super(GetProjectActiveJobsController, self).__init__(auth_context)
 
-    return project.get_active_jobs()
+        self.project_db = project_db
+        self.project_id = project_id
+
+    def load_data(self):
+        self.project = DBObject.load_from_db(Project, self.project_id, self.project_db)
+
+    def get_auth_conditions(self):
+        return [
+            IsReadOnlyProjectEntity(self.project),
+        ]
+
+    def execute_controller(self):
+        return self.project.get_active_jobs()

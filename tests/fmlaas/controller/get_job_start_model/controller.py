@@ -8,7 +8,7 @@ from dependencies.python.fmlaas.model import JobSequenceBuilder
 from dependencies.python.fmlaas.model import JobConfiguration
 from dependencies.python.fmlaas.model import ProjectPrivilegeTypesEnum
 from dependencies.python.fmlaas.controller.get_job_start_model import GetJobStartModelController
-from dependencies.python.fmlaas.controller.utils.auth.conditions import IsReadOnlyEntity
+from dependencies.python.fmlaas.controller.utils.auth.conditions import IsReadOnlyJobEntity
 from dependencies.python.fmlaas.controller.utils.auth.conditions import ProjectContainsJob
 from dependencies.python.fmlaas.request_processor import AuthContextProcessor
 from ..abstract_controller_testcase import AbstractControllerTestCase
@@ -125,5 +125,5 @@ class GetJobStartModelControllerTestCase(AbstractControllerTestCase):
         auth_conditions = controller.get_auth_conditions()
 
         self.assertEqual(len(auth_conditions), 2)
-        self.assertEqual(auth_conditions[0], IsReadOnlyEntity(project, job))
+        self.assertEqual(auth_conditions[0], IsReadOnlyJobEntity(project, job))
         self.assertEqual(auth_conditions[1], ProjectContainsJob(project, job))

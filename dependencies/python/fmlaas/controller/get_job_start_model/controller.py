@@ -6,7 +6,7 @@ from ...aws import get_models_bucket_name
 from ...exception import raise_default_request_forbidden_error
 from ...model import ProjectPrivilegeTypesEnum
 from ..utils import termination_check
-from ..utils.auth.conditions import IsReadOnlyEntity
+from ..utils.auth.conditions import IsReadOnlyJobEntity
 from ..utils.auth.conditions import ProjectContainsJob
 from ..abstract_controller import AbstractController
 
@@ -34,7 +34,7 @@ class GetJobStartModelController(AbstractController):
 
     def get_auth_conditions(self):
         return [
-            IsReadOnlyEntity(self.project, self.job),
+            IsReadOnlyJobEntity(self.project, self.job),
             ProjectContainsJob(self.project, self.job)
         ]
 

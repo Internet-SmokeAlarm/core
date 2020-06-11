@@ -1,4 +1,5 @@
-from dependencies.python.fmlaas.controller.get_project_active_jobs import get_project_active_jobs_controller
+from dependencies.python.fmlaas.controller.get_project_active_jobs import GetProjectActiveJobsController
+from dependencies.python.fmlaas.controller.utils.auth.conditions import IsReadOnlyProjectEntity
 from dependencies.python.fmlaas.database import InMemoryDBInterface
 from dependencies.python.fmlaas.exception import RequestForbiddenException
 from dependencies.python.fmlaas.model import DBObject
@@ -52,49 +53,56 @@ class GetProjectActiveJobIdsControllerTestCase(AbstractControllerTestCase):
             "entity_id": "12344"
         }
         auth_context = AuthContextProcessor(auth_json)
-        current_job_id = get_project_active_jobs_controller(
-            db_, project.get_id(), auth_context)
+        current_job_id = GetProjectActiveJobsController(
+            db_, project.get_id(), auth_context).execute()
         self.assertEqual("1234432414", current_job_id[0])
+
+    def test_pass_2(self):
+        db_ = InMemoryDBInterface()
+        project = self._build_default_project()
+        project.save_to_db(db_)
 
         auth_json = {
             "authentication_type": "USER",
             "entity_id": "user_12345"
         }
         auth_context = AuthContextProcessor(auth_json)
-        current_job_id_2 = get_project_active_jobs_controller(
-            db_, project.get_id(), auth_context)
+        current_job_id_2 = GetProjectActiveJobsController(
+            db_, project.get_id(), auth_context).execute()
         self.assertEqual("1234432414", current_job_id_2[0])
 
-    def test_not_authorized_1(self):
-        db_ = InMemoryDBInterface()
-        project = self._build_default_project()
-        project.save_to_db(db_)
-
-        auth_json = {
-            "authentication_type": "DEVICE",
-            "entity_id": "34"
-        }
-        auth_context = AuthContextProcessor(auth_json)
-        self.assertRaises(
-            RequestForbiddenException,
-            get_project_active_jobs_controller,
-            db_,
-            project.get_id(),
-            auth_context)
-
-    def test_not_authorized_2(self):
+    def test_load_data_pass(self):
         db_ = InMemoryDBInterface()
         project = self._build_default_project()
         project.save_to_db(db_)
 
         auth_json = {
             "authentication_type": "USER",
-            "entity_id": "user_1234"
+            "entity_id": "user_12345"
         }
         auth_context = AuthContextProcessor(auth_json)
-        self.assertRaises(
-            RequestForbiddenException,
-            get_project_active_jobs_controller,
-            db_,
-            project.get_id(),
-            auth_context)
+        controller = GetProjectActiveJobsController(db_,
+                                                    project.get_id(),
+                                                    auth_context)
+        controller.load_data()
+
+        self.assertEqual(controller.project, project)
+
+    def test_get_auth_conditions_pass(self):
+        db_ = InMemoryDBInterface()
+        project = self._build_default_project()
+        project.save_to_db(db_)
+
+        auth_json = {
+            "authentication_type": "USER",
+            "entity_id": "user_12345"
+        }
+        auth_context = AuthContextProcessor(auth_json)
+        controller = GetProjectActiveJobsController(db_,
+                                                    project.get_id(),
+                                                    auth_context)
+        controller.load_data()
+        auth_conditions = controller.get_auth_conditions()
+
+        self.assertEqual(len(auth_conditions), 1)
+        self.assertEqual(auth_conditions[0], IsReadOnlyProjectEntity(project))
