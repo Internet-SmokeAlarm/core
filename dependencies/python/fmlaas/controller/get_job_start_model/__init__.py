@@ -1,1 +1,1 @@
-from .controller import get_job_start_model_controller
+from .controller import GetJobStartModelController

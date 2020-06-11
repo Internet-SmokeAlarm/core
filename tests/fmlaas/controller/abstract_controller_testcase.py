@@ -46,6 +46,6 @@ class AbstractControllerTestCase(unittest.TestCase):
                 "1234",
                 "1234/aggregate_model",
                 "123211").to_json())
-        job_builder.set_devices(["34553"])
+        job_builder.set_devices(["12344"])
 
         return job_builder.build()
