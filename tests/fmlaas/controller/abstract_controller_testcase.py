@@ -1,51 +1,65 @@
-import unittest
+from .abstract_testcase import AbstractTestCase
+from dependencies.python.fmlaas.controller.utils.auth.conditions import AbstractCondition
+from dependencies.python.fmlaas.controller import AbstractController
+from dependencies.python.fmlaas.request_processor import AuthContextProcessor
+from dependencies.python.fmlaas.exception import RequestForbiddenException
 
-from dependencies.python.fmlaas.model import JobConfiguration
-from dependencies.python.fmlaas.model import ProjectBuilder
-from dependencies.python.fmlaas.model import JobBuilder
-from dependencies.python.fmlaas.model import JobSequenceBuilder
-from dependencies.python.fmlaas.model import Model
-from dependencies.python.fmlaas.model import ProjectPrivilegeTypesEnum
+class DummyAuthVerifier(AbstractCondition):
 
+    def __init__(self, val: bool):
+        self.val = val
 
-class AbstractControllerTestCase(unittest.TestCase):
+    def verify(self, auth_context: AuthContextProcessor) -> bool:
+        return self.val
 
-    def _build_simple_project(self):
-        project_builder = ProjectBuilder()
-        project_builder.set_id("test_id")
-        project_builder.set_name("test_name")
+class AbstractControllerTestCase(AbstractTestCase):
 
-        project = project_builder.build()
-        project.add_device("12344")
-        project.add_or_update_member(
-            "user_12345", ProjectPrivilegeTypesEnum.ADMIN)
+    def test_verify_auth_fail(self):
+        class DummyController(AbstractController):
 
-        return project
+            def get_auth_conditions(self):
+                return [
+                    [
+                        DummyAuthVerifier(True),
+                        DummyAuthVerifier(False),
+                        DummyAuthVerifier(True)
+                    ],
+                    [
+                        DummyAuthVerifier(True),
+                        DummyAuthVerifier(False)
+                    ]
+                ]
 
-    def _build_simple_job_sequence(self):
-        builder = JobSequenceBuilder()
-        builder.id = "test_id_2"
+        auth_json = {
+            "authentication_type": "DEVICE",
+            "entity_id": "user_123442"
+        }
+        auth_context = AuthContextProcessor(auth_json)
+        controller = DummyController(auth_context)
 
-        return builder.build()
+        self.assertRaises(RequestForbiddenException, controller.verify_auth)
 
-    def _build_simple_job(self):
-        job_builder = JobBuilder()
-        job_builder.set_id("job_test_id")
-        job_builder.set_project_id("test_id")
-        job_builder.set_job_sequence_id("test_id_2")
-        job_builder.set_configuration(
-            JobConfiguration(
-                1, 0, "RANDOM", []).to_json())
-        job_builder.set_start_model(
-            Model(
-                "12312414",
-                "12312414/start_model",
-                "123211").to_json())
-        job_builder.set_aggregate_model(
-            Model(
-                "1234",
-                "1234/aggregate_model",
-                "123211").to_json())
-        job_builder.set_devices(["12344"])
+    def test_verify_auth_pass(self):
+        class DummyController(AbstractController):
 
-        return job_builder.build()
+            def get_auth_conditions(self):
+                return [
+                    [
+                        DummyAuthVerifier(True),
+                        DummyAuthVerifier(True),
+                        DummyAuthVerifier(True)
+                    ],
+                    [
+                        DummyAuthVerifier(True),
+                        DummyAuthVerifier(False)
+                    ]
+                ]
+
+        auth_json = {
+            "authentication_type": "DEVICE",
+            "entity_id": "user_123442"
+        }
+        auth_context = AuthContextProcessor(auth_json)
+        controller = DummyController(auth_context)
+
+        controller.verify_auth()

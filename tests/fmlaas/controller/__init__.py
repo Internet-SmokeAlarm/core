@@ -14,3 +14,4 @@ from .is_device_active import *
 # from .submit_model_update import *
 from .cancel_job import *
 from .utils import *
+from .abstract_controller_testcase import AbstractControllerTestCase

@@ -1,5 +1,8 @@
 from dependencies.python.fmlaas.controller.get_project_active_jobs import GetProjectActiveJobsController
-from dependencies.python.fmlaas.controller.utils.auth.conditions import IsReadOnlyProjectEntity
+from dependencies.python.fmlaas.controller.utils.auth.conditions import IsUser
+from dependencies.python.fmlaas.controller.utils.auth.conditions import IsDevice
+from dependencies.python.fmlaas.controller.utils.auth.conditions import ProjectContainsDevice
+from dependencies.python.fmlaas.controller.utils.auth.conditions import HasProjectPermissions
 from dependencies.python.fmlaas.database import InMemoryDBInterface
 from dependencies.python.fmlaas.exception import RequestForbiddenException
 from dependencies.python.fmlaas.model import DBObject
@@ -11,10 +14,10 @@ from dependencies.python.fmlaas.model import JobStatus
 from dependencies.python.fmlaas.model import JobConfiguration
 from dependencies.python.fmlaas.model import JobSequenceBuilder
 from dependencies.python.fmlaas.model import JobBuilder
-from ..abstract_controller_testcase import AbstractControllerTestCase
+from ..abstract_testcase import AbstractTestCase
 
 
-class GetProjectActiveJobIdsControllerTestCase(AbstractControllerTestCase):
+class GetProjectActiveJobIdsControllerTestCase(AbstractTestCase):
 
     def _build_default_project(self):
         project_builder = ProjectBuilder()
@@ -102,7 +105,14 @@ class GetProjectActiveJobIdsControllerTestCase(AbstractControllerTestCase):
                                                     project.get_id(),
                                                     auth_context)
         controller.load_data()
-        auth_conditions = controller.get_auth_conditions()[0]
+        auth_conditions = controller.get_auth_conditions()
 
-        self.assertEqual(len(auth_conditions), 1)
-        self.assertEqual(auth_conditions[0], IsReadOnlyProjectEntity(project))
+        self.assertEqual(len(auth_conditions), 2)
+
+        self.assertEqual(len(auth_conditions[0]), 2)
+        self.assertEqual(auth_conditions[0][0], IsUser())
+        self.assertEqual(auth_conditions[0][1], HasProjectPermissions(project, ProjectPrivilegeTypesEnum.READ_ONLY))
+
+        self.assertEqual(len(auth_conditions[1]), 2)
+        self.assertEqual(auth_conditions[1][0], IsDevice())
+        self.assertEqual(auth_conditions[1][1], ProjectContainsDevice(project))

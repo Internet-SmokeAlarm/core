@@ -13,10 +13,10 @@ from dependencies.python.fmlaas.controller.utils import update_job_sequence
 from dependencies.python.fmlaas.utils import get_epoch_time
 from dependencies.python.fmlaas.model.termination_criteria import DurationTerminationCriteria
 from dependencies.python.fmlaas.controller.utils import termination_check
-from ..abstract_controller_testcase import AbstractControllerTestCase
+from ..abstract_testcase import AbstractTestCase
 
 
-class ProjectOperationsTestCase(AbstractControllerTestCase):
+class ProjectOperationsTestCase(AbstractTestCase):
 
     def test_update_job_sequence_pass(self):
         project_db = InMemoryDBInterface()

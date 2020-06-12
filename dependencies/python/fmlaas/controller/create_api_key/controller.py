@@ -1,19 +1,16 @@
+from ...database import DB
 from ...model import ApiKeyBuilder
 from ...model import ApiKeyTypeEnum
-from ...exception import raise_default_request_forbidden_error
 from fedlearn_auth import generate_key_pair
 from fedlearn_auth import hash_secret
+from ...request_processor import AuthContextProcessor
 from ..abstract_controller import AbstractController
 from ..utils.auth.conditions import IsUser
 
 
 class CreateApiKeyController(AbstractController):
 
-    def __init__(self, key_db, auth_context):
-        """
-        :param key_db: DB
-        :param auth_context: AuthContextProcessor
-        """
+    def __init__(self, key_db: DB, auth_context: AuthContextProcessor):
         super(CreateApiKeyController, self).__init__(auth_context)
 
         self.key_db = key_db

@@ -7,8 +7,8 @@ class JobContainsDevice(AbstractCondition):
     def __init__(self, job: Job):
         self.job = job
 
-    def verify(self, auth_context: AuthContextProcessor):
+    def verify(self, auth_context: AuthContextProcessor) -> bool:
         return self.job.contains_device(auth_context.get_entity_id())
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         return (type(self) == type(other)) and (self.job == other.job)

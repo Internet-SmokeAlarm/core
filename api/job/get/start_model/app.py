@@ -15,7 +15,6 @@ def lambda_handler(event, context):
 
     try:
         id_processor = IDProcessor(req_json)
-        group_id = id_processor.get_group_id()
         job_id = id_processor.get_job_id()
 
         auth_context = AuthContextProcessor(auth_json)
@@ -31,7 +30,6 @@ def lambda_handler(event, context):
     try:
         presigned_url = GetJobStartModelController(group_db,
                                                    job_db,
-                                                   group_id,
                                                    job_id,
                                                    auth_context).execute()
         return {

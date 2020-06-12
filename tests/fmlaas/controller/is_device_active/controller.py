@@ -15,10 +15,10 @@ from dependencies.python.fmlaas.controller.utils.auth.conditions import ProjectC
 from dependencies.python.fmlaas.controller.utils.auth.conditions import JobContainsDevice
 from dependencies.python.fmlaas.controller.utils.auth.conditions import IsEqualToAuthEntity
 from dependencies.python.fmlaas.request_processor import AuthContextProcessor
-from ..abstract_controller_testcase import AbstractControllerTestCase
+from ..abstract_testcase import AbstractTestCase
 
 
-class IsDeviceActiveControllerTestCase(AbstractControllerTestCase):
+class IsDeviceActiveControllerTestCase(AbstractTestCase):
 
     def test_pass_device(self):
         project_db_ = InMemoryDBInterface()

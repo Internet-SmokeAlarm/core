@@ -11,10 +11,10 @@ from dependencies.python.fmlaas.request_processor import AuthContextProcessor
 from dependencies.python.fmlaas.controller.utils.auth.conditions import IsUser
 from dependencies.python.fmlaas.controller.utils.auth.conditions import HasProjectPermissions
 from dependencies.python.fmlaas.controller.utils.auth.conditions import ProjectContainsJob
-from ..abstract_controller_testcase import AbstractControllerTestCase
+from ..abstract_testcase import AbstractTestCase
 
 
-class GetJobControllerTestCase(AbstractControllerTestCase):
+class GetJobControllerTestCase(AbstractTestCase):
 
     def test_pass(self):
         project_db_ = InMemoryDBInterface()

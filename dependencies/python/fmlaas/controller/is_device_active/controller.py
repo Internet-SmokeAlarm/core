@@ -1,9 +1,11 @@
+from ...database import DB
 from ...model import DBObject
 from ...model import Project
 from ...model import Job
 from ...model import ProjectPrivilegeTypesEnum
 from ...exception import raise_default_request_forbidden_error
 from ..utils import termination_check
+from ...request_processor import AuthContextProcessor
 from ..utils.auth.conditions import IsUser
 from ..utils.auth.conditions import IsDevice
 from ..utils.auth.conditions import HasProjectPermissions
@@ -15,15 +17,7 @@ from ..abstract_controller import AbstractController
 
 class IsDeviceActiveController(AbstractController):
 
-    def __init__(self, project_db, job_db, project_id, job_id, device_id, auth_context):
-        """
-        :param project_db: DB
-        :param job_db: DB
-        :param project_id: string
-        :param job_id: string
-        :param device_id: string
-        :param auth_context: AuthContextProcessor
-        """
+    def __init__(self, project_db: DB, job_db: DB, project_id: str, job_id: str, device_id: str, auth_context: AuthContextProcessor):
         super(IsDeviceActiveController, self).__init__(auth_context)
 
         self.project_db = project_db

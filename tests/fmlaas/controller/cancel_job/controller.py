@@ -13,10 +13,10 @@ from dependencies.python.fmlaas.database import InMemoryDBInterface
 from dependencies.python.fmlaas.controller.cancel_job import CancelJobController
 from dependencies.python.fmlaas.controller.utils.auth.conditions import IsUser
 from dependencies.python.fmlaas.controller.utils.auth.conditions import HasProjectPermissions
-from ..abstract_controller_testcase import AbstractControllerTestCase
+from ..abstract_testcase import AbstractTestCase
 
 
-class CancelJobControllerTestCase(AbstractControllerTestCase):
+class CancelJobControllerTestCase(AbstractTestCase):
 
     def test_pass(self):
         job_db = InMemoryDBInterface()

@@ -3,10 +3,10 @@ import unittest
 from dependencies.python.fmlaas.request_processor import AuthContextProcessor
 from dependencies.python.fmlaas.controller.utils.auth.conditions import IsDevice
 from dependencies.python.fmlaas.controller.utils.auth.conditions import JobContainsDevice
-from ....abstract_controller_testcase import AbstractControllerTestCase
+from ....abstract_testcase import AbstractTestCase
 
 
-class JobContainsDeviceTestCase(AbstractControllerTestCase):
+class JobContainsDeviceTestCase(AbstractTestCase):
 
     def test_verify_pass_false(self):
         auth_json = {

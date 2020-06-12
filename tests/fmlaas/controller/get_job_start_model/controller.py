@@ -8,13 +8,16 @@ from dependencies.python.fmlaas.model import JobSequenceBuilder
 from dependencies.python.fmlaas.model import JobConfiguration
 from dependencies.python.fmlaas.model import ProjectPrivilegeTypesEnum
 from dependencies.python.fmlaas.controller.get_job_start_model import GetJobStartModelController
-from dependencies.python.fmlaas.controller.utils.auth.conditions import IsReadOnlyJobEntity
 from dependencies.python.fmlaas.controller.utils.auth.conditions import ProjectContainsJob
+from dependencies.python.fmlaas.controller.utils.auth.conditions import IsUser
+from dependencies.python.fmlaas.controller.utils.auth.conditions import HasProjectPermissions
+from dependencies.python.fmlaas.controller.utils.auth.conditions import JobContainsDevice
+from dependencies.python.fmlaas.controller.utils.auth.conditions import IsDevice
 from dependencies.python.fmlaas.request_processor import AuthContextProcessor
-from ..abstract_controller_testcase import AbstractControllerTestCase
+from ..abstract_testcase import AbstractTestCase
 
 
-class GetJobStartModelControllerTestCase(AbstractControllerTestCase):
+class GetJobStartModelControllerTestCase(AbstractTestCase):
 
     def test_pass_1(self):
         project_db_ = InMemoryDBInterface()
@@ -41,7 +44,6 @@ class GetJobStartModelControllerTestCase(AbstractControllerTestCase):
         auth_context = AuthContextProcessor(auth_json)
         presigned_url = GetJobStartModelController(project_db_,
                                                    job_db_,
-                                                   project.get_id(),
                                                    job.get_id(),
                                                    auth_context).execute()
         self.assertIsNotNone(presigned_url)
@@ -71,7 +73,6 @@ class GetJobStartModelControllerTestCase(AbstractControllerTestCase):
         auth_context = AuthContextProcessor(auth_json)
         presigned_url = GetJobStartModelController(project_db_,
                                                    job_db_,
-                                                   project.get_id(),
                                                    job.get_id(),
                                                    auth_context).execute()
         self.assertIsNotNone(presigned_url)
@@ -93,7 +94,6 @@ class GetJobStartModelControllerTestCase(AbstractControllerTestCase):
         auth_context = AuthContextProcessor(auth_json)
         controller = GetJobStartModelController(project_db_,
                                                 job_db_,
-                                                project.get_id(),
                                                 job.get_id(),
                                                 auth_context)
         controller.load_data()
@@ -118,12 +118,18 @@ class GetJobStartModelControllerTestCase(AbstractControllerTestCase):
         auth_context = AuthContextProcessor(auth_json)
         controller = GetJobStartModelController(project_db_,
                                                 job_db_,
-                                                project.get_id(),
                                                 job.get_id(),
                                                 auth_context)
         controller.load_data()
-        auth_conditions = controller.get_auth_conditions()[0]
+        auth_conditions = controller.get_auth_conditions()
 
         self.assertEqual(len(auth_conditions), 2)
-        self.assertEqual(auth_conditions[0], IsReadOnlyJobEntity(project, job))
-        self.assertEqual(auth_conditions[1], ProjectContainsJob(project, job))
+
+        self.assertEqual(len(auth_conditions[1]), 3)
+        self.assertEqual(auth_conditions[1][0], IsUser())
+        self.assertEqual(auth_conditions[1][1], HasProjectPermissions(project, ProjectPrivilegeTypesEnum.READ_ONLY))
+        self.assertEqual(auth_conditions[1][2], ProjectContainsJob(project, job))
+
+        self.assertEqual(len(auth_conditions[0]), 2)
+        self.assertEqual(auth_conditions[0][0], IsDevice())
+        self.assertEqual(auth_conditions[0][1], JobContainsDevice(job))

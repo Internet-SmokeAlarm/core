@@ -1,18 +1,14 @@
+from ...database import DB
 from ... import generate_unique_id
 from ...model import ProjectBuilder
-from ...exception import raise_default_request_forbidden_error
 from ...model import ProjectPrivilegeTypesEnum
+from ...request_processor import AuthContextProcessor
 from ..abstract_controller import AbstractController
 from ..utils.auth.conditions import IsUser
 
 class CreateProjectController(AbstractController):
 
-    def __init__(self, project_db, project_name, auth_context):
-        """
-        :param project_db: DB
-        :param project_name: string
-        :param auth_context: AuthContextProcessor
-        """
+    def __init__(self, project_db: DB, project_name: str, auth_context: AuthContextProcessor):
         super(CreateProjectController, self).__init__(auth_context)
 
         self.project_db = project_db

@@ -1,18 +1,18 @@
+from ...database import DB
 from ...model import Project
 from ...model import DBObject
 from ...model import ProjectPrivilegeTypesEnum
-from ..utils.auth.conditions import IsReadOnlyProjectEntity
+from ..utils.auth.conditions import IsUser
+from ..utils.auth.conditions import HasProjectPermissions
+from ..utils.auth.conditions import IsDevice
+from ..utils.auth.conditions import ProjectContainsDevice
+from ...request_processor import AuthContextProcessor
 from ..abstract_controller import AbstractController
 
 
 class GetProjectActiveJobsController(AbstractController):
 
-    def __init__(self, project_db, project_id, auth_context):
-        """
-        :param project_db: DB
-        :param project_id: string
-        :param auth_context: AuthContextProcessor
-        """
+    def __init__(self, project_db: DB, project_id: str, auth_context: AuthContextProcessor):
         super(GetProjectActiveJobsController, self).__init__(auth_context)
 
         self.project_db = project_db
@@ -24,7 +24,12 @@ class GetProjectActiveJobsController(AbstractController):
     def get_auth_conditions(self):
         return [
             [
-                IsReadOnlyProjectEntity(self.project),
+                IsUser(),
+                HasProjectPermissions(self.project, ProjectPrivilegeTypesEnum.READ_ONLY)
+            ],
+            [
+                IsDevice(),
+                ProjectContainsDevice(self.project)
             ]
         ]
 

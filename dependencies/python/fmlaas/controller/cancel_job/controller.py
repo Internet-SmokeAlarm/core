@@ -1,9 +1,9 @@
-from ... import generate_unique_id
+from ...database import DB
 from ...model import DBObject
 from ...model import Job
 from ...model import Project
-from ...exception import raise_default_request_forbidden_error
 from ...model import ProjectPrivilegeTypesEnum
+from ...request_processor import AuthContextProcessor
 from ..utils import update_job_sequence
 from ..utils.auth.conditions import IsUser
 from ..utils.auth.conditions import HasProjectPermissions
@@ -12,13 +12,7 @@ from ..abstract_controller import AbstractController
 
 class CancelJobController(AbstractController):
 
-    def __init__(self, project_db, job_db, job_id, auth_context):
-        """
-        :param project_db: DB
-        :param job_db: DB
-        :param job_id: string
-        :param auth_context: AuthContextProcessor
-        """
+    def __init__(self, project_db: DB, job_db: DB, job_id: str, auth_context: AuthContextProcessor):
         super(CancelJobController, self).__init__(auth_context)
 
         self.project_db = project_db

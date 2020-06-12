@@ -9,10 +9,10 @@ from dependencies.python.fmlaas.model import ProjectPrivilegeTypesEnum
 from dependencies.python.fmlaas.request_processor import AuthContextProcessor
 from dependencies.python.fmlaas.controller.utils.auth.conditions import IsUser
 from dependencies.python.fmlaas.controller.utils.auth.conditions import HasProjectPermissions
-from ..abstract_controller_testcase import AbstractControllerTestCase
+from ..abstract_testcase import AbstractTestCase
 
 
-class GetProjectControllerTestCase(AbstractControllerTestCase):
+class GetProjectControllerTestCase(AbstractTestCase):
 
     def test_execute_pass(self):
         db = InMemoryDBInterface()
