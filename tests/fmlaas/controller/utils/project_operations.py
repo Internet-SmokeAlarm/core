@@ -79,6 +79,10 @@ class ProjectOperationsTestCase(AbstractTestCase):
         builder = JobSequenceBuilder()
         builder.id = "123dafasdf34sdfsdf"
         job_sequence = builder.build()
+        job_sequence.current_model = Model(
+            "12312414",
+            "12312414/start_model",
+            "123211")
 
         job_builder = JobBuilder()
         job_builder.set_id("job_test_id")
@@ -146,6 +150,10 @@ class ProjectOperationsTestCase(AbstractTestCase):
         builder = JobSequenceBuilder()
         builder.id = "123dafasdf34sdfsdf"
         job_sequence = builder.build()
+        job_sequence.current_model = Model(
+            "12312414",
+            "12312414/start_model",
+            "123211")
 
         job_builder = JobBuilder()
         job_builder.set_id("job_test_id")
@@ -195,11 +203,85 @@ class ProjectOperationsTestCase(AbstractTestCase):
             updated_project.get_active_jobs(), [
                 job_2.get_id()])
         self.assertTrue(update_job_2.is_in_progress())
-        self.assertEqual(
-            job.get_end_model().to_json(),
-            update_job_2.get_start_model().to_json())
+        self.assertEqual(job.get_end_model(), update_job_2.get_start_model())
         self.assertTrue(updated_project.contains_job(job.get_id()))
         self.assertTrue(updated_project.contains_job(job_2.get_id()))
+        self.assertFalse(update_job_2.should_terminate())
+
+    def test_update_job_sequence_pass_4(self):
+        project_db = InMemoryDBInterface()
+        job_db = InMemoryDBInterface()
+
+        builder = ProjectBuilder()
+        builder.set_id("test_id")
+        builder.set_name("test_name")
+        builder.set_devices(
+            {"34553": {"ID": "34553", "registered_on": "213123144.2342"}})
+        project = builder.build()
+        project.add_or_update_member(
+            "user_12345", ProjectPrivilegeTypesEnum.ADMIN)
+
+        builder = JobSequenceBuilder()
+        builder.id = "123dafasdf34sdfsdf"
+        job_sequence = builder.build()
+        job_sequence.current_model = Model(
+            "12312414",
+            "12312414/start_model",
+            "123211")
+
+        job_builder = JobBuilder()
+        job_builder.set_id("job_test_id")
+        job_builder.set_project_id("test_id")
+        job_builder.set_job_sequence_id("123dafasdf34sdfsdf")
+        job_builder.set_configuration(
+            JobConfiguration(
+                1, 0, "RANDOM", []).to_json())
+        job_builder.set_start_model(
+            Model(
+                "12312414",
+                "12312414/start_model",
+                "123211").to_json())
+        job_builder.set_aggregate_model(
+            Model(
+                "12312414",
+                "12312414/aggregate_model",
+                "123211").to_json())
+        job_builder.set_devices(["34553"])
+        job = job_builder.build()
+        job.complete()
+
+        job_builder_2 = JobBuilder()
+        job_builder_2.set_id("job_test_id_2")
+        job_builder_2.set_project_id("test_id")
+        job_builder_2.set_job_sequence_id("123dafasdf34sdfsdf")
+        job_builder_2.set_configuration(
+            JobConfiguration(
+                1, 0, "RANDOM", []).to_json())
+        job_builder_2.set_devices(["34553"])
+        job_2 = job_builder_2.build()
+
+        job_sequence.add_job(job)
+        job_sequence.add_job(job_2)
+        project.add_or_update_job_sequence(job_sequence)
+
+        job.save_to_db(job_db)
+        job_2.save_to_db(job_db)
+        project.save_to_db(project_db)
+
+        update_job_sequence(job, job_db, project_db)
+
+        updated_project = DBObject.load_from_db(
+            Project, project.get_id(), project_db)
+        update_job_2 = DBObject.load_from_db(Job, job_2.get_id(), job_db)
+
+        self.assertEqual(
+            updated_project.get_active_jobs(), [
+                job_2.get_id()])
+        self.assertTrue(update_job_2.is_in_progress())
+        self.assertEqual(job.get_end_model(), update_job_2.get_start_model())
+        self.assertTrue(updated_project.contains_job(job.get_id()))
+        self.assertTrue(updated_project.contains_job(job_2.get_id()))
+        self.assertEqual(updated_project.get_job_sequence("123dafasdf34sdfsdf").current_model, update_job_2.get_start_model())
         self.assertFalse(update_job_2.should_terminate())
 
     def test_termination_check_pass(self):
@@ -218,6 +300,10 @@ class ProjectOperationsTestCase(AbstractTestCase):
         builder = JobSequenceBuilder()
         builder.id = "123dafasdf34sdfsdf"
         job_sequence = builder.build()
+        job_sequence.current_model = Model(
+            "12312414",
+            "12312414/start_model",
+            "123211")
 
         job_builder = JobBuilder()
         job_builder.set_id("job_test_id")
@@ -264,12 +350,11 @@ class ProjectOperationsTestCase(AbstractTestCase):
             updated_project.get_active_jobs(), [
                 job_2.get_id()])
         self.assertTrue(update_job_2.is_in_progress())
-        self.assertEqual(
-            job.get_end_model().to_json(),
-            update_job_2.get_start_model().to_json())
+        self.assertEqual(job.get_end_model(), update_job_2.get_start_model())
         self.assertTrue(updated_project.contains_job(job.get_id()))
         self.assertTrue(updated_project.contains_job(job_2.get_id()))
         self.assertTrue(job.is_cancelled())
+        self.assertEqual(updated_project.get_job_sequence(job_sequence.id).current_model, update_job_2.get_start_model())
 
     def test_termination_check_pass_2(self):
         project_db = InMemoryDBInterface()
@@ -287,6 +372,10 @@ class ProjectOperationsTestCase(AbstractTestCase):
         builder = JobSequenceBuilder()
         builder.id = "123dafasdf34sdfsdf"
         job_sequence = builder.build()
+        job_sequence.current_model = Model(
+            "12312414",
+            "12312414/start_model",
+            "123211")
 
         job_builder = JobBuilder()
         job_builder.set_id("job_test_id")

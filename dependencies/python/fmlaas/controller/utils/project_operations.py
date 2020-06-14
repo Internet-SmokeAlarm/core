@@ -1,19 +1,15 @@
 from ...model import DBObject
 from ...model import Project
 from ...model import Job
+from ...database import DB
 
 
-def update_job_sequence(current_job, job_db, project_db):
-    """
-    :param current_job: Job
-    :param job_db: DB
-    :param project_db: DB
-    """
-    # THIS ISNT GOING TO WORK
+def update_job_sequence(current_job: Job, job_db: DB, project_db: DB):
     project = DBObject.load_from_db(
         Project, current_job.get_project_id(), project_db)
 
     job_sequence = project.get_job_sequence(current_job.get_job_sequence_id())
+    job_sequence.current_model = current_job.get_end_model()
 
     job_sequence.proceed_to_next_job()
     while job_sequence.is_active:
@@ -31,14 +27,10 @@ def update_job_sequence(current_job, job_db, project_db):
     project.save_to_db(project_db)
 
 
-def termination_check(current_job, job_db, project_db):
+def termination_check(current_job: Job, job_db: DB, project_db: DB):
     """
     Checks to see whether or not the current job should be terminated. If so,
     handle termination, and update.
-
-    :param current_job: Job
-    :param job_db: DB
-    :param project_db: DB
     """
     is_terminated = current_job.should_terminate()
 

@@ -132,6 +132,10 @@ class StartJobControllerTestCase(AbstractTestCase):
         builder = JobSequenceBuilder()
         builder.id = "test_job_sequence_1"
         job_sequence = builder.build()
+        job_sequence.current_model = Model(
+            "1234",
+            "1234/start_model",
+            "123211")
         project.add_or_update_job_sequence(job_sequence)
 
         project.save_to_db(project_db)
@@ -167,6 +171,10 @@ class StartJobControllerTestCase(AbstractTestCase):
         builder = JobSequenceBuilder()
         builder.id = "test_job_sequence_1"
         job_sequence = builder.build()
+        job_sequence.current_model = Model(
+            "1234",
+            "1234/aggregate_model",
+            "123211")
 
         job_sequence.add_job(job)
         job_sequence.proceed_to_next_job()
@@ -199,6 +207,7 @@ class StartJobControllerTestCase(AbstractTestCase):
         job_db = InMemoryDBInterface()
 
         job = self._build_simple_job()
+        job.cancel()
         job.save_to_db(job_db)
 
         project = self._build_simple_project()
@@ -206,8 +215,13 @@ class StartJobControllerTestCase(AbstractTestCase):
         builder = JobSequenceBuilder()
         builder.id = "test_job_sequence_1"
         job_sequence = builder.build()
+        job_sequence.current_model = Model(
+            "1234",
+            "1234/aggregate_model",
+            "123211")
 
         job_sequence.add_job(job)
+        job_sequence.proceed_to_next_job()
         project.add_or_update_job_sequence(job_sequence)
 
         project.save_to_db(project_db)
@@ -241,9 +255,7 @@ class StartJobControllerTestCase(AbstractTestCase):
         updated_project = DBObject.load_from_db(
             Project, project.get_id(), project_db)
 
-        self.assertEqual(
-            job.get_end_model().to_json(),
-            new_job.get_start_model().to_json())
+        self.assertEqual(job.get_end_model(), new_job.get_start_model())
         self.assertEqual(updated_project.get_active_jobs(), [new_job_id])
         self.assertTrue(updated_project.contains_job(new_job_id))
 

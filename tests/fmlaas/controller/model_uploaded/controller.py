@@ -176,6 +176,10 @@ class ModelUploadedControllerTestCase(unittest.TestCase):
         builder = JobSequenceBuilder()
         builder.id = "job_sequence_1"
         job_sequence = builder.build()
+        job_sequence.current_model = Model(
+            "1234",
+            "1234/start_model",
+            "123211")
 
         job_sequence.add_job(job)
         job_sequence.add_job(job_2)
@@ -198,8 +202,8 @@ class ModelUploadedControllerTestCase(unittest.TestCase):
         job_2_from_db = DBObject.load_from_db(Job, job_2.get_id(), job_db)
         job_from_db = DBObject.load_from_db(Job, job.get_id(), job_db)
         self.assertEqual(
-            job_from_db.get_aggregate_model().to_json(),
-            job_2_from_db.get_start_model().to_json())
+            job_from_db.get_aggregate_model(),
+            job_2_from_db.get_start_model())
 
     def test_handle_job_aggregate_model_pass_3(self):
         project_db = InMemoryDBInterface()
