@@ -6,3 +6,4 @@ from .project_contains_job import ProjectContainsJob
 from .job_contains_device import JobContainsDevice
 from .project_contains_device import ProjectContainsDevice
 from .is_equal_to_auth_entity import IsEqualToAuthEntity
+from .project_contains_job_sequence import ProjectContainsJobSequence

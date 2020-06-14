@@ -1,87 +1,84 @@
+from ...database import DB
 from ...model import DBObject
 from ...model import JobBuilder
 from ...model import Job
 from ...model import Project
 from ...model import Model
 from ...model import ProjectPrivilegeTypesEnum
+from ...model import JobConfiguration
+from ...device_selection import DeviceSelector
+from ...request_processor import AuthContextProcessor
 from ...exception import raise_default_request_forbidden_error
 from ... import generate_unique_id
+from ..utils.auth.conditions import IsUser
+from ..utils.auth.conditions import HasProjectPermissions
+from ..utils.auth.conditions import ProjectContainsJobSequence
 from ...device_selection import DeviceSelectorFactory
+from ..abstract_controller import AbstractController
 
 
-def get_device_selector(job_configuration):
-    """
-    :param job_configuration: JobConfiguration
-    :return: DeviceSelector
-    """
-    factory = DeviceSelectorFactory()
-    return factory.get_device_selector(
-        job_configuration.get_device_selection_strategy())
+class StartJobController(AbstractController):
 
+    def __init__(self,
+                 job_db: DB,
+                 project_db: DB,
+                 project_id: str,
+                 job_sequence_id: str,
+                 job_config: JobConfiguration,
+                 auth_context: AuthContextProcessor):
+        super(StartJobController, self).__init__(auth_context)
 
-def create_job(devices, project_id, job_sequence_id, job_config):
-    """
-    :param devices: list
-    :param project_id: string
-    :param job_sequence_id: string
-    :param job_config: JobConfiguration
-    """
-    job_id = generate_unique_id()
+        self.job_db = job_db
+        self.project_db = project_db
+        self.project_id = project_id
+        self.job_sequence_id = job_sequence_id
+        self.job_config = job_config
 
-    builder = JobBuilder()
-    builder.set_id(job_id)
-    builder.set_project_id(project_id)
-    builder.set_job_sequence_id(job_sequence_id)
-    builder.set_configuration(job_config.to_json())
-    builder.set_devices(devices)
+    def load_data(self):
+        self.project = DBObject.load_from_db(Project, self.project_id, self.project_db)
 
-    return builder.build()
+    def get_auth_conditions(self):
+        return [
+            [
+                IsUser(),
+                HasProjectPermissions(self.project, ProjectPrivilegeTypesEnum.READ_WRITE),
+                ProjectContainsJobSequence(self.project, self.job_sequence_id)
+            ]
+        ]
 
+    def execute_controller(self):
+        job_sequence = self.project.get_job_sequence(self.job_sequence_id)
+        project_device_list = self.project.get_device_list()
+        if self.job_config.get_num_devices() > len(project_device_list):
+            raise ValueError(
+                "Cannot start job with more devices than exist in project.")
 
-def start_job_controller(job_db,
-                         project_db,
-                         project_id,
-                         job_sequence_id,
-                         job_config,
-                         auth_context):
-    """
-    :param job_db: DB
-    :param project_db: DB
-    :param project_id: string
-    :param job_sequence_id: string
-    :param job_config: JobConfiguration
-    :param auth_context: AuthContextProcessor
-    """
-    if auth_context.is_type_device():
-        raise_default_request_forbidden_error()
+        device_selector = self.get_device_selector()
+        devices = device_selector.select_devices(project_device_list, self.job_config)
 
-    project = DBObject.load_from_db(Project, project_id, project_db)
-    if not project.does_member_have_auth(
-            auth_context.get_entity_id(), ProjectPrivilegeTypesEnum.READ_WRITE):
-        raise_default_request_forbidden_error()
+        new_job = self.create_job(devices)
 
-    if not project.contains_job_sequence(job_sequence_id):
-        raise_default_request_forbidden_error()
+        if not job_sequence.is_active:
+            new_job.set_start_model(job_sequence.current_model)
 
-    job_sequence = project.get_job_sequence(job_sequence_id)
+        job_sequence.add_job(new_job)
+        self.project.add_or_update_job_sequence(job_sequence)
 
-    project_device_list = project.get_device_list()
-    if job_config.get_num_devices() > len(project_device_list):
-        raise ValueError(
-            "Cannot start job with more devices than exist in project.")
+        new_job.save_to_db(self.job_db)
+        self.project.save_to_db(self.project_db)
 
-    device_selector = get_device_selector(job_config)
-    devices = device_selector.select_devices(project_device_list, job_config)
+        return new_job.get_id()
 
-    new_job = create_job(devices, project_id, job_sequence_id, job_config)
+    def get_device_selector(self) -> DeviceSelector:
+        return DeviceSelectorFactory().get_device_selector(
+            self.job_config.get_device_selection_strategy())
 
-    if not job_sequence.is_active:
-        new_job.set_start_model(job_sequence.current_model)
+    def create_job(self, devices: list) -> Job:
+        builder = JobBuilder()
+        builder.set_id(generate_unique_id())
+        builder.set_project_id(self.project_id)
+        builder.set_job_sequence_id(self.job_sequence_id)
+        builder.set_configuration(self.job_config.to_json())
+        builder.set_devices(devices)
 
-    job_sequence.add_job(new_job)
-    project.add_or_update_job_sequence(job_sequence)
-
-    new_job.save_to_db(job_db)
-    project.save_to_db(project_db)
-
-    return new_job.get_id()
+        return builder.build()

@@ -3,7 +3,7 @@ import json
 from fmlaas import get_job_table_name_from_env
 from fmlaas import get_group_table_name_from_env
 from fmlaas.database import DynamoDBInterface
-from fmlaas.controller.start_job import start_job_controller
+from fmlaas.controller.start_job import StartJobController
 from fmlaas.request_processor import IDProcessor
 from fmlaas.request_processor import AuthContextProcessor
 from fmlaas.request_processor import JobConfigJSONProcessor
@@ -48,12 +48,12 @@ def lambda_handler(event, context):
     group_db = DynamoDBInterface(get_group_table_name_from_env())
 
     try:
-        job_id = start_job_controller(job_db,
-                                      group_db,
-                                      group_id,
-                                      job_config,
-                                      previous_job_id,
-                                      auth_context)
+        job_id = StartJobController(job_db,
+                                    group_db,
+                                    group_id,
+                                    job_config,
+                                    previous_job_id,
+                                    auth_context).execute()
 
         return {
             "statusCode": 200,

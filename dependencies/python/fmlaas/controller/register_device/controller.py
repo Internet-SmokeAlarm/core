@@ -24,7 +24,6 @@ class RegisterDeviceController(AbstractController):
     def load_data(self):
         self.project = DBObject.load_from_db(Project, self.project_id, self.project_db)
 
-
     def get_auth_conditions(self):
         return [
             [
