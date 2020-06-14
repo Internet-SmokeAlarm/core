@@ -4,7 +4,7 @@ from dependencies.python.fmlaas.exception import RequestForbiddenException
 from dependencies.python.fmlaas.model import DBObject
 from dependencies.python.fmlaas.model import ProjectBuilder
 from dependencies.python.fmlaas.model import Model
-from dependencies.python.fmlaas.model import JobSequenceBuilder
+from dependencies.python.fmlaas.model import ExperimentBuilder
 from dependencies.python.fmlaas.model import ProjectPrivilegeTypesEnum
 from dependencies.python.fmlaas.request_processor import AuthContextProcessor
 from dependencies.python.fmlaas.controller.utils.auth.conditions import IsUser

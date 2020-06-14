@@ -19,7 +19,7 @@ class JobBuilder(Builder):
         self.created_on = get_epoch_time()
         self.billable_size = "0"
         self.project_id = None
-        self.job_sequence_id = None
+        self.experiment_id = None
 
     def set_id(self, id):
         """
@@ -76,11 +76,11 @@ class JobBuilder(Builder):
         """
         self.project_id = project_id
 
-    def set_job_sequence_id(self, job_sequence_id):
+    def set_experiment_id(self, experiment_id):
         """
-        :param job_sequence_id: string
+        :param experiment_id: string
         """
-        self.job_sequence_id = job_sequence_id
+        self.experiment_id = experiment_id
 
     def build(self):
         self._validate_parameters()
@@ -95,7 +95,7 @@ class JobBuilder(Builder):
                    self.created_on,
                    self.billable_size,
                    self.project_id,
-                   self.job_sequence_id)
+                   self.experiment_id)
 
     def _validate_parameters(self):
         if self.id is None:
@@ -113,7 +113,7 @@ class JobBuilder(Builder):
         elif not isinstance(self.project_id, type("str")):
             raise ValueError("Parent Project ID must be type string")
 
-        if self.job_sequence_id is None:
+        if self.experiment_id is None:
             raise ValueError("Parent Job Sequence ID must not be none")
-        elif not isinstance(self.job_sequence_id, type("str")):
+        elif not isinstance(self.experiment_id, type("str")):
             raise ValueError("Parent Job Sequence ID must be type string")

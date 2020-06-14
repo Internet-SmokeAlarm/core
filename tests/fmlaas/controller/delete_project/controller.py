@@ -10,7 +10,7 @@ from dependencies.python.fmlaas.model import Project
 from dependencies.python.fmlaas.model import ProjectBuilder
 from dependencies.python.fmlaas.model import Job
 from dependencies.python.fmlaas.model import JobBuilder
-from dependencies.python.fmlaas.model import JobSequenceBuilder
+from dependencies.python.fmlaas.model import ExperimentBuilder
 from dependencies.python.fmlaas.model import Model
 from dependencies.python.fmlaas.model import JobConfiguration
 from dependencies.python.fmlaas.model import ProjectPrivilegeTypesEnum
@@ -30,7 +30,7 @@ class DeleteProjectControllerTestCase(unittest.TestCase):
         job_builder = JobBuilder()
         job_builder.set_id("2345")
         job_builder.set_project_id("test_id")
-        job_builder.set_job_sequence_id("test_id_2")
+        job_builder.set_experiment_id("test_id_2")
         configuration = JobConfiguration(1, 0, "RANDOM", [])
         job_builder.set_configuration(configuration.to_json())
         job_builder.set_devices(["3456"])
@@ -73,12 +73,12 @@ class DeleteProjectControllerTestCase(unittest.TestCase):
         project = self._build_default_project()
         job = self._build_default_job()
 
-        builder = JobSequenceBuilder()
+        builder = ExperimentBuilder()
         builder.id = "dfaslkfskljf"
-        job_sequence = builder.build()
+        experiment = builder.build()
 
-        job_sequence.add_job(job)
-        project.add_or_update_job_sequence(job_sequence)
+        experiment.add_job(job)
+        project.add_or_update_experiment(experiment)
 
         project.add_or_update_member(
             "user12344", ProjectPrivilegeTypesEnum.OWNER)

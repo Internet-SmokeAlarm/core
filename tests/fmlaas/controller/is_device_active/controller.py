@@ -4,7 +4,7 @@ from dependencies.python.fmlaas.model import DBObject
 from dependencies.python.fmlaas.model import ProjectBuilder
 from dependencies.python.fmlaas.model import Model
 from dependencies.python.fmlaas.model import JobBuilder
-from dependencies.python.fmlaas.model import JobSequenceBuilder
+from dependencies.python.fmlaas.model import ExperimentBuilder
 from dependencies.python.fmlaas.model import JobConfiguration
 from dependencies.python.fmlaas.model import ProjectPrivilegeTypesEnum
 from dependencies.python.fmlaas.controller.is_device_active import IsDeviceActiveController
@@ -29,12 +29,12 @@ class IsDeviceActiveControllerTestCase(AbstractTestCase):
 
         project = self._build_simple_project()
 
-        builder = JobSequenceBuilder()
-        builder.id = "test_job_sequence_1"
-        job_sequence = builder.build()
+        builder = ExperimentBuilder()
+        builder.id = "test_experiment_1"
+        experiment = builder.build()
 
-        job_sequence.add_job(job)
-        project.add_or_update_job_sequence(job_sequence)
+        experiment.add_job(job)
+        project.add_or_update_experiment(experiment)
 
         project.save_to_db(project_db_)
 
@@ -60,12 +60,12 @@ class IsDeviceActiveControllerTestCase(AbstractTestCase):
 
         project = self._build_simple_project()
 
-        builder = JobSequenceBuilder()
-        builder.id = "test_job_sequence_1"
-        job_sequence = builder.build()
+        builder = ExperimentBuilder()
+        builder.id = "test_experiment_1"
+        experiment = builder.build()
 
-        job_sequence.add_job(job)
-        project.add_or_update_job_sequence(job_sequence)
+        experiment.add_job(job)
+        project.add_or_update_experiment(experiment)
 
         project.save_to_db(project_db_)
 
@@ -99,12 +99,12 @@ class IsDeviceActiveControllerTestCase(AbstractTestCase):
 
         project = self._build_simple_project()
 
-        builder = JobSequenceBuilder()
-        builder.id = "test_job_sequence_1"
-        job_sequence = builder.build()
+        builder = ExperimentBuilder()
+        builder.id = "test_experiment_1"
+        experiment = builder.build()
 
-        job_sequence.add_job(job)
-        project.add_or_update_job_sequence(job_sequence)
+        experiment.add_job(job)
+        project.add_or_update_experiment(experiment)
 
         project.save_to_db(project_db_)
 
@@ -133,12 +133,12 @@ class IsDeviceActiveControllerTestCase(AbstractTestCase):
 
         project = self._build_simple_project()
 
-        builder = JobSequenceBuilder()
-        builder.id = "test_job_sequence_1"
-        job_sequence = builder.build()
+        builder = ExperimentBuilder()
+        builder.id = "test_experiment_1"
+        experiment = builder.build()
 
-        job_sequence.add_job(job)
-        project.add_or_update_job_sequence(job_sequence)
+        experiment.add_job(job)
+        project.add_or_update_experiment(experiment)
 
         project.save_to_db(project_db_)
 

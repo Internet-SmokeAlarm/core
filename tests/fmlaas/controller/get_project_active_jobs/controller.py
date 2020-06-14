@@ -12,7 +12,7 @@ from dependencies.python.fmlaas.model import ProjectPrivilegeTypesEnum
 from dependencies.python.fmlaas.request_processor import AuthContextProcessor
 from dependencies.python.fmlaas.model import JobStatus
 from dependencies.python.fmlaas.model import JobConfiguration
-from dependencies.python.fmlaas.model import JobSequenceBuilder
+from dependencies.python.fmlaas.model import ExperimentBuilder
 from dependencies.python.fmlaas.model import JobBuilder
 from ..abstract_testcase import AbstractTestCase
 
@@ -29,20 +29,20 @@ class GetProjectActiveJobIdsControllerTestCase(AbstractTestCase):
         project.add_or_update_member(
             "user_12345", ProjectPrivilegeTypesEnum.OWNER)
 
-        job_sequence_builder = JobSequenceBuilder()
-        job_sequence_builder.id = "sequence_id_1"
-        job_sequence = job_sequence_builder.build()
+        experiment_builder = ExperimentBuilder()
+        experiment_builder.id = "experiment_id_1"
+        experiment = experiment_builder.build()
 
         job_builder = JobBuilder()
         job_builder.set_id("1234432414")
         job_builder.set_project_id("fl_project_123123")
         configuration = JobConfiguration(50, 0, "RANDOM", [])
         job_builder.set_configuration(configuration.to_json())
-        job_builder.set_job_sequence_id("sequence_id_1")
+        job_builder.set_experiment_id("experiment_id_1")
         job = job_builder.build()
 
-        job_sequence.add_job(job)
-        project.add_or_update_job_sequence(job_sequence)
+        experiment.add_job(job)
+        project.add_or_update_experiment(experiment)
 
         return project
 

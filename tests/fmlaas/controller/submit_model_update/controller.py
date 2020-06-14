@@ -27,10 +27,10 @@ class SubmitModelUpdateControllerTestCase(AbstractTestCase):
 
         project = self._build_simple_project()
 
-        job_sequence = self._build_simple_job_sequence()
-        job_sequence.id = "job_sequence_id_1"
-        job_sequence.add_job(job)
-        project.add_or_update_job_sequence(job_sequence)
+        experiment = self._build_simple_experiment()
+        experiment.id = "experiment_id_1"
+        experiment.add_job(job)
+        project.add_or_update_experiment(experiment)
 
         project.save_to_db(project_db_)
 

@@ -1,7 +1,7 @@
 from .device_builder import DeviceBuilder
 from .job_builder import JobBuilder
 from .job_status import JobStatus
-from .job_sequence import JobSequence
+from .experiment import Experiment
 from .job import Job
 from .model import Model
 from .project_privilege_types import ProjectPrivilegeTypesEnum
@@ -16,21 +16,21 @@ class Project(DBObject):
                  name,
                  id,
                  devices,
-                 job_sequences,
+                 experiments,
                  members,
                  billing):
         """
         :param name: string
         :param id: string
         :param devices: dict
-        :param job_sequences: dict
+        :param experiments: dict
         :param members: dict
         :param billing: dict
         """
         self.id = id
         self.name = name
         self.devices = devices
-        self.job_sequences = job_sequences
+        self.experiments = experiments
         self.members = members
         self.billing = billing
 
@@ -50,43 +50,43 @@ class Project(DBObject):
         """
         return device_id in self.devices
 
-    def add_or_update_job_sequence(self, job_sequence):
+    def add_or_update_experiment(self, experiment):
         """
-        :param job_sequence: JobSequence
+        :param experiment: Experiment
         """
-        self.job_sequences[job_sequence.id] = job_sequence.to_json()
+        self.experiments[experiment.id] = experiment.to_json()
 
-    def get_job_sequence(self, id):
+    def get_experiment(self, id):
         """
         :param id: string
         """
-        return JobSequence.from_json(self.job_sequences[id])
+        return Experiment.from_json(self.experiments[id])
 
-    def get_job_sequences(self):
-        return [self.get_job_sequence(x) for x in self.job_sequences.keys()]
+    def get_experiments(self):
+        return [self.get_experiment(x) for x in self.experiments.keys()]
 
-    def contains_job_sequence(self, job_sequence_id):
+    def contains_experiment(self, experiment_id):
         """
-        :param job_sequence_id: string
+        :param experiment_id: string
         """
-        return job_sequence_id in self.job_sequences
+        return experiment_id in self.experiments
 
     def contains_job(self, job_id):
         """
         :param id: string
         """
-        for i in self.job_sequences.keys():
-            if self.get_job_sequence(i).contains_job(job_id):
+        for i in self.experiments.keys():
+            if self.get_experiment(i).contains_job(job_id):
                 return True
 
         return False
 
     def get_active_jobs(self):
         active_jobs = []
-        for i in self.job_sequences.keys():
-            sequence = self.get_job_sequence(i)
-            if sequence.is_active:
-                active_jobs.append(sequence.current_job)
+        for i in self.experiments.keys():
+            experiment = self.get_experiment(i)
+            if experiment.is_active:
+                active_jobs.append(experiment.current_job)
 
         return active_jobs
 
@@ -153,8 +153,8 @@ class Project(DBObject):
         :param project: Project
         """
         jobs = []
-        for sequence in self.get_job_sequences():
-            jobs.extend(sequence.jobs)
+        for experiment in self.get_experiments():
+            jobs.extend(experiment.jobs)
 
         return jobs
 
@@ -163,19 +163,19 @@ class Project(DBObject):
             "name": self.name,
             "ID": self.id,
             "devices": self.devices,
-            "job_sequences": self.job_sequences,
+            "experiments": self.experiments,
             "members": self.members,
             "billing": self.billing
         }
 
     def __eq__(self, other):
-        return (other.name == self.name) and (self.job_sequences == other.job_sequences) and (self.devices == other.devices) and (self.members == other.members) and (self.billing == other.billing) and (self.id == other.id)
+        return (other.name == self.name) and (self.experiments == other.experiments) and (self.devices == other.devices) and (self.members == other.members) and (self.billing == other.billing) and (self.id == other.id)
 
     @staticmethod
     def from_json(json_data):
         return Project(json_data["name"],
                        json_data["ID"],
                        json_data["devices"],
-                       json_data["job_sequences"],
+                       json_data["experiments"],
                        json_data["members"],
                        json_data["billing"])

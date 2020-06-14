@@ -29,9 +29,9 @@ class ProjectContainsJobTestCase(AbstractTestCase):
 
         project = self._build_simple_project()
         job = self._build_simple_job()
-        job_sequence = self._build_simple_job_sequence()
-        job_sequence.add_job(job)
-        project.add_or_update_job_sequence(job_sequence)
+        experiment = self._build_simple_experiment()
+        experiment.add_job(job)
+        project.add_or_update_experiment(experiment)
 
         self.assertTrue(ProjectContainsJob(project, job).verify(auth_context))
 
@@ -44,10 +44,10 @@ class ProjectContainsJobTestCase(AbstractTestCase):
     def test_eq_fail(self):
         project = self._build_simple_project()
         job = self._build_simple_job()
-        job_sequence = self._build_simple_job_sequence()
-        job_sequence.add_job(job)
+        experiment = self._build_simple_experiment()
+        experiment.add_job(job)
 
         project_2 = self._build_simple_project()
-        project_2.add_or_update_job_sequence(job_sequence)
+        project_2.add_or_update_experiment(experiment)
 
         self.assertFalse(ProjectContainsJob(project, job) == ProjectContainsJob(project_2, job))

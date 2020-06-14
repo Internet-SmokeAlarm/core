@@ -3,7 +3,7 @@ import unittest
 from dependencies.python.fmlaas.model import JobConfiguration
 from dependencies.python.fmlaas.model import ProjectBuilder
 from dependencies.python.fmlaas.model import JobBuilder
-from dependencies.python.fmlaas.model import JobSequenceBuilder
+from dependencies.python.fmlaas.model import ExperimentBuilder
 from dependencies.python.fmlaas.model import Model
 from dependencies.python.fmlaas.model import ProjectPrivilegeTypesEnum
 
@@ -22,8 +22,8 @@ class AbstractTestCase(unittest.TestCase):
 
         return project
 
-    def _build_simple_job_sequence(self):
-        builder = JobSequenceBuilder()
+    def _build_simple_experiment(self):
+        builder = ExperimentBuilder()
         builder.id = "test_id_2"
 
         return builder.build()
@@ -32,7 +32,7 @@ class AbstractTestCase(unittest.TestCase):
         job_builder = JobBuilder()
         job_builder.set_id("job_test_id")
         job_builder.set_project_id("test_id")
-        job_builder.set_job_sequence_id("test_id_2")
+        job_builder.set_experiment_id("test_id_2")
         job_builder.set_configuration(
             JobConfiguration(
                 1, 0, "RANDOM", []).to_json())

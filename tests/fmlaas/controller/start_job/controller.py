@@ -4,7 +4,7 @@ from dependencies.python.fmlaas.device_selection import RandomDeviceSelector
 from dependencies.python.fmlaas.model import JobConfiguration
 from dependencies.python.fmlaas.model import ProjectBuilder
 from dependencies.python.fmlaas.model import JobBuilder
-from dependencies.python.fmlaas.model import JobSequenceBuilder
+from dependencies.python.fmlaas.model import ExperimentBuilder
 from dependencies.python.fmlaas.model import Model
 from dependencies.python.fmlaas.model import Job
 from dependencies.python.fmlaas.model import DBObject
@@ -26,12 +26,12 @@ class StartJobControllerTestCase(AbstractTestCase):
 
         project = self._build_simple_project()
 
-        builder = JobSequenceBuilder()
-        builder.id = "test_job_sequence_1"
-        job_sequence = builder.build()
+        builder = ExperimentBuilder()
+        builder.id = "test_experiment_1"
+        experiment = builder.build()
 
-        job_sequence.add_job(job)
-        project.add_or_update_job_sequence(job_sequence)
+        experiment.add_job(job)
+        project.add_or_update_experiment(experiment)
 
         project.save_to_db(project_db)
 
@@ -42,7 +42,7 @@ class StartJobControllerTestCase(AbstractTestCase):
         auth_context = AuthContextProcessor(auth_json)
 
         controller = StartJobController(
-            job_db, project_db, project.get_id(), job_sequence.id, JobConfiguration(
+            job_db, project_db, project.get_id(), experiment.id, JobConfiguration(
                 1, 0, "RANDOM", []), auth_context)
         device_selector = controller.get_device_selector()
 
@@ -60,12 +60,12 @@ class StartJobControllerTestCase(AbstractTestCase):
         project.add_device("234")
         project.add_device("345")
 
-        builder = JobSequenceBuilder()
-        builder.id = "test_job_sequence_1"
-        job_sequence = builder.build()
+        builder = ExperimentBuilder()
+        builder.id = "test_experiment_1"
+        experiment = builder.build()
 
-        job_sequence.add_job(job)
-        project.add_or_update_job_sequence(job_sequence)
+        experiment.add_job(job)
+        project.add_or_update_experiment(experiment)
 
         project.save_to_db(project_db)
 
@@ -77,14 +77,14 @@ class StartJobControllerTestCase(AbstractTestCase):
 
         job_config = JobConfiguration(4, 0, "RANDOM", [])
         controller = StartJobController(
-            job_db, project_db, project.get_id(), job_sequence.id, job_config, auth_context)
+            job_db, project_db, project.get_id(), experiment.id, job_config, auth_context)
         device_selector = controller.get_device_selector()
         new_job = controller.create_job(["12344", "123", "234", "345"])
 
         self.assertIsNotNone(new_job.get_id())
         self.assertEqual(new_job.get_devices(), ["12344", "123", "234", "345"])
         self.assertEqual(new_job.get_project_id(), "test_id")
-        self.assertEqual(new_job.get_job_sequence_id(), "test_job_sequence_1")
+        self.assertEqual(new_job.get_experiment_id(), "test_experiment_1")
         self.assertEqual(job_config, new_job.get_configuration())
 
     def test_pass_1(self):
@@ -96,12 +96,12 @@ class StartJobControllerTestCase(AbstractTestCase):
 
         project = self._build_simple_project()
 
-        builder = JobSequenceBuilder()
-        builder.id = "test_job_sequence_1"
-        job_sequence = builder.build()
+        builder = ExperimentBuilder()
+        builder.id = "test_experiment_1"
+        experiment = builder.build()
 
-        job_sequence.add_job(job)
-        project.add_or_update_job_sequence(job_sequence)
+        experiment.add_job(job)
+        project.add_or_update_experiment(experiment)
 
         project.save_to_db(project_db)
 
@@ -112,7 +112,7 @@ class StartJobControllerTestCase(AbstractTestCase):
         auth_context = AuthContextProcessor(auth_json)
 
         new_job_id = StartJobController(
-            job_db, project_db, project.get_id(), job_sequence.id, JobConfiguration(
+            job_db, project_db, project.get_id(), experiment.id, JobConfiguration(
                 1, 0, "RANDOM", []), auth_context).execute()
         new_job = DBObject.load_from_db(Job, new_job_id, job_db)
 
@@ -129,14 +129,14 @@ class StartJobControllerTestCase(AbstractTestCase):
 
         project = self._build_simple_project()
 
-        builder = JobSequenceBuilder()
-        builder.id = "test_job_sequence_1"
-        job_sequence = builder.build()
-        job_sequence.current_model = Model(
+        builder = ExperimentBuilder()
+        builder.id = "test_experiment_1"
+        experiment = builder.build()
+        experiment.current_model = Model(
             "1234",
             "1234/start_model",
             "123211")
-        project.add_or_update_job_sequence(job_sequence)
+        project.add_or_update_experiment(experiment)
 
         project.save_to_db(project_db)
 
@@ -147,7 +147,7 @@ class StartJobControllerTestCase(AbstractTestCase):
         auth_context = AuthContextProcessor(auth_json)
 
         new_job_id = StartJobController(
-            job_db, project_db, project.get_id(), job_sequence.id, JobConfiguration(
+            job_db, project_db, project.get_id(), experiment.id, JobConfiguration(
                 1, 0, "RANDOM", []), auth_context).execute()
         new_job = DBObject.load_from_db(Job, new_job_id, job_db)
         updated_project = DBObject.load_from_db(
@@ -168,17 +168,17 @@ class StartJobControllerTestCase(AbstractTestCase):
 
         project = self._build_simple_project()
 
-        builder = JobSequenceBuilder()
-        builder.id = "test_job_sequence_1"
-        job_sequence = builder.build()
-        job_sequence.current_model = Model(
+        builder = ExperimentBuilder()
+        builder.id = "test_experiment_1"
+        experiment = builder.build()
+        experiment.current_model = Model(
             "1234",
             "1234/aggregate_model",
             "123211")
 
-        job_sequence.add_job(job)
-        job_sequence.proceed_to_next_job()
-        project.add_or_update_job_sequence(job_sequence)
+        experiment.add_job(job)
+        experiment.proceed_to_next_job()
+        project.add_or_update_experiment(experiment)
 
         project.save_to_db(project_db)
 
@@ -189,7 +189,7 @@ class StartJobControllerTestCase(AbstractTestCase):
         auth_context = AuthContextProcessor(auth_json)
 
         new_job_id = StartJobController(
-            job_db, project_db, project.get_id(), job_sequence.id, JobConfiguration(
+            job_db, project_db, project.get_id(), experiment.id, JobConfiguration(
                 1, 0, "RANDOM", []), auth_context).execute()
         new_job = DBObject.load_from_db(Job, new_job_id, job_db)
 
@@ -212,17 +212,17 @@ class StartJobControllerTestCase(AbstractTestCase):
 
         project = self._build_simple_project()
 
-        builder = JobSequenceBuilder()
-        builder.id = "test_job_sequence_1"
-        job_sequence = builder.build()
-        job_sequence.current_model = Model(
+        builder = ExperimentBuilder()
+        builder.id = "test_experiment_1"
+        experiment = builder.build()
+        experiment.current_model = Model(
             "1234",
             "1234/aggregate_model",
             "123211")
 
-        job_sequence.add_job(job)
-        job_sequence.proceed_to_next_job()
-        project.add_or_update_job_sequence(job_sequence)
+        experiment.add_job(job)
+        experiment.proceed_to_next_job()
+        project.add_or_update_experiment(experiment)
 
         project.save_to_db(project_db)
 
@@ -239,16 +239,16 @@ class StartJobControllerTestCase(AbstractTestCase):
         auth_context = AuthContextProcessor(auth_json)
 
         new_job_id = StartJobController(
-            job_db, project_db, project.get_id(), job_sequence.id, JobConfiguration(
+            job_db, project_db, project.get_id(), experiment.id, JobConfiguration(
                 1, 0, "RANDOM", []), auth_context).execute()
         new_job_id_2 = StartJobController(
-            job_db, project_db, project.get_id(), job_sequence.id, JobConfiguration(
+            job_db, project_db, project.get_id(), experiment.id, JobConfiguration(
                 1, 0, "RANDOM", []), auth_context).execute()
         new_job_id_3 = StartJobController(
-            job_db, project_db, project.get_id(), job_sequence.id, JobConfiguration(
+            job_db, project_db, project.get_id(), experiment.id, JobConfiguration(
                 1, 0, "RANDOM", []), auth_context).execute()
         new_job_id_4 = StartJobController(
-            job_db, project_db, project.get_id(), job_sequence.id, JobConfiguration(
+            job_db, project_db, project.get_id(), experiment.id, JobConfiguration(
                 1, 0, "RANDOM", []), auth_context).execute()
         new_job = DBObject.load_from_db(Job, new_job_id, job_db)
 
@@ -268,12 +268,12 @@ class StartJobControllerTestCase(AbstractTestCase):
 
         project = self._build_simple_project()
 
-        builder = JobSequenceBuilder()
-        builder.id = "test_job_sequence_1"
-        job_sequence = builder.build()
+        builder = ExperimentBuilder()
+        builder.id = "test_experiment_1"
+        experiment = builder.build()
 
-        job_sequence.add_job(job)
-        project.add_or_update_job_sequence(job_sequence)
+        experiment.add_job(job)
+        project.add_or_update_experiment(experiment)
 
         project.save_to_db(project_db)
 
@@ -288,7 +288,7 @@ class StartJobControllerTestCase(AbstractTestCase):
             StartJobController(job_db,
                                project_db,
                                project.get_id(),
-                               job_sequence.id,
+                               experiment.id,
                                JobConfiguration(
                                    5,
                                    0,
