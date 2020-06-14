@@ -8,7 +8,7 @@ class ProjectBuilder(Builder):
         self.name = None
         self.id = None
         self.devices = {}
-        self.job_sequences = {}
+        self.experiments = {}
         self.members = {}
         self.billing = {}
 
@@ -30,11 +30,11 @@ class ProjectBuilder(Builder):
         """
         self.devices = devices
 
-    def set_job_sequences(self, job_sequences):
+    def set_experiments(self, experiments):
         """
-        :param job_sequences: dict
+        :param experiments: dict
         """
-        self.job_sequences = job_sequences
+        self.experiments = experiments
 
     def set_billing(self, billing):
         """
@@ -45,7 +45,7 @@ class ProjectBuilder(Builder):
     def build(self):
         self._validate_parameters()
 
-        return Project(self.name, self.id, self.devices, self.job_sequences, self.members, self.billing)
+        return Project(self.name, self.id, self.devices, self.experiments, self.members, self.billing)
 
     def _validate_parameters(self):
         if self.id is None:

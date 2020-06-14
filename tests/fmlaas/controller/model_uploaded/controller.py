@@ -5,7 +5,7 @@ from dependencies.python.fmlaas.model import Project
 from dependencies.python.fmlaas.model import ProjectBuilder
 from dependencies.python.fmlaas.model import Job
 from dependencies.python.fmlaas.model import JobBuilder
-from dependencies.python.fmlaas.model import JobSequenceBuilder
+from dependencies.python.fmlaas.model import ExperimentBuilder
 from dependencies.python.fmlaas.model import JobConfiguration
 from dependencies.python.fmlaas.model import DBObject
 from dependencies.python.fmlaas.database import InMemoryDBInterface
@@ -22,7 +22,7 @@ class ModelUploadedControllerTestCase(unittest.TestCase):
         job_builder = JobBuilder()
         job_builder.set_id("1234")
         job_builder.set_project_id("test_id")
-        job_builder.set_job_sequence_id("job_sequence_1")
+        job_builder.set_experiment_id("experiment_1")
         configuration = JobConfiguration(1, 0, "RANDOM", [])
         job_builder.set_configuration(configuration.to_json())
         job_builder.set_devices(["3456"])
@@ -132,12 +132,12 @@ class ModelUploadedControllerTestCase(unittest.TestCase):
 
         project = self._build_default_project()
 
-        builder = JobSequenceBuilder()
-        builder.id = "job_sequence_1"
-        job_sequence = builder.build()
+        builder = ExperimentBuilder()
+        builder.id = "experiment_1"
+        experiment = builder.build()
 
-        job_sequence.add_job(job)
-        project.add_or_update_job_sequence(job_sequence)
+        experiment.add_job(job)
+        project.add_or_update_experiment(experiment)
 
         project.save_to_db(project_db)
 
@@ -164,7 +164,7 @@ class ModelUploadedControllerTestCase(unittest.TestCase):
         job_builder = JobBuilder()
         job_builder.set_id("12341")
         job_builder.set_project_id("test_id")
-        job_builder.set_job_sequence_id("job_sequence_1")
+        job_builder.set_experiment_id("experiment_1")
         configuration = JobConfiguration(1, 0, "RANDOM", [])
         job_builder.set_configuration(configuration.to_json())
         job_builder.set_devices(["3456"])
@@ -173,17 +173,17 @@ class ModelUploadedControllerTestCase(unittest.TestCase):
 
         project = self._build_default_project()
 
-        builder = JobSequenceBuilder()
-        builder.id = "job_sequence_1"
-        job_sequence = builder.build()
-        job_sequence.current_model = Model(
+        builder = ExperimentBuilder()
+        builder.id = "experiment_1"
+        experiment = builder.build()
+        experiment.current_model = Model(
             "1234",
             "1234/start_model",
             "123211")
 
-        job_sequence.add_job(job)
-        job_sequence.add_job(job_2)
-        project.add_or_update_job_sequence(job_sequence)
+        experiment.add_job(job)
+        experiment.add_job(job_2)
+        project.add_or_update_experiment(experiment)
 
         project.save_to_db(project_db)
 
@@ -215,7 +215,7 @@ class ModelUploadedControllerTestCase(unittest.TestCase):
         job_builder = JobBuilder()
         job_builder.set_id("12341")
         job_builder.set_project_id("test_id")
-        job_builder.set_job_sequence_id("job_sequence_1")
+        job_builder.set_experiment_id("experiment_1")
         configuration = JobConfiguration(1, 0, "RANDOM", [])
         job_builder.set_configuration(configuration.to_json())
         job_builder.set_devices(["3456"])
@@ -226,7 +226,7 @@ class ModelUploadedControllerTestCase(unittest.TestCase):
         job_builder = JobBuilder()
         job_builder.set_id("12342")
         job_builder.set_project_id("test_id")
-        job_builder.set_job_sequence_id("job_sequence_1")
+        job_builder.set_experiment_id("experiment_1")
         configuration = JobConfiguration(1, 0, "RANDOM", [])
         job_builder.set_configuration(configuration.to_json())
         job_builder.set_devices(["3456"])
@@ -235,14 +235,14 @@ class ModelUploadedControllerTestCase(unittest.TestCase):
 
         project = self._build_default_project()
 
-        builder = JobSequenceBuilder()
-        builder.id = "job_sequence_1"
-        job_sequence = builder.build()
+        builder = ExperimentBuilder()
+        builder.id = "experiment_1"
+        experiment = builder.build()
 
-        job_sequence.add_job(job)
-        job_sequence.add_job(job_2)
-        job_sequence.add_job(job_3)
-        project.add_or_update_job_sequence(job_sequence)
+        experiment.add_job(job)
+        experiment.add_job(job_2)
+        experiment.add_job(job_3)
+        project.add_or_update_experiment(experiment)
 
         project.save_to_db(project_db)
 
@@ -270,7 +270,7 @@ class ModelUploadedControllerTestCase(unittest.TestCase):
         job_builder = JobBuilder()
         job_builder.set_id("1234")
         job_builder.set_project_id("test_id")
-        job_builder.set_job_sequence_id("job_sequence_1")
+        job_builder.set_experiment_id("experiment_1")
         configuration = JobConfiguration(1, 0, "RANDOM", [])
         job_builder.set_configuration(configuration.to_json())
         job_builder.set_devices(["3456"])

@@ -1,34 +1,34 @@
-from dependencies.python.fmlaas.model import JobSequenceBuilder
+from dependencies.python.fmlaas.model import ExperimentBuilder
 from .abstract_model_testcase import AbstractModelTestCase
 
-class JobSequenceBuilderTestCase(AbstractModelTestCase):
+class ExperimentBuilderTestCase(AbstractModelTestCase):
 
     def test_build_pass(self):
-        builder = JobSequenceBuilder()
-        builder.id = "sequence_id_1"
+        builder = ExperimentBuilder()
+        builder.id = "experiment_id_1"
 
-        sequence = builder.build()
+        experiment = builder.build()
 
-        self.assertEqual(sequence.id, "sequence_id_1")
+        self.assertEqual(experiment.id, "experiment_id_1")
 
     def test_build_fail(self):
-        builder = JobSequenceBuilder()
+        builder = ExperimentBuilder()
 
         self.assertRaises(ValueError, builder.build)
 
     def test_validate_parameters_pass(self):
-        builder = JobSequenceBuilder()
-        builder.id = "sequence_id_1"
+        builder = ExperimentBuilder()
+        builder.id = "experiment_id_1"
 
         builder._validate_parameters()
 
     def test_validate_parameters_fail_id_not_set(self):
-        builder = JobSequenceBuilder()
+        builder = ExperimentBuilder()
 
         self.assertRaises(ValueError, builder._validate_parameters)
 
     def test_validate_parameters_fail_id_invalid_type(self):
-        builder = JobSequenceBuilder()
+        builder = ExperimentBuilder()
         builder.id = {}
 
         self.assertRaises(ValueError, builder._validate_parameters)

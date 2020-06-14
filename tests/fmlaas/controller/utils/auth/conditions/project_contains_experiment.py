@@ -1,11 +1,11 @@
 import unittest
 
 from dependencies.python.fmlaas.request_processor import AuthContextProcessor
-from dependencies.python.fmlaas.controller.utils.auth.conditions import ProjectContainsJobSequence
+from dependencies.python.fmlaas.controller.utils.auth.conditions import ProjectContainsExperiment
 from ....abstract_testcase import AbstractTestCase
 
 
-class ProjectContainsJobSequenceTestCase(AbstractTestCase):
+class ProjectContainsExperimentTestCase(AbstractTestCase):
 
     def test_verify_pass_false(self):
         auth_json = {
@@ -15,9 +15,9 @@ class ProjectContainsJobSequenceTestCase(AbstractTestCase):
         auth_context = AuthContextProcessor(auth_json)
 
         project = self._build_simple_project()
-        job_sequence = self._build_simple_job_sequence()
+        experiment = self._build_simple_experiment()
 
-        self.assertFalse(ProjectContainsJobSequence(project, job_sequence.id).verify(auth_context))
+        self.assertFalse(ProjectContainsExperiment(project, experiment.id).verify(auth_context))
 
     def test_verify_pass_true(self):
         auth_json = {
@@ -27,22 +27,22 @@ class ProjectContainsJobSequenceTestCase(AbstractTestCase):
         auth_context = AuthContextProcessor(auth_json)
 
         project = self._build_simple_project()
-        job_sequence = self._build_simple_job_sequence()
-        project.add_or_update_job_sequence(job_sequence)
+        experiment = self._build_simple_experiment()
+        project.add_or_update_experiment(experiment)
 
-        self.assertTrue(ProjectContainsJobSequence(project, job_sequence.id).verify(auth_context))
+        self.assertTrue(ProjectContainsExperiment(project, experiment.id).verify(auth_context))
 
     def test_eq_pass(self):
         project = self._build_simple_project()
         job = self._build_simple_job()
 
-        self.assertTrue(ProjectContainsJobSequence(project, job) == ProjectContainsJobSequence(project, job))
+        self.assertTrue(ProjectContainsExperiment(project, job) == ProjectContainsExperiment(project, job))
 
     def test_eq_fail(self):
         project = self._build_simple_project()
 
-        job_sequence = self._build_simple_job_sequence()
+        experiment = self._build_simple_experiment()
         project_2 = self._build_simple_project()
-        project_2.add_or_update_job_sequence(job_sequence)
+        project_2.add_or_update_experiment(experiment)
 
-        self.assertFalse(ProjectContainsJobSequence(project, job_sequence.id) == ProjectContainsJobSequence(project_2, job_sequence.id))
+        self.assertFalse(ProjectContainsExperiment(project, experiment.id) == ProjectContainsExperiment(project_2, experiment.id))

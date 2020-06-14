@@ -1,16 +1,16 @@
 import unittest
 from dependencies.python.fmlaas.model import JobBuilder
 from dependencies.python.fmlaas.model import JobConfiguration
-from dependencies.python.fmlaas.model import JobSequenceBuilder
+from dependencies.python.fmlaas.model import ExperimentBuilder
 from dependencies.python.fmlaas.model import ProjectBuilder
 
 
 class AbstractModelTestCase(unittest.TestCase):
 
-    def _build_default_job_sequence(self):
-        sequence = self._build_parameterized_job_sequence(1)
+    def _build_default_experiment(self):
+        experiment = self._build_parameterized_experiment(1)
 
-        sequence_json = {
+        experiment_json = {
             "ID" : "123dafasdf34sdfsdf_1",
             "jobs" : [],
             "current_job" : "NONE",
@@ -20,10 +20,10 @@ class AbstractModelTestCase(unittest.TestCase):
             "is_active" : False
         }
 
-        return sequence, sequence_json
+        return experiment, experiment_json
 
-    def _build_parameterized_job_sequence(self, id):
-        builder = JobSequenceBuilder()
+    def _build_parameterized_experiment(self, id):
+        builder = ExperimentBuilder()
         builder.id = "123dafasdf34sdfsdf_{}".format(id)
 
         return builder.build()
@@ -31,7 +31,7 @@ class AbstractModelTestCase(unittest.TestCase):
     def _build_job(self, id):
         builder = JobBuilder()
         builder.set_id("test_id_{}".format(id))
-        builder.set_job_sequence_id("123dafasdf34sdfsdf")
+        builder.set_experiment_id("123dafasdf34sdfsdf")
         builder.set_project_id("fl_group_1232234")
         builder.set_devices(["123", "234"])
         configuration = JobConfiguration(2, 0, "RANDOM", [])
@@ -51,6 +51,6 @@ class AbstractModelTestCase(unittest.TestCase):
             'name': 'my_name',
             'ID': 'id_{}'.format(id),
             'devices': {},
-            "job_sequences": {},
+            "experiments": {},
             "members": {},
             "billing": {}}

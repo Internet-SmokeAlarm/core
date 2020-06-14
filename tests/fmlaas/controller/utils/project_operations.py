@@ -2,14 +2,14 @@ from dependencies.python.fmlaas.device_selection import RandomDeviceSelector
 from dependencies.python.fmlaas.model import JobConfiguration
 from dependencies.python.fmlaas.model import ProjectBuilder
 from dependencies.python.fmlaas.model import JobBuilder
-from dependencies.python.fmlaas.model import JobSequenceBuilder
+from dependencies.python.fmlaas.model import ExperimentBuilder
 from dependencies.python.fmlaas.model import Model
 from dependencies.python.fmlaas.model import Job
 from dependencies.python.fmlaas.model import DBObject
 from dependencies.python.fmlaas.model import Project
 from dependencies.python.fmlaas.model import ProjectPrivilegeTypesEnum
 from dependencies.python.fmlaas.database import InMemoryDBInterface
-from dependencies.python.fmlaas.controller.utils import update_job_sequence
+from dependencies.python.fmlaas.controller.utils import update_experiment
 from dependencies.python.fmlaas.utils import get_epoch_time
 from dependencies.python.fmlaas.model.termination_criteria import DurationTerminationCriteria
 from dependencies.python.fmlaas.controller.utils import termination_check
@@ -18,7 +18,7 @@ from ..abstract_testcase import AbstractTestCase
 
 class ProjectOperationsTestCase(AbstractTestCase):
 
-    def test_update_job_sequence_pass(self):
+    def test_update_experiment_pass(self):
         project_db = InMemoryDBInterface()
         job_db = InMemoryDBInterface()
 
@@ -30,14 +30,14 @@ class ProjectOperationsTestCase(AbstractTestCase):
             "user_12345", ProjectPrivilegeTypesEnum.ADMIN)
         project.add_device("device_1")
 
-        builder = JobSequenceBuilder()
+        builder = ExperimentBuilder()
         builder.id = "123dafasdf34sdfsdf"
-        job_sequence = builder.build()
+        experiment = builder.build()
 
         job_builder = JobBuilder()
         job_builder.set_id("job_test_id")
         job_builder.set_project_id("test_id")
-        job_builder.set_job_sequence_id("123dafasdf34sdfsdf")
+        job_builder.set_experiment_id("123dafasdf34sdfsdf")
         job_builder.set_configuration(
             JobConfiguration(
                 1, 0, "RANDOM", []).to_json())
@@ -49,13 +49,13 @@ class ProjectOperationsTestCase(AbstractTestCase):
         job_builder.set_devices(["34553"])
         job = job_builder.build()
 
-        job_sequence.add_job(job)
-        project.add_or_update_job_sequence(job_sequence)
+        experiment.add_job(job)
+        project.add_or_update_experiment(experiment)
 
         job.save_to_db(job_db)
         project.save_to_db(project_db)
 
-        update_job_sequence(job, job_db, project_db)
+        update_experiment(job, job_db, project_db)
 
         updated_project = DBObject.load_from_db(
             Project, project.get_id(), project_db)
@@ -63,7 +63,7 @@ class ProjectOperationsTestCase(AbstractTestCase):
         self.assertEqual(updated_project.get_active_jobs(), [])
         self.assertTrue(updated_project.contains_job(job.get_id()))
 
-    def test_update_job_sequence_pass_2(self):
+    def test_update_experiment_pass_2(self):
         project_db = InMemoryDBInterface()
         job_db = InMemoryDBInterface()
 
@@ -76,10 +76,10 @@ class ProjectOperationsTestCase(AbstractTestCase):
         project.add_or_update_member(
             "user_12345", ProjectPrivilegeTypesEnum.ADMIN)
 
-        builder = JobSequenceBuilder()
+        builder = ExperimentBuilder()
         builder.id = "123dafasdf34sdfsdf"
-        job_sequence = builder.build()
-        job_sequence.current_model = Model(
+        experiment = builder.build()
+        experiment.current_model = Model(
             "12312414",
             "12312414/start_model",
             "123211")
@@ -87,7 +87,7 @@ class ProjectOperationsTestCase(AbstractTestCase):
         job_builder = JobBuilder()
         job_builder.set_id("job_test_id")
         job_builder.set_project_id("test_id")
-        job_builder.set_job_sequence_id("123dafasdf34sdfsdf")
+        job_builder.set_experiment_id("123dafasdf34sdfsdf")
         job_builder.set_configuration(
             JobConfiguration(
                 1, 0, "RANDOM", []).to_json())
@@ -103,22 +103,22 @@ class ProjectOperationsTestCase(AbstractTestCase):
         job_builder_2 = JobBuilder()
         job_builder_2.set_id("job_test_id_2")
         job_builder_2.set_project_id("test_id")
-        job_builder_2.set_job_sequence_id("123dafasdf34sdfsdf")
+        job_builder_2.set_experiment_id("123dafasdf34sdfsdf")
         job_builder_2.set_configuration(
             JobConfiguration(
                 1, 0, "RANDOM", []).to_json())
         job_builder_2.set_devices(["34553"])
         job_2 = job_builder_2.build()
 
-        job_sequence.add_job(job)
-        job_sequence.add_job(job_2)
-        project.add_or_update_job_sequence(job_sequence)
+        experiment.add_job(job)
+        experiment.add_job(job_2)
+        project.add_or_update_experiment(experiment)
 
         job.save_to_db(job_db)
         job_2.save_to_db(job_db)
         project.save_to_db(project_db)
 
-        update_job_sequence(job, job_db, project_db)
+        update_experiment(job, job_db, project_db)
 
         updated_project = DBObject.load_from_db(
             Project, project.get_id(), project_db)
@@ -134,7 +134,7 @@ class ProjectOperationsTestCase(AbstractTestCase):
         self.assertTrue(updated_project.contains_job(job.get_id()))
         self.assertTrue(updated_project.contains_job(job_2.get_id()))
 
-    def test_update_job_sequence_pass_3(self):
+    def test_update_experiment_pass_3(self):
         project_db = InMemoryDBInterface()
         job_db = InMemoryDBInterface()
 
@@ -147,10 +147,10 @@ class ProjectOperationsTestCase(AbstractTestCase):
         project.add_or_update_member(
             "user_12345", ProjectPrivilegeTypesEnum.ADMIN)
 
-        builder = JobSequenceBuilder()
+        builder = ExperimentBuilder()
         builder.id = "123dafasdf34sdfsdf"
-        job_sequence = builder.build()
-        job_sequence.current_model = Model(
+        experiment = builder.build()
+        experiment.current_model = Model(
             "12312414",
             "12312414/start_model",
             "123211")
@@ -158,7 +158,7 @@ class ProjectOperationsTestCase(AbstractTestCase):
         job_builder = JobBuilder()
         job_builder.set_id("job_test_id")
         job_builder.set_project_id("test_id")
-        job_builder.set_job_sequence_id("123dafasdf34sdfsdf")
+        job_builder.set_experiment_id("123dafasdf34sdfsdf")
         job_builder.set_configuration(
             JobConfiguration(
                 1, 0, "RANDOM", []).to_json())
@@ -174,7 +174,7 @@ class ProjectOperationsTestCase(AbstractTestCase):
         job_builder_2 = JobBuilder()
         job_builder_2.set_id("job_test_id_2")
         job_builder_2.set_project_id("test_id")
-        job_builder_2.set_job_sequence_id("123dafasdf34sdfsdf")
+        job_builder_2.set_experiment_id("123dafasdf34sdfsdf")
         job_builder_2.set_configuration(
             JobConfiguration(
                 1, 0, "RANDOM", [
@@ -183,9 +183,9 @@ class ProjectOperationsTestCase(AbstractTestCase):
         job_builder_2.set_devices(["34553"])
         job_2 = job_builder_2.build()
 
-        job_sequence.add_job(job)
-        job_sequence.add_job(job_2)
-        project.add_or_update_job_sequence(job_sequence)
+        experiment.add_job(job)
+        experiment.add_job(job_2)
+        project.add_or_update_experiment(experiment)
 
         job.save_to_db(job_db)
         job_2.save_to_db(job_db)
@@ -193,7 +193,7 @@ class ProjectOperationsTestCase(AbstractTestCase):
 
         self.assertTrue(job_2.should_terminate())
 
-        update_job_sequence(job, job_db, project_db)
+        update_experiment(job, job_db, project_db)
 
         updated_project = DBObject.load_from_db(
             Project, project.get_id(), project_db)
@@ -208,7 +208,7 @@ class ProjectOperationsTestCase(AbstractTestCase):
         self.assertTrue(updated_project.contains_job(job_2.get_id()))
         self.assertFalse(update_job_2.should_terminate())
 
-    def test_update_job_sequence_pass_4(self):
+    def test_update_experiment_pass_4(self):
         project_db = InMemoryDBInterface()
         job_db = InMemoryDBInterface()
 
@@ -221,10 +221,10 @@ class ProjectOperationsTestCase(AbstractTestCase):
         project.add_or_update_member(
             "user_12345", ProjectPrivilegeTypesEnum.ADMIN)
 
-        builder = JobSequenceBuilder()
+        builder = ExperimentBuilder()
         builder.id = "123dafasdf34sdfsdf"
-        job_sequence = builder.build()
-        job_sequence.current_model = Model(
+        experiment = builder.build()
+        experiment.current_model = Model(
             "12312414",
             "12312414/start_model",
             "123211")
@@ -232,7 +232,7 @@ class ProjectOperationsTestCase(AbstractTestCase):
         job_builder = JobBuilder()
         job_builder.set_id("job_test_id")
         job_builder.set_project_id("test_id")
-        job_builder.set_job_sequence_id("123dafasdf34sdfsdf")
+        job_builder.set_experiment_id("123dafasdf34sdfsdf")
         job_builder.set_configuration(
             JobConfiguration(
                 1, 0, "RANDOM", []).to_json())
@@ -253,22 +253,22 @@ class ProjectOperationsTestCase(AbstractTestCase):
         job_builder_2 = JobBuilder()
         job_builder_2.set_id("job_test_id_2")
         job_builder_2.set_project_id("test_id")
-        job_builder_2.set_job_sequence_id("123dafasdf34sdfsdf")
+        job_builder_2.set_experiment_id("123dafasdf34sdfsdf")
         job_builder_2.set_configuration(
             JobConfiguration(
                 1, 0, "RANDOM", []).to_json())
         job_builder_2.set_devices(["34553"])
         job_2 = job_builder_2.build()
 
-        job_sequence.add_job(job)
-        job_sequence.add_job(job_2)
-        project.add_or_update_job_sequence(job_sequence)
+        experiment.add_job(job)
+        experiment.add_job(job_2)
+        project.add_or_update_experiment(experiment)
 
         job.save_to_db(job_db)
         job_2.save_to_db(job_db)
         project.save_to_db(project_db)
 
-        update_job_sequence(job, job_db, project_db)
+        update_experiment(job, job_db, project_db)
 
         updated_project = DBObject.load_from_db(
             Project, project.get_id(), project_db)
@@ -281,7 +281,7 @@ class ProjectOperationsTestCase(AbstractTestCase):
         self.assertEqual(job.get_end_model(), update_job_2.get_start_model())
         self.assertTrue(updated_project.contains_job(job.get_id()))
         self.assertTrue(updated_project.contains_job(job_2.get_id()))
-        self.assertEqual(updated_project.get_job_sequence("123dafasdf34sdfsdf").current_model, update_job_2.get_start_model())
+        self.assertEqual(updated_project.get_experiment("123dafasdf34sdfsdf").current_model, update_job_2.get_start_model())
         self.assertFalse(update_job_2.should_terminate())
 
     def test_termination_check_pass(self):
@@ -297,10 +297,10 @@ class ProjectOperationsTestCase(AbstractTestCase):
         project.add_or_update_member(
             "user_12345", ProjectPrivilegeTypesEnum.ADMIN)
 
-        builder = JobSequenceBuilder()
+        builder = ExperimentBuilder()
         builder.id = "123dafasdf34sdfsdf"
-        job_sequence = builder.build()
-        job_sequence.current_model = Model(
+        experiment = builder.build()
+        experiment.current_model = Model(
             "12312414",
             "12312414/start_model",
             "123211")
@@ -308,7 +308,7 @@ class ProjectOperationsTestCase(AbstractTestCase):
         job_builder = JobBuilder()
         job_builder.set_id("job_test_id")
         job_builder.set_project_id("test_id")
-        job_builder.set_job_sequence_id("123dafasdf34sdfsdf")
+        job_builder.set_experiment_id("123dafasdf34sdfsdf")
         config = JobConfiguration(1, 0, "RANDOM", [])
         config.add_termination_criteria(
             DurationTerminationCriteria(
@@ -325,16 +325,16 @@ class ProjectOperationsTestCase(AbstractTestCase):
         job_builder_2 = JobBuilder()
         job_builder_2.set_id("job_test_id_2")
         job_builder_2.set_project_id("test_id")
-        job_builder_2.set_job_sequence_id("123dafasdf34sdfsdf")
+        job_builder_2.set_experiment_id("123dafasdf34sdfsdf")
         job_builder_2.set_configuration(
             JobConfiguration(
                 1, 0, "RANDOM", []).to_json())
         job_builder_2.set_devices(["34553"])
         job_2 = job_builder_2.build()
 
-        job_sequence.add_job(job)
-        job_sequence.add_job(job_2)
-        project.add_or_update_job_sequence(job_sequence)
+        experiment.add_job(job)
+        experiment.add_job(job_2)
+        project.add_or_update_experiment(experiment)
 
         job.save_to_db(job_db)
         job_2.save_to_db(job_db)
@@ -354,7 +354,7 @@ class ProjectOperationsTestCase(AbstractTestCase):
         self.assertTrue(updated_project.contains_job(job.get_id()))
         self.assertTrue(updated_project.contains_job(job_2.get_id()))
         self.assertTrue(job.is_cancelled())
-        self.assertEqual(updated_project.get_job_sequence(job_sequence.id).current_model, update_job_2.get_start_model())
+        self.assertEqual(updated_project.get_experiment(experiment.id).current_model, update_job_2.get_start_model())
 
     def test_termination_check_pass_2(self):
         project_db = InMemoryDBInterface()
@@ -369,10 +369,10 @@ class ProjectOperationsTestCase(AbstractTestCase):
         project.add_or_update_member(
             "user_12345", ProjectPrivilegeTypesEnum.ADMIN)
 
-        builder = JobSequenceBuilder()
+        builder = ExperimentBuilder()
         builder.id = "123dafasdf34sdfsdf"
-        job_sequence = builder.build()
-        job_sequence.current_model = Model(
+        experiment = builder.build()
+        experiment.current_model = Model(
             "12312414",
             "12312414/start_model",
             "123211")
@@ -380,7 +380,7 @@ class ProjectOperationsTestCase(AbstractTestCase):
         job_builder = JobBuilder()
         job_builder.set_id("job_test_id")
         job_builder.set_project_id("test_id")
-        job_builder.set_job_sequence_id("123dafasdf34sdfsdf")
+        job_builder.set_experiment_id("123dafasdf34sdfsdf")
         config = JobConfiguration(1, 0, "RANDOM", [])
         config.add_termination_criteria(
             DurationTerminationCriteria(
@@ -397,16 +397,16 @@ class ProjectOperationsTestCase(AbstractTestCase):
         job_builder_2 = JobBuilder()
         job_builder_2.set_id("job_test_id_2")
         job_builder_2.set_project_id("test_id")
-        job_builder_2.set_job_sequence_id("123dafasdf34sdfsdf")
+        job_builder_2.set_experiment_id("123dafasdf34sdfsdf")
         job_builder_2.set_configuration(
             JobConfiguration(
                 1, 0, "RANDOM", []).to_json())
         job_builder_2.set_devices(["34553"])
         job_2 = job_builder_2.build()
 
-        job_sequence.add_job(job)
-        job_sequence.add_job(job_2)
-        project.add_or_update_job_sequence(job_sequence)
+        experiment.add_job(job)
+        experiment.add_job(job_2)
+        project.add_or_update_experiment(experiment)
 
         job.save_to_db(job_db)
         job_2.save_to_db(job_db)

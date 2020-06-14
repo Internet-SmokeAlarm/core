@@ -12,7 +12,7 @@ from ...exception import raise_default_request_forbidden_error
 from ... import generate_unique_id
 from ..utils.auth.conditions import IsUser
 from ..utils.auth.conditions import HasProjectPermissions
-from ..utils.auth.conditions import ProjectContainsJobSequence
+from ..utils.auth.conditions import ProjectContainsExperiment
 from ...device_selection import DeviceSelectorFactory
 from ..abstract_controller import AbstractController
 
@@ -23,7 +23,7 @@ class StartJobController(AbstractController):
                  job_db: DB,
                  project_db: DB,
                  project_id: str,
-                 job_sequence_id: str,
+                 experiment_id: str,
                  job_config: JobConfiguration,
                  auth_context: AuthContextProcessor):
         super(StartJobController, self).__init__(auth_context)
@@ -31,7 +31,7 @@ class StartJobController(AbstractController):
         self.job_db = job_db
         self.project_db = project_db
         self.project_id = project_id
-        self.job_sequence_id = job_sequence_id
+        self.experiment_id = experiment_id
         self.job_config = job_config
 
     def load_data(self):
@@ -42,12 +42,12 @@ class StartJobController(AbstractController):
             [
                 IsUser(),
                 HasProjectPermissions(self.project, ProjectPrivilegeTypesEnum.READ_WRITE),
-                ProjectContainsJobSequence(self.project, self.job_sequence_id)
+                ProjectContainsExperiment(self.project, self.experiment_id)
             ]
         ]
 
     def execute_controller(self):
-        job_sequence = self.project.get_job_sequence(self.job_sequence_id)
+        experiment = self.project.get_experiment(self.experiment_id)
         project_device_list = self.project.get_device_list()
         if self.job_config.get_num_devices() > len(project_device_list):
             raise ValueError(
@@ -58,11 +58,11 @@ class StartJobController(AbstractController):
 
         new_job = self.create_job(devices)
 
-        if not job_sequence.is_active:
-            new_job.set_start_model(job_sequence.current_model)
+        if not experiment.is_active:
+            new_job.set_start_model(experiment.current_model)
 
-        job_sequence.add_job(new_job)
-        self.project.add_or_update_job_sequence(job_sequence)
+        experiment.add_job(new_job)
+        self.project.add_or_update_experiment(experiment)
 
         new_job.save_to_db(self.job_db)
         self.project.save_to_db(self.project_db)
@@ -77,7 +77,7 @@ class StartJobController(AbstractController):
         builder = JobBuilder()
         builder.set_id(generate_unique_id())
         builder.set_project_id(self.project_id)
-        builder.set_job_sequence_id(self.job_sequence_id)
+        builder.set_experiment_id(self.experiment_id)
         builder.set_configuration(self.job_config.to_json())
         builder.set_devices(devices)
 

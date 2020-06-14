@@ -4,8 +4,8 @@ from dependencies.python.fmlaas.model import ProjectPrivilegeTypesEnum
 from dependencies.python.fmlaas import generate_unique_id
 from dependencies.python.fmlaas import HierarchicalModelNameStructure
 from dependencies.python.fmlaas.model import ProjectBuilder
-from dependencies.python.fmlaas.model import JobSequence
-from dependencies.python.fmlaas.model import JobSequenceBuilder
+from dependencies.python.fmlaas.model import Experiment
+from dependencies.python.fmlaas.model import ExperimentBuilder
 from dependencies.python.fmlaas.model import JobBuilder
 from dependencies.python.fmlaas.model import JobConfiguration
 from .abstract_model_testcase import AbstractModelTestCase
@@ -48,7 +48,7 @@ class ProjectTestCase(AbstractModelTestCase):
         self.assertTrue("ID" in json_data)
         self.assertTrue("devices" in json_data)
         self.assertEqual(len(json_data["devices"]), 2)
-        self.assertTrue("job_sequences" in json_data)
+        self.assertTrue("experiments" in json_data)
         self.assertTrue("members" in json_data)
         self.assertTrue("billing" in json_data)
 
@@ -64,17 +64,17 @@ class ProjectTestCase(AbstractModelTestCase):
         project.add_or_update_member(
             "user_12344", ProjectPrivilegeTypesEnum.READ_ONLY)
 
-        job_sequence, _ = self._build_default_job_sequence()
-        job_sequence.id = "34345234123"
-        job_sequence.add_job(self._build_job(1))
-        job_sequence.add_job(self._build_job(2))
+        experiment, _ = self._build_default_experiment()
+        experiment.id = "34345234123"
+        experiment.add_job(self._build_job(1))
+        experiment.add_job(self._build_job(2))
 
-        job_sequence_2, _ = self._build_default_job_sequence()
-        job_sequence_2.id = "12312445123"
-        job_sequence_2.add_job(self._build_job(3))
+        experiment_2, _ = self._build_default_experiment()
+        experiment_2.id = "12312445123"
+        experiment_2.add_job(self._build_job(3))
 
-        project.add_or_update_job_sequence(job_sequence)
-        project.add_or_update_job_sequence(job_sequence_2)
+        project.add_or_update_experiment(experiment)
+        project.add_or_update_experiment(experiment_2)
 
         json_project = Project.from_json(project.to_json())
 
@@ -201,40 +201,40 @@ class ProjectTestCase(AbstractModelTestCase):
 
         self.assertNotEqual(project_1, project_3)
 
-    def test_add_or_update_job_sequence_pass(self):
+    def test_add_or_update_experiment_pass(self):
         project = self._build_simple_project(1)
 
-        job_sequence, json_data = self._build_default_job_sequence()
-        project.add_or_update_job_sequence(job_sequence)
+        experiment, json_data = self._build_default_experiment()
+        project.add_or_update_experiment(experiment)
 
-        self.assertEqual(json_data, project.job_sequences[job_sequence.id])
+        self.assertEqual(json_data, project.experiments[experiment.id])
 
-    def test_get_job_sequence_pass(self):
+    def test_get_experiment_pass(self):
         project = self._build_simple_project(1)
 
-        job_sequence, json_data = self._build_default_job_sequence()
-        project.add_or_update_job_sequence(job_sequence)
+        experiment, json_data = self._build_default_experiment()
+        project.add_or_update_experiment(experiment)
 
-        self.assertEqual(job_sequence, project.get_job_sequence(job_sequence.id))
+        self.assertEqual(experiment, project.get_experiment(experiment.id))
 
     def test_contains_job_pass(self):
         project = self._build_simple_project(1)
 
-        job_sequence, _ = self._build_default_job_sequence()
-        job_sequence_2, _ = self._build_default_job_sequence()
-        job_sequence_2.id = "123123123"
+        experiment, _ = self._build_default_experiment()
+        experiment_2, _ = self._build_default_experiment()
+        experiment_2.id = "123123123"
 
         job_1 = self._build_job(1)
         job_2 = self._build_job(2)
         job_3 = self._build_job(3)
         job_4 = self._build_job(4)
 
-        job_sequence.add_job(job_1)
-        job_sequence.add_job(job_3)
-        job_sequence_2.add_job(job_4)
+        experiment.add_job(job_1)
+        experiment.add_job(job_3)
+        experiment_2.add_job(job_4)
 
-        project.add_or_update_job_sequence(job_sequence)
-        project.add_or_update_job_sequence(job_sequence_2)
+        project.add_or_update_experiment(experiment)
+        project.add_or_update_experiment(experiment_2)
 
         self.assertTrue(project.contains_job(job_1.get_id()))
         self.assertFalse(project.contains_job(job_2.get_id()))
@@ -244,42 +244,42 @@ class ProjectTestCase(AbstractModelTestCase):
     def test_get_active_jobs_pass(self):
         project = self._build_simple_project(1)
 
-        job_sequence, _ = self._build_default_job_sequence()
-        job_sequence_2, _ = self._build_default_job_sequence()
-        job_sequence_2.id = "123123123"
+        experiment, _ = self._build_default_experiment()
+        experiment_2, _ = self._build_default_experiment()
+        experiment_2.id = "123123123"
 
         job_1 = self._build_job(1)
         job_3 = self._build_job(3)
         job_4 = self._build_job(4)
 
-        job_sequence.add_job(job_1)
-        job_sequence.add_job(job_3)
-        job_sequence_2.add_job(job_4)
+        experiment.add_job(job_1)
+        experiment.add_job(job_3)
+        experiment_2.add_job(job_4)
 
-        project.add_or_update_job_sequence(job_sequence)
-        project.add_or_update_job_sequence(job_sequence_2)
+        project.add_or_update_experiment(experiment)
+        project.add_or_update_experiment(experiment_2)
 
         self.assertTrue(job_1.get_id() in project.get_active_jobs())
         self.assertTrue(job_4.get_id() in project.get_active_jobs())
         self.assertFalse(job_3.get_id() in project.get_active_jobs())
 
-    def test_get_job_sequences_pass(self):
+    def test_get_experiments_pass(self):
         project = self._build_simple_project(1)
 
-        project.add_or_update_job_sequence(self._build_parameterized_job_sequence(1))
-        project.add_or_update_job_sequence(self._build_parameterized_job_sequence(2))
-        project.add_or_update_job_sequence(self._build_parameterized_job_sequence(3))
-        project.add_or_update_job_sequence(self._build_parameterized_job_sequence(4))
-        project.add_or_update_job_sequence(self._build_parameterized_job_sequence(5))
+        project.add_or_update_experiment(self._build_parameterized_experiment(1))
+        project.add_or_update_experiment(self._build_parameterized_experiment(2))
+        project.add_or_update_experiment(self._build_parameterized_experiment(3))
+        project.add_or_update_experiment(self._build_parameterized_experiment(4))
+        project.add_or_update_experiment(self._build_parameterized_experiment(5))
 
-        job_sequences = project.get_job_sequences()
+        experiments = project.get_experiments()
 
-        self.assertEqual(len(job_sequences), 5)
-        self.assertEqual(type(job_sequences[0]), JobSequence)
-        self.assertEqual(type(job_sequences[1]), JobSequence)
-        self.assertEqual(type(job_sequences[2]), JobSequence)
-        self.assertEqual(type(job_sequences[3]), JobSequence)
-        self.assertEqual(type(job_sequences[4]), JobSequence)
+        self.assertEqual(len(experiments), 5)
+        self.assertEqual(type(experiments[0]), Experiment)
+        self.assertEqual(type(experiments[1]), Experiment)
+        self.assertEqual(type(experiments[2]), Experiment)
+        self.assertEqual(type(experiments[3]), Experiment)
+        self.assertEqual(type(experiments[4]), Experiment)
 
     def test_get_all_jobs_ids_pass(self):
         builder = ProjectBuilder()
@@ -288,42 +288,42 @@ class ProjectTestCase(AbstractModelTestCase):
         project = builder.build()
 
         for i in range(10):
-            builder = JobSequenceBuilder()
+            builder = ExperimentBuilder()
             id = "123dafasdf34sdfsdf_{}".format(i)
             builder.id = id
-            job_sequence = builder.build()
+            experiment = builder.build()
 
             for j in range(5):
                 job_builder = JobBuilder()
                 job_builder.set_id("job_test_id_{}_{}".format(i, j))
                 job_builder.set_project_id("test_id")
-                job_builder.set_job_sequence_id(id)
+                job_builder.set_experiment_id(id)
                 config = JobConfiguration(1, 0, "RANDOM", [])
                 job_builder.set_configuration(config.to_json())
                 job_builder.set_devices(["34553"])
                 job = job_builder.build()
 
-                job_sequence.add_job(job)
+                experiment.add_job(job)
 
-            project.add_or_update_job_sequence(job_sequence)
+            project.add_or_update_experiment(experiment)
 
         project_job_ids = project.get_all_job_ids()
 
         self.assertEqual(len(project_job_ids), 50)
 
-    def test_contains_job_sequence_pass(self):
+    def test_contains_experiment_pass(self):
         builder = ProjectBuilder()
         builder.set_id("test_id")
         builder.set_name("test_name")
         project = builder.build()
 
         for i in range(10):
-            builder = JobSequenceBuilder()
+            builder = ExperimentBuilder()
             id = "123dafasdf34sdfsdf_{}".format(i)
             builder.id = id
-            job_sequence = builder.build()
+            experiment = builder.build()
 
-            project.add_or_update_job_sequence(job_sequence)
+            project.add_or_update_experiment(experiment)
 
-        self.assertTrue(project.contains_job_sequence("123dafasdf34sdfsdf_5"))
-        self.assertFalse(project.contains_job_sequence("123dafasdf34sdfsdf_50"))
+        self.assertTrue(project.contains_experiment("123dafasdf34sdfsdf_5"))
+        self.assertFalse(project.contains_experiment("123dafasdf34sdfsdf_50"))

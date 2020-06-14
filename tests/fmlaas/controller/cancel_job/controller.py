@@ -23,11 +23,11 @@ class CancelJobControllerTestCase(AbstractTestCase):
         project_db = InMemoryDBInterface()
 
         project = self._build_simple_project()
-        job_sequence = self._build_simple_job_sequence()
+        experiment = self._build_simple_experiment()
         job = self._build_simple_job()
 
-        job_sequence.add_job(job)
-        project.add_or_update_job_sequence(job_sequence)
+        experiment.add_job(job)
+        project.add_or_update_experiment(experiment)
 
         auth_json = {
             "authentication_type": "USER",
@@ -57,10 +57,10 @@ class CancelJobControllerTestCase(AbstractTestCase):
         project_db = InMemoryDBInterface()
 
         project = self._build_simple_project()
-        job_sequence = self._build_simple_job_sequence()
+        experiment = self._build_simple_experiment()
 
-        job_sequence.start_model = Model("12312414", "12312414/start_model", "123211")
-        job_sequence.current_model = Model("12312414", "12312414/start_model", "123211")
+        experiment.start_model = Model("12312414", "12312414/start_model", "123211")
+        experiment.current_model = Model("12312414", "12312414/start_model", "123211")
 
         auth_json = {
             "authentication_type": "USER",
@@ -71,7 +71,7 @@ class CancelJobControllerTestCase(AbstractTestCase):
         job_builder = JobBuilder()
         job_builder.set_id("job_test_id")
         job_builder.set_project_id("test_id")
-        job_builder.set_job_sequence_id("test_id_2")
+        job_builder.set_experiment_id("test_id_2")
         job_builder.set_configuration(
             JobConfiguration(
                 1, 0, "RANDOM", []).to_json())
@@ -86,7 +86,7 @@ class CancelJobControllerTestCase(AbstractTestCase):
         job_builder = JobBuilder()
         job_builder.set_id("job_test_id_2")
         job_builder.set_project_id("test_id")
-        job_builder.set_job_sequence_id("test_id_2")
+        job_builder.set_experiment_id("test_id_2")
         job_builder.set_configuration(
             JobConfiguration(
                 1, 0, "RANDOM", []).to_json())
@@ -96,7 +96,7 @@ class CancelJobControllerTestCase(AbstractTestCase):
         job_builder = JobBuilder()
         job_builder.set_id("job_test_id_3")
         job_builder.set_project_id("test_id")
-        job_builder.set_job_sequence_id("test_id_2")
+        job_builder.set_experiment_id("test_id_2")
         job_builder.set_configuration(
             JobConfiguration(
                 1, 0, "RANDOM", []).to_json())
@@ -104,11 +104,11 @@ class CancelJobControllerTestCase(AbstractTestCase):
         job_3 = job_builder.build()
         job_3.cancel()
 
-        job_sequence.add_job(job)
-        job_sequence.add_job(job_3)
-        job_sequence.add_job(job_2)
+        experiment.add_job(job)
+        experiment.add_job(job_3)
+        experiment.add_job(job_2)
 
-        project.add_or_update_job_sequence(job_sequence)
+        project.add_or_update_experiment(experiment)
 
         project.save_to_db(project_db)
         job.save_to_db(job_db)
@@ -146,9 +146,9 @@ class CancelJobControllerTestCase(AbstractTestCase):
 
         project = self._build_simple_project()
 
-        job_sequence = self._build_simple_job_sequence()
-        job_sequence.add_job(job)
-        project.add_or_update_job_sequence(job_sequence)
+        experiment = self._build_simple_experiment()
+        experiment.add_job(job)
+        project.add_or_update_experiment(experiment)
 
         project.save_to_db(project_db_)
 

@@ -1,8 +1,8 @@
-from .job_sequence import JobSequence
+from .experiment import Experiment
 from .builder import Builder
 
 
-class JobSequenceBuilder(Builder):
+class ExperimentBuilder(Builder):
 
     def __init__(self):
         self._id = None
@@ -27,7 +27,7 @@ class JobSequenceBuilder(Builder):
     def build(self):
         self._validate_parameters()
 
-        return JobSequence(
+        return Experiment(
             self._id,
             self._jobs,
             self._hyperparameters,

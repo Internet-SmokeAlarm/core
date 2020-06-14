@@ -38,7 +38,7 @@ class ProjectContainsDeviceTestCase(AbstractTestCase):
     def test_eq_fail(self):
         project = self._build_simple_project()
         project_2 = self._build_simple_project()
-        project_2.add_or_update_job_sequence(self._build_simple_job_sequence())
+        project_2.add_or_update_experiment(self._build_simple_experiment())
 
         self.assertNotEqual(ProjectContainsDevice(project), ProjectContainsDevice(project_2))
 

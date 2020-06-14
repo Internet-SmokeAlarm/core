@@ -4,26 +4,26 @@ from ...model import Job
 from ...database import DB
 
 
-def update_job_sequence(current_job: Job, job_db: DB, project_db: DB):
+def update_experiment(current_job: Job, job_db: DB, project_db: DB):
     project = DBObject.load_from_db(
         Project, current_job.get_project_id(), project_db)
 
-    job_sequence = project.get_job_sequence(current_job.get_job_sequence_id())
-    job_sequence.current_model = current_job.get_end_model()
+    experiment = project.get_experiment(current_job.get_experiment_id())
+    experiment.current_model = current_job.get_end_model()
 
-    job_sequence.proceed_to_next_job()
-    while job_sequence.is_active:
-        job = DBObject.load_from_db(Job, job_sequence.current_job, job_db)
+    experiment.proceed_to_next_job()
+    while experiment.is_active:
+        job = DBObject.load_from_db(Job, experiment.current_job, job_db)
         if not job.is_cancelled():
-            job.set_start_model(job_sequence.current_model)
+            job.set_start_model(experiment.current_model)
             job.reset_termination_criteria()
             job.save_to_db(job_db)
 
             break
 
-        job_sequence.proceed_to_next_job()
+        experiment.proceed_to_next_job()
 
-    project.add_or_update_job_sequence(job_sequence)
+    project.add_or_update_experiment(experiment)
     project.save_to_db(project_db)
 
 
@@ -37,7 +37,7 @@ def termination_check(current_job: Job, job_db: DB, project_db: DB):
     if is_terminated:
         current_job.cancel()
 
-        update_job_sequence(current_job, job_db, project_db)
+        update_experiment(current_job, job_db, project_db)
 
         current_job.save_to_db(job_db)
 

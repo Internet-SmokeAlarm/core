@@ -2,7 +2,7 @@ from .db_object import DBObject
 from .model import Model
 
 
-class JobSequence(DBObject):
+class Experiment(DBObject):
 
     def __init__(self,
                  id,
@@ -99,7 +99,7 @@ class JobSequence(DBObject):
 
     @staticmethod
     def from_json(json_data):
-        return JobSequence(json_data["ID"],
+        return Experiment(json_data["ID"],
                            json_data["jobs"],
                            json_data["hyperparameters"],
                            json_data["current_job"],

@@ -64,7 +64,7 @@ class JobTestCase(AbstractModelTestCase):
             'created_on': 'December 19th, 2019',
             "billable_size": "0",
             "project_id": "fl_project_12312313",
-            "job_sequence_id": "123121231232131231"}
+            "experiment_id": "123121231232131231"}
 
         return job, job_json
 

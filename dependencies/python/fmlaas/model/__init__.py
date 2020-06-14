@@ -6,8 +6,8 @@ from .job_status import JobStatus
 from .job_configuration import JobConfiguration
 from .job import Job
 from .job_builder import JobBuilder
-from .job_sequence import JobSequence
-from .job_sequence_builder import JobSequenceBuilder
+from .experiment import Experiment
+from .experiment_builder import ExperimentBuilder
 from .device import Device
 from .device_builder import DeviceBuilder
 from .project import Project

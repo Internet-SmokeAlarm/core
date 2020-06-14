@@ -4,7 +4,7 @@ from ...model import Job
 from ...model import Project
 from ...model import ProjectPrivilegeTypesEnum
 from ...request_processor import AuthContextProcessor
-from ..utils import update_job_sequence
+from ..utils import update_experiment
 from ..utils.auth.conditions import IsUser
 from ..utils.auth.conditions import HasProjectPermissions
 from ..abstract_controller import AbstractController
@@ -38,4 +38,4 @@ class CancelJobController(AbstractController):
         self.job.cancel()
         self.job.save_to_db(self.job_db)
 
-        update_job_sequence(self.job, self.job_db, self.project_db)
+        update_experiment(self.job, self.job_db, self.project_db)

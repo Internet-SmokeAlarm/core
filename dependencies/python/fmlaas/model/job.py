@@ -17,7 +17,7 @@ class Job(DBObject):
                  created_on,
                  billable_size,
                  project_id,
-                 job_sequence_id):
+                 experiment_id):
         """
         :param id: string
         :param devices: list(string)
@@ -29,7 +29,7 @@ class Job(DBObject):
         :param created_on: string
         :param billable_size: string
         :param project_id: string
-        :param job_sequence_id: string
+        :param experiment_id: string
         """
         self.id = id
         self.devices = devices
@@ -41,7 +41,7 @@ class Job(DBObject):
         self.created_on = created_on
         self.billable_size = billable_size
         self.project_id = project_id
-        self.job_sequence_id = job_sequence_id
+        self.experiment_id = experiment_id
 
     def get_id(self):
         return self.id
@@ -83,8 +83,8 @@ class Job(DBObject):
     def get_created_on(self):
         return self.created_on
 
-    def get_job_sequence_id(self):
-        return self.job_sequence_id
+    def get_experiment_id(self):
+        return self.experiment_id
 
     def add_model(self, model):
         """
@@ -279,11 +279,11 @@ class Job(DBObject):
             "created_on": self.created_on,
             "billable_size": self.billable_size,
             "project_id": self.project_id,
-            "job_sequence_id" : self.job_sequence_id
+            "experiment_id" : self.experiment_id
         }
 
     def __eq__(self, other):
-        return (self.id == other.id) and (self.status == other.status) and (self.devices == other.devices) and (self.start_model == other.start_model) and (self.project_id == other.project_id) and (self.job_sequence_id == other.job_sequence_id) and (self.configuration == other.configuration)
+        return (self.id == other.id) and (self.status == other.status) and (self.devices == other.devices) and (self.start_model == other.start_model) and (self.project_id == other.project_id) and (self.experiment_id == other.experiment_id) and (self.configuration == other.configuration)
 
     @staticmethod
     def from_json(json_data):
@@ -297,4 +297,4 @@ class Job(DBObject):
                    json_data["created_on"],
                    json_data["billable_size"],
                    json_data["project_id"],
-                   json_data["job_sequence_id"])
+                   json_data["experiment_id"])

@@ -23,11 +23,11 @@ class GetJobControllerTestCase(AbstractTestCase):
         job = self._build_simple_job()
         job.save_to_db(job_db_)
 
-        job_sequence = self._build_simple_job_sequence()
-        job_sequence.add_job(job)
+        experiment = self._build_simple_experiment()
+        experiment.add_job(job)
 
         project = self._build_simple_project()
-        project.add_or_update_job_sequence(job_sequence)
+        project.add_or_update_experiment(experiment)
         project.save_to_db(project_db_)
 
         auth_json = {
