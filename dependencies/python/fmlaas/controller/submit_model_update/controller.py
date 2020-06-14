@@ -1,57 +1,69 @@
+from ...database import DB
 from ...aws import create_presigned_post
 from ... import HierarchicalModelNameStructure
 from ...aws import get_models_bucket_name
+from ...request_processor import AuthContextProcessor
 from ...database import DynamoDBInterface
 from ...model import Job
 from ...model import Project
 from ...model import DBObject
-from ...exception import raise_default_request_forbidden_error
+from ..utils.auth.conditions import IsDevice
+from ..utils.auth.conditions import ProjectContainsJob
+from ..utils.auth.conditions import JobContainsDevice
 from ..utils import termination_check
+from ..abstract_controller import AbstractController
 
 
-def submit_model_update_controller(
-        project_db, job_db, project_id, job_id, auth_context):
-    """
-    :param project_db: DB
-    :param job_db: DB
-    :param project_id: string
-    :param job_id: string
-    :param auth_context: AuthContextProcessor
-    """
-    if auth_context.is_type_user():
-        raise_default_request_forbidden_error()
+class SubmitModelUpdateController(AbstractController):
 
-    EXPIRATION_SEC = 60 * 10
-    FIELDS = {}
-    CONDITIONS = []
+    def __init__(self,
+                 project_db: DB,
+                 job_db: DB,
+                 project_id: str,
+                 job_id: str,
+                 auth_context: AuthContextProcessor):
+        super(SubmitModelUpdateController, self).__init__(auth_context)
 
-    project = DBObject.load_from_db(Project, project_id, project_db)
-    if (not project.contains_job(job_id)) or (
-            not project.contains_device(auth_context.get_entity_id())):
-        raise_default_request_forbidden_error()
+        self.project_db = project_db
+        self.job_db = job_db
+        self.project_id = project_id
+        self.job_id = job_id
 
-    job = DBObject.load_from_db(Job, job_id, job_db)
+    def load_data(self):
+        self.project = DBObject.load_from_db(Project, self.project_id, self.project_db)
+        self.job = DBObject.load_from_db(Job, self.job_id, self.job_db)
 
-    can_submit_model_to_job = job.is_in_progress() and job.is_device_active(
-        auth_context.get_entity_id())
-    if can_submit_model_to_job:
-        object_name = HierarchicalModelNameStructure()
-        object_name.generate_name(
-            job_id=job_id,
-            device_id=auth_context.get_entity_id())
+    def get_auth_conditions(self):
+        return [
+            [
+                IsDevice(),
+                ProjectContainsJob(self.project, self.job),
+                JobContainsDevice(self.job)
+            ]
+        ]
 
-        presigned_url = create_presigned_post(
-            get_models_bucket_name(),
-            object_name.get_name(),
-            FIELDS,
-            CONDITIONS,
-            expiration=EXPIRATION_SEC)
-    else:
-        presigned_url = None
+    def execute_controller(self):
+        EXPIRATION_SEC = 60 * 10
+        FIELDS = {}
+        CONDITIONS = []
 
-    try:
-        termination_check(job, job_db, project_db)
-    except BaseException:
-        can_submit_model_to_job = False
+        can_submit_model_to_job = self.job.is_in_progress() and self.job.is_device_active(
+            self.auth_context.get_entity_id())
+        if can_submit_model_to_job:
+            object_name = HierarchicalModelNameStructure()
+            object_name.generate_name(
+                job_id=self.job_id,
+                device_id=self.auth_context.get_entity_id())
 
-    return can_submit_model_to_job, presigned_url
+            presigned_url = create_presigned_post(
+                get_models_bucket_name(),
+                object_name.get_name(),
+                FIELDS,
+                CONDITIONS,
+                expiration=EXPIRATION_SEC)
+        else:
+            presigned_url = None
+
+        termination_check(self.job, self.job_db, self.project_db)
+
+        return can_submit_model_to_job, presigned_url

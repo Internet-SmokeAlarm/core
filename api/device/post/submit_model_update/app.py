@@ -6,7 +6,7 @@ from fmlaas import get_job_table_name_from_env
 from fmlaas import get_group_table_name_from_env
 from fmlaas.database import DynamoDBInterface
 from fmlaas.exception import RequestForbiddenException
-from fmlaas.controller.submit_model_update import submit_model_update_controller
+from fmlaas.controller.submit_model_update import SubmitModelUpdateController
 
 
 def lambda_handler(event, context):
@@ -29,11 +29,11 @@ def lambda_handler(event, context):
     job_db = DynamoDBInterface(get_job_table_name_from_env())
 
     try:
-        can_submit_model_to_job, presigned_url = submit_model_update_controller(group_db,
-                                                                                job_db,
-                                                                                group_id,
-                                                                                job_id,
-                                                                                auth_context)
+        can_submit_model_to_job, presigned_url = SubmitModelUpdateController(group_db,
+                                                                             job_db,
+                                                                             group_id,
+                                                                             job_id,
+                                                                             auth_context).execute()
 
         if not can_submit_model_to_job:
             return {
