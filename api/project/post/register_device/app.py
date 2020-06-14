@@ -5,7 +5,7 @@ from fmlaas.database import DynamoDBInterface
 from fmlaas.request_processor import IDProcessor
 from fmlaas.request_processor import AuthContextProcessor
 from fmlaas import get_auth_key_table_from_env
-from fmlaas.controller.register_device import register_device_controller
+from fmlaas.controller.register_device import RegisterDeviceController
 from fmlaas.exception import RequestForbiddenException
 
 
@@ -28,10 +28,10 @@ def lambda_handler(event, context):
     key_db = DynamoDBInterface(get_auth_key_table_from_env())
 
     try:
-        id, key_plaintext = register_device_controller(project_db,
-                                                       key_db,
-                                                       project_id,
-                                                       auth_context)
+        id, key_plaintext = RegisterDeviceController(project_db,
+                                                     key_db,
+                                                     project_id,
+                                                     auth_context).execute()
 
         return {
             "statusCode": 200,

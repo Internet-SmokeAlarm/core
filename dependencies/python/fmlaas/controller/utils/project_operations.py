@@ -9,6 +9,7 @@ def update_job_sequence(current_job, job_db, project_db):
     :param job_db: DB
     :param project_db: DB
     """
+    # THIS ISNT GOING TO WORK
     project = DBObject.load_from_db(
         Project, current_job.get_project_id(), project_db)
 
