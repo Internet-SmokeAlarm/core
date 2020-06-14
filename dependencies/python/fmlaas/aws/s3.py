@@ -1,6 +1,7 @@
 import boto3
 import os
 
+
 def create_presigned_url(bucket_name, object_name, expiration=3600):
     """Generate a presigned URL to share an S3 object
 
@@ -17,6 +18,7 @@ def create_presigned_url(bucket_name, object_name, expiration=3600):
                                                 ExpiresIn=expiration)
 
     return response
+
 
 def create_presigned_post(bucket_name, object_name,
                           fields=None, conditions=None, expiration=3600):
@@ -45,6 +47,7 @@ def create_presigned_post(bucket_name, object_name,
 
     return response
 
+
 def download_s3_object(object_name, file_obj):
     """
     :param object_name: string
@@ -54,6 +57,7 @@ def download_s3_object(object_name, file_obj):
 
     s3 = boto3.client('s3')
     s3.download_fileobj(BUCKET_NAME, object_name, file_obj)
+
 
 def upload_s3_object(object_name, file_obj):
     """
@@ -65,6 +69,7 @@ def upload_s3_object(object_name, file_obj):
     s3 = boto3.client('s3')
     s3.upload_fileobj(file_obj, BUCKET_NAME, object_name)
 
+
 def delete_s3_objects_with_prefix(bucket_name, prefix):
     """
     Deletes all objects within an S3 bucket with a given prefix.
@@ -75,6 +80,7 @@ def delete_s3_objects_with_prefix(bucket_name, prefix):
     s3 = boto3.resource('s3')
     bucket = s3.Bucket(bucket_name)
     bucket.objects.filter(Prefix=prefix).delete()
+
 
 def get_models_bucket_name():
     return os.environ["MODELS_BUCKET"]

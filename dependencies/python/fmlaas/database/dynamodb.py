@@ -1,6 +1,7 @@
 from .db import DB
 from ..aws import get_dynamodb_table
 
+
 class DynamoDBInterface(DB):
 
     ID_KEY_NAME = "ID"
@@ -15,7 +16,7 @@ class DynamoDBInterface(DB):
         :returns: true/false if operation successful
         """
         return self.table.put_item(Item={
-            DynamoDBInterface.ID_KEY_NAME : id,
+            DynamoDBInterface.ID_KEY_NAME: id,
             **obj
         })
 
@@ -25,7 +26,7 @@ class DynamoDBInterface(DB):
         :returns: true/false if operation successful
         """
         return self.table.delete_item(Key={
-            DynamoDBInterface.ID_KEY_NAME : id
+            DynamoDBInterface.ID_KEY_NAME: id
         })
 
     def get_object(self, id):
@@ -34,5 +35,5 @@ class DynamoDBInterface(DB):
         :returns: json of object
         """
         return self.table.get_item(Key={
-            DynamoDBInterface.ID_KEY_NAME : id
+            DynamoDBInterface.ID_KEY_NAME: id
         })["Item"]

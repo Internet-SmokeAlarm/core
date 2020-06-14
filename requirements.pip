@@ -8,3 +8,4 @@ torchvision==0.4.2
 numpy==1.18.0
 passlib==1.7.2
 argon2-cffi==19.2.0
+autopep8==1.5.2

@@ -1,5 +1,6 @@
 from .db_object import DBObject
 
+
 class Device(DBObject):
 
     def __init__(self, id, registered_on):
@@ -18,8 +19,8 @@ class Device(DBObject):
 
     def to_json(self):
         return {
-            "ID" : self.id,
-            "registered_on" : self.registered_on
+            "ID": self.id,
+            "registered_on": self.registered_on
         }
 
     @staticmethod

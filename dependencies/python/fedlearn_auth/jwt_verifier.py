@@ -7,7 +7,8 @@
 #
 # or in the "license" file accompanying this file. This file is distributed on an "AS IS"
 # BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
-# License for the specific language governing permissions and limitations under the License.
+# License for the specific language governing permissions and limitations
+# under the License.
 
 # Copied/modified from the following application:
 # https://github.com/awslabs/aws-support-tools/tree/master/Cognito/decode-verify-jwt
@@ -21,6 +22,7 @@ from jose.utils import base64url_decode
 from fedlearn_auth import get_app_client_id_from_env
 from fedlearn_auth import get_userpool_id_from_env
 
+
 def verify_jwt_token(token):
     """
     :param token:
@@ -28,9 +30,10 @@ def verify_jwt_token(token):
     app_client_id = get_app_client_id_from_env()
     userpool_id = get_userpool_id_from_env()
 
-    keys_url = 'https://cognito-idp.us-east-1.amazonaws.com/{}/.well-known/jwks.json'.format(userpool_id)
+    keys_url = 'https://cognito-idp.us-east-1.amazonaws.com/{}/.well-known/jwks.json'.format(
+        userpool_id)
     with urllib.request.urlopen(keys_url) as f:
-      response = f.read()
+        response = f.read()
     keys = json.loads(response.decode('utf-8'))['keys']
 
     # get the kid from the headers prior to verification

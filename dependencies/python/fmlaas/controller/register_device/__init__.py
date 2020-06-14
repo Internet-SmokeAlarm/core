@@ -1,1 +1,1 @@
-from .controller import register_device_controller
+from .controller import RegisterDeviceController

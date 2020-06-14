@@ -1,5 +1,6 @@
 from .random_device_selector import RandomDeviceSelector
 
+
 class DeviceSelectorFactory:
 
     def get_device_selector(self, selector_name):

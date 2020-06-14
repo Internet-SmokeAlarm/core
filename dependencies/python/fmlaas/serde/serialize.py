@@ -6,4 +6,4 @@ def serialize_numpy(state_dict):
 
     :param state_dict: dictionary
     """
-    return {key : item.tolist() for key, item in state_dict.items()}
+    return {key: item.tolist() for key, item in state_dict.items()}

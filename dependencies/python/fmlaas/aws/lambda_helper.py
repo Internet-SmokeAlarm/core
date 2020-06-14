@@ -1,5 +1,6 @@
 import boto3
 
+
 def trigger_lambda_function(function_name, payload):
     """
     :param function_name: string

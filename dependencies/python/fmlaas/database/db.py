@@ -1,6 +1,7 @@
 from abc import abstractmethod
 from abc import ABC
 
+
 class DB(ABC):
 
     @abstractmethod

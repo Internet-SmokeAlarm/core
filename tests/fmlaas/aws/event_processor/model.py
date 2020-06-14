@@ -2,6 +2,7 @@ import unittest
 
 from dependencies.python.fmlaas.aws.event_processor import ModelUploadEventProcessor
 
+
 class ModelUploadEventProcessorTestCase(unittest.TestCase):
 
     def test_process_event_pass(self):

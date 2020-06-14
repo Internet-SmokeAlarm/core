@@ -6,6 +6,7 @@ from ...model import ApiKeyTypeEnum
 from fedlearn_auth import get_id_from_token
 from fedlearn_auth import verify_key
 
+
 def auth_controller(event, key_db):
     token_id = get_id_from_token(event.get_token())
     principalId = "user|" + token_id
@@ -26,8 +27,10 @@ def auth_controller(event, key_db):
         else:
             entity_id = auth_token_api_key.get_entity_id()
 
-        authenticated = verify_key(event.get_token(), auth_token_api_key.get_hash())
-    except:
+        authenticated = verify_key(
+            event.get_token(),
+            auth_token_api_key.get_hash())
+    except BaseException:
         # TODO: Handle JWT from AWS Cognito here
         pass
 
@@ -38,8 +41,8 @@ def auth_controller(event, key_db):
 
     auth_response = policy.build()
     auth_response["context"] = {
-        "entity_id" : entity_id,
-        "authentication_type" : authentication_type
+        "entity_id": entity_id,
+        "authentication_type": authentication_type
     }
 
     return auth_response

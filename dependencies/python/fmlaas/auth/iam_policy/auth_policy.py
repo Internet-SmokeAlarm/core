@@ -1,6 +1,7 @@
 from .http_verb import HttpVerb
 import re
 
+
 class AuthPolicy:
     awsAccountId = ""
     """The AWS account id the policy will be generated for. This is used to create the method ARNs."""
@@ -8,8 +9,9 @@ class AuthPolicy:
     """The principal used for the policy, this should be a unique identifier for the end user."""
     version = "2012-10-17"
     """The policy version used for the evaluation. This should always be '2012-10-17'"""
-    # NOTE: Below, added "_" to allowed regex (since this doesn't seem to break anything else within AWS?)
-    pathRegex = "^[/.a-zA-Z0-9-\*_]+$"
+    # NOTE: Below, added "_" to allowed regex (since this doesn't seem to
+    # break anything else within AWS?)
+    pathRegex = r"^[/.a-zA-Z0-9-\*_]+$"
     """The regular expression used to validate resource paths for the policy"""
 
     """these are the internal lists of allowed and denied methods. These are lists
@@ -38,31 +40,38 @@ class AuthPolicy:
         the internal list contains a resource ARN and a condition statement. The condition
         statement can be null."""
         if verb != "*" and not hasattr(HttpVerb, verb):
-            raise NameError("Invalid HTTP verb " + verb + ". Allowed verbs in HttpVerb class")
+            raise NameError(
+                "Invalid HTTP verb " +
+                verb +
+                ". Allowed verbs in HttpVerb class")
         resourcePattern = re.compile(self.pathRegex)
         if not resourcePattern.match(resource):
-            raise NameError("Invalid resource path: " + resource + ". Path should match " + self.pathRegex)
+            raise NameError(
+                "Invalid resource path: " +
+                resource +
+                ". Path should match " +
+                self.pathRegex)
 
         if resource[:1] == "/":
             resource = resource[1:]
 
         resourceArn = ("arn:aws:execute-api:" +
-            self.region + ":" +
-            self.awsAccountId + ":" +
-            self.restApiId + "/" +
-            self.stage + "/" +
-            verb + "/" +
-            resource)
+                       self.region + ":" +
+                       self.awsAccountId + ":" +
+                       self.restApiId + "/" +
+                       self.stage + "/" +
+                       verb + "/" +
+                       resource)
 
         if effect.lower() == "allow":
             self.allowMethods.append({
-                'resourceArn' : resourceArn,
-                'conditions' : conditions
+                'resourceArn': resourceArn,
+                'conditions': conditions
             })
         elif effect.lower() == "deny":
             self.denyMethods.append({
-                'resourceArn' : resourceArn,
-                'conditions' : conditions
+                'resourceArn': resourceArn,
+                'conditions': conditions
             })
 
     def _getEmptyStatement(self, effect):
@@ -85,11 +94,13 @@ class AuthPolicy:
             statement = self._getEmptyStatement(effect)
 
             for curMethod in methods:
-                if curMethod['conditions'] is None or len(curMethod['conditions']) == 0:
+                if curMethod['conditions'] is None or len(
+                        curMethod['conditions']) == 0:
                     statement['Resource'].append(curMethod['resourceArn'])
                 else:
                     conditionalStatement = self._getEmptyStatement(effect)
-                    conditionalStatement['Resource'].append(curMethod['resourceArn'])
+                    conditionalStatement['Resource'].append(
+                        curMethod['resourceArn'])
                     conditionalStatement['Condition'] = curMethod['conditions']
                     statements.append(conditionalStatement)
 
@@ -133,18 +144,20 @@ class AuthPolicy:
         one statement for Allow and one statement for Deny.
         Methods that includes conditions will have their own statement in the policy."""
         if ((self.allowMethods is None or len(self.allowMethods) == 0) and
-            (self.denyMethods is None or len(self.denyMethods) == 0)):
+                (self.denyMethods is None or len(self.denyMethods) == 0)):
             raise NameError("No statements defined for the policy")
 
         policy = {
-            'principalId' : self.principalId,
-            'policyDocument' : {
-                'Version' : self.version,
-                'Statement' : []
+            'principalId': self.principalId,
+            'policyDocument': {
+                'Version': self.version,
+                'Statement': []
             }
         }
 
-        policy['policyDocument']['Statement'].extend(self._getStatementForEffect("Allow", self.allowMethods))
-        policy['policyDocument']['Statement'].extend(self._getStatementForEffect("Deny", self.denyMethods))
+        policy['policyDocument']['Statement'].extend(
+            self._getStatementForEffect("Allow", self.allowMethods))
+        policy['policyDocument']['Statement'].extend(
+            self._getStatementForEffect("Deny", self.denyMethods))
 
         return policy

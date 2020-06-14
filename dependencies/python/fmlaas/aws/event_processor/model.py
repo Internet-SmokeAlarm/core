@@ -2,6 +2,7 @@ from .event_processor import EventProcessor
 from ...model import Model
 from ...hierarchical_model_naming import HierarchicalModelNameStructure
 
+
 class ModelUploadEventProcessor(EventProcessor):
 
     def process_event(self, json_data):

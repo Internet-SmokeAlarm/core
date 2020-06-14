@@ -1,65 +1,72 @@
+from ...database import DB
 from ...model import DBObject
-from ...model import FLGroup
-from ...model import Round
-from ...model import RoundStatus
+from ...model import Job
+from ...model import Model
+from ...model import JobStatus
 from ...aws import trigger_lambda_function
 from ...utils import get_aggregation_lambda_func_name
-from ..utils import update_round_path
+from ..utils import update_job_sequence
 from .lambda_trigger_helper import generate_aggregation_func_payload
 
-def models_uploaded_controller(group_db, round_db, models_uploaded):
+
+def models_uploaded_controller(project_db: DB, job_db: DB, models_uploaded):
     """
-    :param group_db: DB
-    :param round_db: DB
     :param models_uploaded: list(string)
     """
     for model in models_uploaded:
         model_name = model.get_name()
         handler_function = get_model_process_function(model_name)
-        should_trigger_aggregation = handler_function(model, group_db, round_db)
+        should_trigger_aggregation = handler_function(
+            model, project_db, job_db)
 
         if should_trigger_aggregation:
-            payload = generate_aggregation_func_payload(model_name.get_round_id())
+            payload = generate_aggregation_func_payload(
+                model_name.get_job_id())
 
-            trigger_lambda_function(get_aggregation_lambda_func_name(), payload)
+            trigger_lambda_function(
+                get_aggregation_lambda_func_name(), payload)
 
-def get_model_process_function(model_name):
-    if model_name.is_round_start_model():
-        return handle_round_start_model
+
+def get_model_process_function(model_name: str):
+    if model_name.is_job_start_model():
+        return handle_job_start_model
     elif model_name.is_device_model_update():
         return handle_device_model_update
-    elif model_name.is_round_aggregate_model():
-        return handle_round_aggregate_model
+    elif model_name.is_job_aggregate_model():
+        return handle_job_aggregate_model
 
-def handle_round_start_model(model, group_db, round_db):
-    model.set_entity_id(model.get_name().get_round_id())
 
-    round = DBObject.load_from_db(Round, model.get_entity_id(), round_db)
-    round.set_start_model(model)
-    round.save_to_db(round_db)
+def handle_job_start_model(model: Model, project_db: DB, job_db: DB):
+    model.set_entity_id(model.get_name().get_job_id())
+
+    job = DBObject.load_from_db(Job, model.get_entity_id(), job_db)
+    job.set_start_model(model)
+    job.save_to_db(job_db)
 
     return False
 
-def handle_device_model_update(model, group_db, round_db):
+
+def handle_device_model_update(model: Model, project_db: DB, job_db: DB):
     model.set_entity_id(model.get_name().get_device_id())
 
-    round = DBObject.load_from_db(Round, model.get_name().get_round_id(), round_db)
-    round.add_model(model)
+    job = DBObject.load_from_db(Job, model.get_name().get_job_id(), job_db)
+    job.add_model(model)
 
-    should_aggregate = not round.is_aggregation_in_progress() and round.should_aggregate()
+    should_aggregate = not job.is_aggregation_in_progress() and job.should_aggregate()
     if should_aggregate:
-        round.set_status(RoundStatus.AGGREGATION_IN_PROGRESS)
+        job.set_status(JobStatus.AGGREGATION_IN_PROGRESS)
 
-    round.save_to_db(round_db)
+    job.save_to_db(job_db)
 
     return should_aggregate
 
-def handle_round_aggregate_model(model, group_db, round_db):
-    model.set_entity_id(model.get_name().get_round_id())
 
-    round = DBObject.load_from_db(Round, model.get_name().get_round_id(), round_db)
-    round.set_aggregate_model(model)
-    round.complete()
-    round.save_to_db(round_db)
+def handle_job_aggregate_model(model: Model, project_db: DB, job_db: DB):
+    model.set_entity_id(model.get_name().get_job_id())
 
-    update_round_path(round, round_db, group_db)
+    job = DBObject.load_from_db(Job, model.get_name().get_job_id(), job_db)
+    job.set_aggregate_model(model)
+    job.complete()
+    job.save_to_db(job_db)
+
+    update_job_sequence(job, job_db, project_db)

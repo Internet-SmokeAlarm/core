@@ -2,6 +2,7 @@ import unittest
 
 from dependencies.python.fmlaas.model import Device
 
+
 class DeviceTestCase(unittest.TestCase):
 
     def test_to_json(self):

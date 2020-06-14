@@ -1,5 +1,6 @@
 from .aggregation_algo import AggregationAlgorithm
 
+
 class FederatedAveraging(AggregationAlgorithm):
 
     def average_nn_parameters(self, parameters):

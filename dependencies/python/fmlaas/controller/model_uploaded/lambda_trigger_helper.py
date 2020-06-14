@@ -1,9 +1,10 @@
 import json
 
-def generate_aggregation_func_payload(round_id):
+
+def generate_aggregation_func_payload(job_id):
     """
-    :param round_id: string
+    :param job_id: string
     """
     return json.dumps({
-        "round_id" : round_id
+        "job_id": job_id
     })
