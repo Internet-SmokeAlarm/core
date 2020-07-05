@@ -46,7 +46,7 @@ class GetJobStartModelController(AbstractController):
 
         is_job_complete = self.job.is_complete()
         if is_job_complete:
-            object_name = self.job.get_start_model().get_name().get_name()
+            object_name = self.job.get_start_model().get_name().name
             presigned_url = create_presigned_url(
                 get_models_bucket_name(),
                 object_name,

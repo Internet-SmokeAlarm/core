@@ -12,5 +12,5 @@ from .serde import *
 from .model import *
 from .database import *
 from .device_selector import *
-from .hierarchical_model_naming import HierarchicalModelNameStructureTestCase
+from .s3_storage import *
 from .generate_unique_id import GenerateUniqueIdTestCase

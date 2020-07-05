@@ -1,6 +1,6 @@
 from .event_processor import EventProcessor
 from ...model import Model
-from ...hierarchical_model_naming import HierarchicalModelNameStructure
+from ...s3_storage import PointerFactory
 
 
 class ModelUploadEventProcessor(EventProcessor):
@@ -13,10 +13,8 @@ class ModelUploadEventProcessor(EventProcessor):
             object_key = object["key"]
             object_size = object["size"]
 
-            object_name = HierarchicalModelNameStructure()
-            object_name.load_name(object_key)
-
-            model = Model(None, object_name.get_name(), str(object_size))
+            s3_pointer = PointerFactory.load_pointer(object_key)
+            model = Model(None, str(s3_pointer), str(object_size))
 
             models_uploaded.append(model)
 

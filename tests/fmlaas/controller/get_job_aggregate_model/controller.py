@@ -81,7 +81,7 @@ class GetJobAggregateModelControllerTestCase(AbstractTestCase):
                                                                         job.get_id(),
                                                                         auth_context).execute()
         self.assertFalse(is_job_complete)
-        self.assertIsNone(presigned_url)
+        self.assertIsNotNone(presigned_url)
 
     def test_load_data_pass(self):
         project_db_ = InMemoryDBInterface()

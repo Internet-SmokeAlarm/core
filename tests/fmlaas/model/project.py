@@ -2,7 +2,6 @@ from dependencies.python.fmlaas.model import Project
 from dependencies.python.fmlaas.model import Model
 from dependencies.python.fmlaas.model import ProjectPrivilegeTypesEnum
 from dependencies.python.fmlaas import generate_unique_id
-from dependencies.python.fmlaas import HierarchicalModelNameStructure
 from dependencies.python.fmlaas.model import ProjectBuilder
 from dependencies.python.fmlaas.model import Experiment
 from dependencies.python.fmlaas.model import ExperimentBuilder

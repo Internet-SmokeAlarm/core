@@ -1,5 +1,5 @@
 import unittest
-
+from dependencies.python.fmlaas.s3_storage import DeviceModelPointer
 from dependencies.python.fmlaas.aws.event_processor import ModelUploadEventProcessor
 
 
@@ -35,7 +35,7 @@ class ModelUploadEventProcessorTestCase(unittest.TestCase):
                             "arn": "arn:aws:s3:::example-bucket"
                         },
                         "object": {
-                            "key": "1234/3434/4356",
+                            "key": "1234/3434/4356/device_models/device-id-123",
                             "size": 1024,
                             "eTag": "0123456789abcdef0123456789abcdef",
                             "experimentr": "0A1B2C3D4E5F678901"
@@ -49,5 +49,4 @@ class ModelUploadEventProcessorTestCase(unittest.TestCase):
 
         self.assertEqual(1, len(models))
         self.assertEqual("1024", models[0].get_size())
-        self.assertEqual("1234/3434/4356", models[0].get_name().get_name())
-        self.assertTrue(models[0].get_name().is_device_model_update())
+        self.assertEqual(DeviceModelPointer("1234", "3434", "4356", "device-id-123"), models[0].get_name())

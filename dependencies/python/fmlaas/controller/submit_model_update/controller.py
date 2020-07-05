@@ -1,6 +1,6 @@
 from ...database import DB
 from ...aws import create_presigned_post
-from ... import HierarchicalModelNameStructure
+from ...s3_storage import DeviceModelPointer
 from ...aws import get_models_bucket_name
 from ...request_processor import AuthContextProcessor
 from ...database import DynamoDBInterface
@@ -43,26 +43,25 @@ class SubmitModelUpdateController(AbstractController):
         ]
 
     def execute_controller(self):
-        EXPIRATION_SEC = 60 * 10
+        EXPIRATION_SEC = 60
         FIELDS = {}
         CONDITIONS = []
 
+        s3_object_pointer = DeviceModelPointer(
+            self.project.get_id(),
+            self.job.get_experiment_id(),
+            self.job.get_id(),
+            self.auth_context.get_entity_id()
+        )
+        presigned_url = create_presigned_post(
+            get_models_bucket_name(),
+            str(s3_object_pointer),
+            FIELDS,
+            CONDITIONS,
+            expiration=EXPIRATION_SEC)
+
         can_submit_model_to_job = self.job.is_in_progress() and self.job.is_device_active(
             self.auth_context.get_entity_id())
-        if can_submit_model_to_job:
-            object_name = HierarchicalModelNameStructure()
-            object_name.generate_name(
-                job_id=self.job_id,
-                device_id=self.auth_context.get_entity_id())
-
-            presigned_url = create_presigned_post(
-                get_models_bucket_name(),
-                object_name.get_name(),
-                FIELDS,
-                CONDITIONS,
-                expiration=EXPIRATION_SEC)
-        else:
-            presigned_url = None
 
         termination_check(self.job, self.job_db, self.project_db)
 

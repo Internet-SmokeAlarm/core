@@ -238,14 +238,14 @@ Resources:
             Path: /v1/job/cancel
             Method: post
 
-  SubmitJobStartModelFunction:
+  SubmitExperimentStartModelFunction:
     Type: AWS::Serverless::Function
     Properties:
       Timeout: 3
       MemorySize: 128
-      CodeUri: api/job/post/submit_start_model/
+      CodeUri: api/experiment/post/submit_start_model/
       Handler: app.lambda_handler
-      FunctionName: !Join ["", [!Ref Stage, "-SubmitJobStartModel"]]
+      FunctionName: !Join ["", [!Ref Stage, "-SubmitExperimentStartModel"]]
       Layers:
         - !Ref FMLaaSCoreDependencyLayer
       Policies:
@@ -256,11 +256,11 @@ Resources:
             TableName: !Ref JobsTable
         - !Ref S3PutObjectPolicy
       Events:
-        SubmitJobStartModelApiEvent:
+        SubmitExperimentStartModelApiEvent:
           Type: Api
           Properties:
             RestApiId: !Ref ApiGw
-            Path: /v1/job/submit_start_model
+            Path: /v1/experiment/submit_start_model
             Method: post
 
   CreateJobFunction:
