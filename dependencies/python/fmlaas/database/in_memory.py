@@ -14,7 +14,13 @@ class InMemoryDBInterface(DB):
         return True
 
     def delete_object(self, id):
+        if id not in self.data:
+            raise ValueError()
+
         del self.data[id]
 
     def get_object(self, id):
+        if id not in self.data:
+            raise ValueError()
+
         return self.data[id]

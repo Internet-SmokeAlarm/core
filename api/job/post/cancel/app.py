@@ -1,6 +1,6 @@
 import json
 
-from fmlaas import get_group_table_name_from_env
+from fmlaas import get_project_table_name_from_env
 from fmlaas import get_job_table_name_from_env
 from fmlaas.database import DynamoDBInterface
 from fmlaas.request_processor import IDProcessor
@@ -18,17 +18,11 @@ def lambda_handler(event, context):
         job_id = id_processor.get_job_id()
 
         auth_context = AuthContextProcessor(auth_json)
-    except ValueError as error:
-        return {
-            "statusCode": 400,
-            "body": json.dumps({"error_msg": str(error)})
-        }
 
-    group_db = DynamoDBInterface(get_group_table_name_from_env())
-    job_db = DynamoDBInterface(get_job_table_name_from_env())
+        project_db = DynamoDBInterface(get_project_table_name_from_env())
+        job_db = DynamoDBInterface(get_job_table_name_from_env())
 
-    try:
-        CancelJobController(group_db,
+        CancelJobController(project_db,
                             job_db,
                             job_id,
                             auth_context).execute()
@@ -36,6 +30,11 @@ def lambda_handler(event, context):
         return {
             "statusCode": 200,
             "body": "{}"
+        }
+    except ValueError as error:
+        return {
+            "statusCode": 400,
+            "body": json.dumps({"error_msg": str(error)})
         }
     except RequestForbiddenException as error:
         return {

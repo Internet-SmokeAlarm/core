@@ -1,4 +1,4 @@
-from ..hierarchical_model_naming import HierarchicalModelNameStructure
+from ..s3_storage import PointerFactory
 
 
 class Model:
@@ -6,7 +6,7 @@ class Model:
     def __init__(self, entity_id, name, size):
         """
         :param entity_id: string. ID of the entity that produced this model
-        :param name: dict
+        :param name: str
         :param size: string. Size of model in bytes
         """
         self.entity_id = entity_id
@@ -20,9 +20,7 @@ class Model:
         return self.entity_id
 
     def get_name(self):
-        # TODO : Maybe serialize the model name type as well so this isn't hardcoded?
-        # Another option: Merge name logic into Model since it is an attribute
-        return HierarchicalModelNameStructure().load_name(self.name)
+        return PointerFactory.load_pointer(self.name)
 
     def get_size(self):
         return self.size

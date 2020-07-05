@@ -13,7 +13,7 @@ from dependencies.python.fmlaas.controller.model_uploaded import models_uploaded
 from dependencies.python.fmlaas.controller.model_uploaded import get_model_process_function
 from dependencies.python.fmlaas.controller.model_uploaded import handle_device_model_update
 from dependencies.python.fmlaas.controller.model_uploaded import handle_job_aggregate_model
-from dependencies.python.fmlaas.controller.model_uploaded import handle_job_start_model
+from dependencies.python.fmlaas.controller.model_uploaded import handle_experiment_start_model
 
 
 class ModelUploadedControllerTestCase(unittest.TestCase):
@@ -42,32 +42,31 @@ class ModelUploadedControllerTestCase(unittest.TestCase):
         return project_builder.build()
 
     def test_get_model_process_function_pass_1(self):
-        model = Model("1232344", "1234/device_models/1232344", "923843287")
+        model = Model("1232344", "project_id/experiment_id/job_id/device_models/1232344", "923843287")
 
         self.assertEqual(
             handle_device_model_update,
-            get_model_process_function(
-                model.get_name()))
+            get_model_process_function(str(model.name)))
 
     def test_get_model_process_function_pass_2(self):
-        model = Model("1234", "1234/aggregate_model", "923843287")
+        model = Model("1234", "project_id/experiment_id/job_id/aggregate_model", "923843287")
 
         self.assertEqual(
             handle_job_aggregate_model,
             get_model_process_function(
-                model.get_name()))
+                model.name))
 
     def test_get_model_process_function_pass_3(self):
-        model = Model("1234", "1234/start_model", "923843287")
+        model = Model("1234", "project_id/experiment_id/start_model", "923843287")
 
         self.assertEqual(
-            handle_job_start_model,
+            handle_experiment_start_model,
             get_model_process_function(
-                model.get_name()))
+                model.name))
 
     def test_handle_device_model_update_pass(self):
         db_ = InMemoryDBInterface()
-        model = Model(None, "1234/device_models/1232344", "1232131")
+        model = Model(None, "project_id/experiment_id/1234/device_models/1232344", "1232131")
 
         job = self._build_default_job()
         job.save_to_db(db_)
@@ -83,7 +82,7 @@ class ModelUploadedControllerTestCase(unittest.TestCase):
 
     def test_handle_device_model_update_pass_no_aggregation(self):
         db_ = InMemoryDBInterface()
-        model = Model(None, "1234/device_models/1232344", "1232131")
+        model = Model(None, "project_id/experiment_id/1234/device_models/1232344", "1232131")
 
         job = self._build_default_job()
         job.configuration = JobConfiguration(2, 0, "RANDOM", []).to_json()
@@ -97,8 +96,8 @@ class ModelUploadedControllerTestCase(unittest.TestCase):
 
     def test_handle_device_model_update_duplicate_pass(self):
         db_ = InMemoryDBInterface()
-        model = Model(None, "1234/device_models/3456", "1232131")
-        model_2 = Model(None, "1234/device_models/3456", "66665")
+        model = Model(None, "project_id/experiment_id/1234/device_models/3456", "1232131")
+        model_2 = Model(None, "project_id/experiment_id/1234/device_models/3456", "66665")
 
         job = self._build_default_job()
         job.save_to_db(db_)
@@ -112,7 +111,7 @@ class ModelUploadedControllerTestCase(unittest.TestCase):
 
     def test_handle_device_model_update_pass_agg_in_progress(self):
         db_ = InMemoryDBInterface()
-        model = Model(None, "1234/device_models/3456", "1232131")
+        model = Model(None, "project_id/experiment_id/1234/device_models/3456", "1232131")
 
         job = self._build_default_job()
         job.save_to_db(db_)
@@ -141,10 +140,10 @@ class ModelUploadedControllerTestCase(unittest.TestCase):
 
         project.save_to_db(project_db)
 
-        model = Model(None, "1234/device_models/3456", "1232131")
+        model = Model(None, "project_id/experiment_id/1234/device_models/3456", "1232131")
         handle_device_model_update(model, None, db_)
 
-        aggregate_model = Model(None, "1234/device_models/2345", "435345")
+        aggregate_model = Model(None, "project_id/experiment_id/1234/aggregate_model", "435345")
         should_aggregate = handle_job_aggregate_model(
             aggregate_model, project_db, db_)
         self.assertFalse(should_aggregate)
@@ -187,9 +186,9 @@ class ModelUploadedControllerTestCase(unittest.TestCase):
 
         project.save_to_db(project_db)
 
-        model = Model(None, "1234/device_models/3456", "1232131")
+        model = Model(None, "project_id/experiment_id/1234/device_models/3456", "1232131")
         handle_device_model_update(model, None, job_db)
-        aggregate_model = Model(None, "1234/device_models/2345", "435345")
+        aggregate_model = Model(None, "project_id/experiment_id/1234/aggregate_model", "435345")
         handle_job_aggregate_model(aggregate_model, project_db, job_db)
 
         project_from_db = DBObject.load_from_db(
@@ -246,9 +245,9 @@ class ModelUploadedControllerTestCase(unittest.TestCase):
 
         project.save_to_db(project_db)
 
-        model = Model(None, "1234/device_models/3456", "1232131")
+        model = Model(None, "project_id/experiment_id/1234/device_models/3456", "1232131")
         handle_device_model_update(model, None, job_db)
-        aggregate_model = Model(None, "1234/device_models/2345", "435345")
+        aggregate_model = Model(None, "project_id/experiment_id/1234/aggregate_model", "435345")
         handle_job_aggregate_model(aggregate_model, project_db, job_db)
 
         project_from_db = DBObject.load_from_db(
@@ -264,25 +263,23 @@ class ModelUploadedControllerTestCase(unittest.TestCase):
             job_from_db.get_aggregate_model().to_json(),
             job_3_from_db.get_start_model().to_json())
 
-    def test_handle_job_start_model_pass(self):
+    def test_handle_experiment_start_model_pass(self):
+        project_db = InMemoryDBInterface()
         db_ = InMemoryDBInterface()
 
-        job_builder = JobBuilder()
-        job_builder.set_id("1234")
-        job_builder.set_project_id("test_id")
-        job_builder.set_experiment_id("experiment_1")
-        configuration = JobConfiguration(1, 0, "RANDOM", [])
-        job_builder.set_configuration(configuration.to_json())
-        job_builder.set_devices(["3456"])
-        job = job_builder.build()
+        experiment_builder = ExperimentBuilder()
+        experiment_builder.id = "experiment_1"
+        experiment = experiment_builder.build()
 
-        job.save_to_db(db_)
+        project = self._build_default_project()
+        project.add_or_update_experiment(experiment)
+        project.save_to_db(project_db)
 
-        model = Model(None, "1234/start_model", "1232131")
-        should_aggregate = handle_job_start_model(model, None, db_)
+        model = Model(None, "test_id/experiment_1/start_model", "1232131")
+        should_aggregate = handle_experiment_start_model(model, project_db, db_)
 
         self.assertFalse(should_aggregate)
 
-        job_2 = DBObject.load_from_db(Job, job.get_id(), db_)
+        loaded_project = DBObject.load_from_db(Project, project.get_id(), project_db)
 
-        self.assertTrue(job_2.is_in_progress())
+        self.assertTrue(loaded_project.get_experiment(experiment.id).is_start_model_set())

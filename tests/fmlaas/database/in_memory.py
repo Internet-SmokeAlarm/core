@@ -1,5 +1,4 @@
 import unittest
-
 from dependencies.python.fmlaas.database import InMemoryDBInterface
 
 
@@ -31,9 +30,9 @@ class InMemoryDBInterfaceTestCase(unittest.TestCase):
     def test_delete_object_fail(self):
         db_ = InMemoryDBInterface()
 
-        self.assertRaises(Exception, db_.delete_object, "test_id")
+        self.assertRaises(ValueError, db_.delete_object, "test_id")
 
     def test_get_object_fail(self):
         db_ = InMemoryDBInterface()
 
-        self.assertRaises(Exception, db_.get_object, "test_id")
+        self.assertRaises(ValueError, db_.get_object, "test_id")

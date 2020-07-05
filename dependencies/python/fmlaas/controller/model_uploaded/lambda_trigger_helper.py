@@ -1,10 +1,12 @@
 import json
 
 
-def generate_aggregation_func_payload(job_id):
+def generate_aggregation_func_payload(project_id: str, experiment_id: str, job_id: str) -> dict:
     """
     :param job_id: string
     """
     return json.dumps({
+        "project_id": project_id,
+        "experiment_id": experiment_id,
         "job_id": job_id
     })

@@ -5,6 +5,30 @@ from dependencies.python.fmlaas.request_processor import IDProcessor
 
 class IDProcessorTestCase(unittest.TestCase):
 
+    def test_get_experiment_id_fail(self):
+        json_data = {"experiment_id": None}
+        id_processor = IDProcessor(json_data)
+
+        self.assertRaises(ValueError, id_processor.get_experiment_id)
+
+    def test_get_experiment_id_fail_2(self):
+        json_data = {"experiment_id": 1234}
+        id_processor = IDProcessor(json_data)
+
+        self.assertRaises(ValueError, id_processor.get_experiment_id)
+
+    def test_get_experiment_id_fail_3(self):
+        json_data = {}
+        id_processor = IDProcessor(json_data)
+
+        self.assertRaises(ValueError, id_processor.get_experiment_id)
+
+    def test_get_experiment_id_pass(self):
+        json_data = {"experiment_id": "experiment_id_1234234"}
+        id_processor = IDProcessor(json_data)
+
+        self.assertEqual("experiment_id_1234234", id_processor.get_experiment_id())
+
     def test_get_project_name_fail(self):
         json_data = {"project_name": None}
         id_processor = IDProcessor(json_data)

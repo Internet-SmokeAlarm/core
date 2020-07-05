@@ -238,14 +238,14 @@ Resources:
             Path: /v1/job/cancel
             Method: post
 
-  SubmitJobStartModelFunction:
+  SubmitExperimentStartModelFunction:
     Type: AWS::Serverless::Function
     Properties:
       Timeout: 3
       MemorySize: 128
-      CodeUri: api/job/post/submit_start_model/
+      CodeUri: api/experiment/post/submit_start_model/
       Handler: app.lambda_handler
-      FunctionName: !Join ["", [!Ref Stage, "-SubmitJobStartModel"]]
+      FunctionName: !Join ["", [!Ref Stage, "-SubmitExperimentStartModel"]]
       Layers:
         - !Ref FMLaaSCoreDependencyLayer
       Policies:
@@ -256,11 +256,11 @@ Resources:
             TableName: !Ref JobsTable
         - !Ref S3PutObjectPolicy
       Events:
-        SubmitJobStartModelApiEvent:
+        SubmitExperimentStartModelApiEvent:
           Type: Api
           Properties:
             RestApiId: !Ref ApiGw
-            Path: /v1/job/submit_start_model
+            Path: /v1/experiment/submit_start_model
             Method: post
 
   CreateJobFunction:
@@ -524,6 +524,50 @@ Resources:
           Properties:
             RestApiId: !Ref ApiGw
             Path: /v1/job/start_model/{project_id}/{job_id}
+            Method: get
+
+  CreateExperimentFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 3
+      MemorySize: 128
+      CodeUri: api/experiment/post/create/
+      Handler: app.lambda_handler
+      FunctionName: !Join ["", [!Ref Stage, "-CreateExperiment"]]
+      Layers:
+        - !Ref FMLaaSCoreDependencyLayer
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ProjectsTable
+      Events:
+        CreateExperimentApiEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGw
+            Path: /v1/experiment/create
+            Method: post
+
+  GetExperimentFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 3
+      MemorySize: 128
+      CodeUri: api/experiment/get/experiment/
+      Handler: app.lambda_handler
+      FunctionName: !Join ["", [!Ref Stage, "-GetExperiment"]]
+      Layers:
+        - !Ref FMLaaSCoreDependencyLayer
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ProjectsTable
+      Events:
+        GetExperimentApiEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGw
+            Path: /v1/experiment/get/{project_id}/{experiment_id}
             Method: get
 
   AggregateModelsFunction:

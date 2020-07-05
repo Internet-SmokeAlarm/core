@@ -3,4 +3,4 @@ from .controller import models_uploaded_controller
 from .controller import get_model_process_function
 from .controller import handle_device_model_update
 from .controller import handle_job_aggregate_model
-from .controller import handle_job_start_model
+from .controller import handle_experiment_start_model

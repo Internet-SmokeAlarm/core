@@ -98,13 +98,13 @@ class DeleteProjectControllerTestCase(unittest.TestCase):
             auth_context).execute()
 
         self.assertRaises(
-            KeyError,
+            ValueError,
             DBObject.load_from_db,
             Project,
             project.get_id(),
             project_db)
         self.assertRaises(
-            KeyError,
+            ValueError,
             DBObject.load_from_db,
             Job,
             job.get_id(),

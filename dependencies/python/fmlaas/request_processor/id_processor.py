@@ -8,6 +8,7 @@ class IDProcessor(RequestProcessor):
     JOB_ID_KEY = "job_id"
     DEVICE_ID_KEY = "device_id"
     PREVIOUS_JOB_ID_KEY = "previous_job_id"
+    EXPERIMENT_ID_KEY = "experiment_id"
 
     def __init__(self, json):
         self.json = json
@@ -30,6 +31,17 @@ class IDProcessor(RequestProcessor):
             raise ValueError("Project id invalid.")
 
         return project_id
+
+    def get_experiment_id(self, throw_exception=True):
+        """
+        :return: string
+        """
+        experiment_id = self.json.get(IDProcessor.EXPERIMENT_ID_KEY, None)
+
+        if not self._is_string_name_valid(experiment_id) and throw_exception:
+            raise ValueError("Experiment id invalid.")
+
+        return experiment_id
 
     def get_job_id(self, throw_exception=True):
         """
