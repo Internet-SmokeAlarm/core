@@ -43,12 +43,11 @@ class GetJobAggregateModelControllerTestCase(AbstractTestCase):
         }
         auth_context = AuthContextProcessor(auth_json)
 
-        is_job_complete, presigned_url = GetJobAggregateModelController(project_db_,
-                                                                        job_db_,
-                                                                        project.get_id(),
-                                                                        job.get_id(),
-                                                                        auth_context).execute()
-        self.assertTrue(is_job_complete)
+        presigned_url = GetJobAggregateModelController(project_db_,
+                                                       job_db_,
+                                                       project.get_id(),
+                                                       job.get_id(),
+                                                       auth_context).execute()
         self.assertIsNotNone(presigned_url)
 
     def test_pass_not_complete(self):
@@ -75,13 +74,12 @@ class GetJobAggregateModelControllerTestCase(AbstractTestCase):
         }
         auth_context = AuthContextProcessor(auth_json)
 
-        is_job_complete, presigned_url = GetJobAggregateModelController(project_db_,
-                                                                        job_db_,
-                                                                        project.get_id(),
-                                                                        job.get_id(),
-                                                                        auth_context).execute()
-        self.assertFalse(is_job_complete)
-        self.assertIsNotNone(presigned_url)
+        controller = GetJobAggregateModelController(project_db_,
+                                                    job_db_,
+                                                    project.get_id(),
+                                                    job.get_id(),
+                                                    auth_context)
+        self.assertRaises(ValueError, controller.execute)
 
     def test_load_data_pass(self):
         project_db_ = InMemoryDBInterface()

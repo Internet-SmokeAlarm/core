@@ -3,7 +3,7 @@ import json
 from fmlaas.request_processor import IDProcessor
 from fmlaas.request_processor import AuthContextProcessor
 from fmlaas import get_job_table_name_from_env
-from fmlaas import get_group_table_name_from_env
+from fmlaas import get_project_table_name_from_env
 from fmlaas.database import DynamoDBInterface
 from fmlaas.exception import RequestForbiddenException
 from fmlaas.controller.submit_model_update import SubmitModelUpdateController
@@ -15,23 +15,17 @@ def lambda_handler(event, context):
 
     try:
         id_processor = IDProcessor(req_json)
-        group_id = id_processor.get_group_id()
+        project_id = id_processor.get_project_id()
         job_id = id_processor.get_job_id()
 
         auth_context = AuthContextProcessor(auth_json)
-    except ValueError as error:
-        return {
-            "statusCode": 400,
-            "body": json.dumps({"error_msg": str(error)})
-        }
 
-    group_db = DynamoDBInterface(get_group_table_name_from_env())
-    job_db = DynamoDBInterface(get_job_table_name_from_env())
+        project_db = DynamoDBInterface(get_project_table_name_from_env())
+        job_db = DynamoDBInterface(get_job_table_name_from_env())
 
-    try:
-        can_submit_model_to_job, presigned_url = SubmitModelUpdateController(group_db,
+        can_submit_model_to_job, presigned_url = SubmitModelUpdateController(project_db,
                                                                              job_db,
-                                                                             group_id,
+                                                                             project_id,
                                                                              job_id,
                                                                              auth_context).execute()
 
@@ -45,6 +39,11 @@ def lambda_handler(event, context):
                 "statusCode": 200,
                 "body": json.dumps({"model_url": presigned_url})
             }
+    except ValueError as error:
+        return {
+            "statusCode": 400,
+            "body": json.dumps({"error_msg": str(error)})
+        }
     except RequestForbiddenException as error:
         return {
             "statusCode": 403,

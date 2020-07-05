@@ -18,16 +18,10 @@ def lambda_handler(event, context):
         project_id = id_processor.get_project_id()
 
         auth_context = AuthContextProcessor(auth_json)
-    except ValueError as error:
-        return {
-            "statusCode": 400,
-            "body": json.dumps({"error_msg": str(error)})
-        }
 
-    project_db = DynamoDBInterface(get_project_table_name_from_env())
-    key_db = DynamoDBInterface(get_auth_key_table_from_env())
+        project_db = DynamoDBInterface(get_project_table_name_from_env())
+        key_db = DynamoDBInterface(get_auth_key_table_from_env())
 
-    try:
         id, key_plaintext = RegisterDeviceController(project_db,
                                                      key_db,
                                                      project_id,
@@ -36,6 +30,11 @@ def lambda_handler(event, context):
         return {
             "statusCode": 200,
             "body": json.dumps({"device_id": id, "device_api_key": key_plaintext})
+        }
+    except ValueError as error:
+        return {
+            "statusCode": 400,
+            "body": json.dumps({"error_msg": str(error)})
         }
     except RequestForbiddenException as error:
         return {

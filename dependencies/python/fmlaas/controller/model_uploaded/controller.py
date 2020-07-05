@@ -23,7 +23,9 @@ def models_uploaded_controller(project_db: DB, job_db: DB, models_uploaded):
 
         if should_trigger_aggregation:
             payload = generate_aggregation_func_payload(
-                model_name.get_job_id())
+                model.get_name().project_id,
+                model.get_name().experiment_id,
+                model.get_name().job_id)
 
             trigger_lambda_function(
                 get_aggregation_lambda_func_name(), payload)

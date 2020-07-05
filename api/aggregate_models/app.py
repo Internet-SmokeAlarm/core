@@ -13,7 +13,7 @@ from fmlaas.model import DBObject
 from fmlaas.model import Job
 from fmlaas.model import Model
 from fmlaas.request_processor import IDProcessor
-from fmlaas import S3ObjectPointer
+from fmlaas.s3_storage import JobAggregateModelPointer
 
 
 def load_model_from_s3(object_name):
@@ -65,6 +65,8 @@ def generate_global_model(models):
 def lambda_handler(event, context):
     try:
         id_processor = IDProcessor(event)
+        project_id = id_processor.get_project_id()
+        experiment_id = id_processor.get_experiment_id()
         job_id = id_processor.get_job_id()
     except ValueError as error:
         return {
@@ -75,18 +77,17 @@ def lambda_handler(event, context):
     dynamodb_ = DynamoDBInterface(get_job_table_name_from_env())
     job = DBObject.load_from_db(Job, job_id, dynamodb_)
 
-    name = S3ObjectPointer()
-    name.generate_name(job_id=job_id)
+    aggregate_model_pointer = JobAggregateModelPointer(project_id, experiment_id, job_id)
 
     models = job.get_models()
-    model_names = [models[model].get_name().name
+    model_names = [str(models[model].get_name())
                    for model in models.keys()]
     num_models = len(model_names)
 
     global_model = generate_global_model(model_names)
     scaled_global_model = FederatedAveraging().scale_model(global_model, num_models)
 
-    save_model_to_s3(name.name, scaled_global_model)
+    save_model_to_s3(str(aggregate_model_pointer), scaled_global_model)
 
     return {
         "statusCode": 200,

@@ -39,12 +39,15 @@ class GetJobAggregateModelController(AbstractController):
     def execute_controller(self):
         EXPIRATION_SEC = 60
 
+        termination_check(self.job, self.job_db, self.project_db)
+
+        if not self.job.is_complete():
+            raise ValueError("Cannot get aggregate model for incomplete job")
+
         s3_object_pointer = self.job.get_aggregate_model().get_name()
         presigned_url = create_presigned_url(
             get_models_bucket_name(),
             str(s3_object_pointer),
             expiration=EXPIRATION_SEC)
 
-        termination_check(self.job, self.job_db, self.project_db)
-
-        return self.job.is_complete(), presigned_url
+        return presigned_url
