@@ -1,5 +1,3 @@
-import unittest
-
 from dependencies.python.fmlaas.device_selection import RandomDeviceSelector
 from dependencies.python.fmlaas.model import JobConfiguration
 from dependencies.python.fmlaas.model import ProjectBuilder
@@ -111,16 +109,16 @@ class StartJobControllerTestCase(AbstractTestCase):
         }
         auth_context = AuthContextProcessor(auth_json)
 
-        new_job_id = StartJobController(
+        new_job = StartJobController(
             job_db, project_db, project.get_id(), experiment.id, JobConfiguration(
                 1, 0, "RANDOM", []), auth_context).execute()
-        new_job = DBObject.load_from_db(Job, new_job_id, job_db)
+        new_job = DBObject.load_from_db(Job, new_job.get_id(), job_db)
 
         updated_project = DBObject.load_from_db(
             Project, project.get_id(), project_db)
 
         self.assertEqual(updated_project.get_active_jobs(), [job.get_id()])
-        self.assertTrue(updated_project.contains_job(new_job_id))
+        self.assertTrue(updated_project.contains_job(new_job.get_id()))
 
     def test_pass_2(self):
         project_db = InMemoryDBInterface()
@@ -146,17 +144,17 @@ class StartJobControllerTestCase(AbstractTestCase):
         }
         auth_context = AuthContextProcessor(auth_json)
 
-        new_job_id = StartJobController(
+        new_job = StartJobController(
             job_db, project_db, project.get_id(), experiment.id, JobConfiguration(
                 1, 0, "RANDOM", []), auth_context).execute()
-        new_job = DBObject.load_from_db(Job, new_job_id, job_db)
+        new_job = DBObject.load_from_db(Job, new_job.get_id(), job_db)
         updated_project = DBObject.load_from_db(
             Project, project.get_id(), project_db)
 
         self.assertEqual(new_job.get_devices(), ["12344"])
 
-        self.assertEqual(updated_project.get_active_jobs(), [new_job_id])
-        self.assertTrue(updated_project.contains_job(new_job_id))
+        self.assertEqual(updated_project.get_active_jobs(), [new_job.get_id()])
+        self.assertTrue(updated_project.contains_job(new_job.get_id()))
 
     def test_pass_3(self):
         project_db = InMemoryDBInterface()
@@ -188,10 +186,10 @@ class StartJobControllerTestCase(AbstractTestCase):
         }
         auth_context = AuthContextProcessor(auth_json)
 
-        new_job_id = StartJobController(
+        new_job = StartJobController(
             job_db, project_db, project.get_id(), experiment.id, JobConfiguration(
                 1, 0, "RANDOM", []), auth_context).execute()
-        new_job = DBObject.load_from_db(Job, new_job_id, job_db)
+        new_job = DBObject.load_from_db(Job, new_job.get_id(), job_db)
 
         updated_project = DBObject.load_from_db(
             Project, project.get_id(), project_db)
@@ -199,8 +197,8 @@ class StartJobControllerTestCase(AbstractTestCase):
         self.assertEqual(
             job.get_end_model().to_json(),
             new_job.get_start_model().to_json())
-        self.assertEqual(updated_project.get_active_jobs(), [new_job_id])
-        self.assertTrue(updated_project.contains_job(new_job_id))
+        self.assertEqual(updated_project.get_active_jobs(), [new_job.get_id()])
+        self.assertTrue(updated_project.contains_job(new_job.get_id()))
 
     def test_pass_4(self):
         project_db = InMemoryDBInterface()
@@ -238,26 +236,26 @@ class StartJobControllerTestCase(AbstractTestCase):
         }
         auth_context = AuthContextProcessor(auth_json)
 
-        new_job_id = StartJobController(
+        new_job = StartJobController(
             job_db, project_db, project.get_id(), experiment.id, JobConfiguration(
                 1, 0, "RANDOM", []), auth_context).execute()
-        new_job_id_2 = StartJobController(
+        new_job_2 = StartJobController(
             job_db, project_db, project.get_id(), experiment.id, JobConfiguration(
                 1, 0, "RANDOM", []), auth_context).execute()
-        new_job_id_3 = StartJobController(
+        new_job_3 = StartJobController(
             job_db, project_db, project.get_id(), experiment.id, JobConfiguration(
                 1, 0, "RANDOM", []), auth_context).execute()
-        new_job_id_4 = StartJobController(
+        new_job_4 = StartJobController(
             job_db, project_db, project.get_id(), experiment.id, JobConfiguration(
                 1, 0, "RANDOM", []), auth_context).execute()
-        new_job = DBObject.load_from_db(Job, new_job_id, job_db)
+        new_job = DBObject.load_from_db(Job, new_job.get_id(), job_db)
 
         updated_project = DBObject.load_from_db(
             Project, project.get_id(), project_db)
 
         self.assertEqual(job.get_end_model(), new_job.get_start_model())
-        self.assertEqual(updated_project.get_active_jobs(), [new_job_id])
-        self.assertTrue(updated_project.contains_job(new_job_id))
+        self.assertEqual(updated_project.get_active_jobs(), [new_job.get_id()])
+        self.assertTrue(updated_project.contains_job(new_job.get_id()))
 
     def test_fail_no_devices(self):
         project_db = InMemoryDBInterface()

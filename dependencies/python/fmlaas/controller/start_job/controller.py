@@ -67,7 +67,7 @@ class StartJobController(AbstractController):
         new_job.save_to_db(self.job_db)
         self.project.save_to_db(self.project_db)
 
-        return new_job.get_id()
+        return new_job
 
     def get_device_selector(self) -> DeviceSelector:
         return DeviceSelectorFactory().get_device_selector(

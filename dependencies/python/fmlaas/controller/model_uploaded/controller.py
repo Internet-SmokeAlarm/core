@@ -46,8 +46,9 @@ def handle_experiment_start_model(model: Model, project_db: DB, job_db: DB):
     project = DBObject.load_from_db(Project, model.get_name().project_id, project_db)
     experiment = project.get_experiment(model.get_name().experiment_id)
     experiment.start_model = model
+    experiment.current_model = model
     project.add_or_update_experiment(experiment)
-    project.save_to_db(job_db)
+    project.save_to_db(project_db)
 
     return False
 

@@ -526,6 +526,50 @@ Resources:
             Path: /v1/job/start_model/{project_id}/{job_id}
             Method: get
 
+  CreateExperimentFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 3
+      MemorySize: 128
+      CodeUri: api/experiment/post/create/
+      Handler: app.lambda_handler
+      FunctionName: !Join ["", [!Ref Stage, "-CreateExperiment"]]
+      Layers:
+        - !Ref FMLaaSCoreDependencyLayer
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ProjectsTable
+      Events:
+        CreateExperimentApiEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGw
+            Path: /v1/experiment/create
+            Method: post
+
+  GetExperimentFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 3
+      MemorySize: 128
+      CodeUri: api/experiment/get/experiment/
+      Handler: app.lambda_handler
+      FunctionName: !Join ["", [!Ref Stage, "-GetExperiment"]]
+      Layers:
+        - !Ref FMLaaSCoreDependencyLayer
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ProjectsTable
+      Events:
+        GetExperimentApiEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGw
+            Path: /v1/experiment/get/{project_id}/{experiment_id}
+            Method: get
+
   AggregateModelsFunction:
     Type: AWS::Serverless::Function
     Properties:
