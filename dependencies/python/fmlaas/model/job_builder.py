@@ -20,6 +20,7 @@ class JobBuilder(Builder):
         self.billable_size = "0"
         self.project_id = None
         self.experiment_id = None
+        self.testing_reports = {}
 
     def set_id(self, id):
         """
@@ -82,6 +83,12 @@ class JobBuilder(Builder):
         """
         self.experiment_id = experiment_id
 
+    def set_testing_reports(self, testing_reports):
+        """
+        :param testing_reports: dict
+        """
+        self.testing_reports = testing_reports
+
     def build(self):
         self._validate_parameters()
 
@@ -95,7 +102,8 @@ class JobBuilder(Builder):
                    self.created_on,
                    self.billable_size,
                    self.project_id,
-                   self.experiment_id)
+                   self.experiment_id,
+                   self.testing_reports)
 
     def _validate_parameters(self):
         if self.id is None:

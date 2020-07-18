@@ -187,7 +187,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref ApiGw
-            Path: /v1/auth/create_key
+            Path: /v1/auth/create
             Method: post
 
   RegisterDeviceFunction:

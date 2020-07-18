@@ -17,7 +17,8 @@ class Job(DBObject):
                  created_on,
                  billable_size,
                  project_id,
-                 experiment_id):
+                 experiment_id,
+                 testing_reports):
         """
         :param id: string
         :param devices: list(string)
@@ -30,6 +31,7 @@ class Job(DBObject):
         :param billable_size: string
         :param project_id: string
         :param experiment_id: string
+        :param testing_reports: dict
         """
         self.id = id
         self.devices = devices
@@ -42,6 +44,7 @@ class Job(DBObject):
         self.billable_size = billable_size
         self.project_id = project_id
         self.experiment_id = experiment_id
+        self.testing_reports = testing_reports
 
     def get_id(self):
         return self.id
@@ -63,6 +66,9 @@ class Job(DBObject):
             return self.get_aggregate_model()
         else:
             return self.get_start_model()
+
+    def get_testing_reports(self):
+        return self.testing_reports
 
     def set_configuration(self, config):
         """
@@ -279,11 +285,12 @@ class Job(DBObject):
             "created_on": self.created_on,
             "billable_size": self.billable_size,
             "project_id": self.project_id,
-            "experiment_id" : self.experiment_id
+            "experiment_id" : self.experiment_id,
+            "testing_reports": self.testing_reports
         }
 
     def __eq__(self, other):
-        return (self.id == other.id) and (self.status == other.status) and (self.devices == other.devices) and (self.start_model == other.start_model) and (self.project_id == other.project_id) and (self.experiment_id == other.experiment_id) and (self.configuration == other.configuration)
+        return (self.id == other.id) and (self.status == other.status) and (self.devices == other.devices) and (self.start_model == other.start_model) and (self.project_id == other.project_id) and (self.experiment_id == other.experiment_id) and (self.configuration == other.configuration) and (self.testing_reports == other.testing_reports)
 
     @staticmethod
     def from_json(json_data):
@@ -297,4 +304,5 @@ class Job(DBObject):
                    json_data["created_on"],
                    json_data["billable_size"],
                    json_data["project_id"],
-                   json_data["experiment_id"])
+                   json_data["experiment_id"],
+                   json_data["testing_reports"])

@@ -35,7 +35,12 @@ class JobTestCase(AbstractModelTestCase):
                   "December 19th, 2019",
                   "0",
                   "fl_project_12312313",
-                  "123121231232131231")
+                  "123121231232131231",
+                  {
+                      "123235345": {
+                          "confusion_matrix": [[10, 0, 0], [0, 10, 0], [0, 0, 10]],
+                          "accuracy": 88.65,
+                          "loss": 2.3}})
 
         job_json = {
             'ID': 'my_id',
@@ -64,7 +69,12 @@ class JobTestCase(AbstractModelTestCase):
             'created_on': 'December 19th, 2019',
             "billable_size": "0",
             "project_id": "fl_project_12312313",
-            "experiment_id": "123121231232131231"}
+            "experiment_id": "123121231232131231",
+            "testing_reports": {
+                "123235345": {
+                    "confusion_matrix": [[10, 0, 0], [0, 10, 0], [0, 0, 10]],
+                    "accuracy": 88.65,
+                    "loss": 2.3}}}
 
         return job, job_json
 
