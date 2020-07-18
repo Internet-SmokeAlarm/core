@@ -2,6 +2,7 @@ from .job_status import JobStatus
 from .job_configuration import JobConfiguration
 from .model import Model
 from .db_object import DBObject
+from .testing_report import TestingReport
 
 
 class Job(DBObject):
@@ -272,6 +273,9 @@ class Job(DBObject):
         config = self.get_configuration()
         config.reset_termination_criteria()
         self.configuration = config.to_json()
+
+    def add_testing_report(self, testing_report: TestingReport):
+        self.testing_reports[testing_report.device_id] = testing_report.to_json()
 
     def to_json(self):
         return {

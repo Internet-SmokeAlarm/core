@@ -1,3 +1,4 @@
+from .testing_report import TestingReport
 from .project_privilege_types import ProjectPrivilegeTypesEnum
 from .builder import Builder
 from .db_object import DBObject

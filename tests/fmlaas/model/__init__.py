@@ -12,3 +12,4 @@ from .api_key import ApiKeyTestCase
 from .experiment import ExperimentTestCase
 from .termination_criteria import *
 from .experiment_builder import ExperimentBuilderTestCase
+from .testing_report import TestingReportTestCase

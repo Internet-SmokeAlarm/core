@@ -2,6 +2,7 @@ from dependencies.python.fmlaas.model import Job
 from dependencies.python.fmlaas.model import JobBuilder
 from dependencies.python.fmlaas.model import JobConfiguration
 from dependencies.python.fmlaas.model import JobStatus
+from dependencies.python.fmlaas.model import TestingReport
 from dependencies.python.fmlaas.model import Model
 from dependencies.python.fmlaas.model.termination_criteria import DurationTerminationCriteria
 from dependencies.python.fmlaas.utils import get_epoch_time
@@ -404,3 +405,11 @@ class JobTestCase(AbstractModelTestCase):
         self.assertFalse(job_1 == job_3)
         self.assertFalse(job_2 == job_3)
         self.assertTrue(job_1 == job_2)
+
+    def test_add_testing_report_pass(self):
+        job = self._build_job(1)
+        testing_report = TestingReport([[10, 0, 0], [0, 10, 0], [0, 0, 10]], 88.44, 2.454, "12124325adfdsfa2radfads234r")
+
+        job.add_testing_report(testing_report)
+
+        self.assertTrue("12124325adfdsfa2radfads234r" in job.get_testing_reports())
