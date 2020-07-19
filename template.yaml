@@ -287,6 +287,30 @@ Resources:
             Path: /v1/job/create
             Method: post
 
+  TestingReportFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 3
+      MemorySize: 128
+      CodeUri: api/job/post/testing_report/
+      Handler: app.lambda_handler
+      FunctionName: !Join ["", [!Ref Stage, "-TestingReport"]]
+      Layers:
+        - !Ref FMLaaSCoreDependencyLayer
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ProjectsTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref JobsTable
+      Events:
+        TestingReportApiEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGw
+            Path: /v1/job/testing_report
+            Method: post
+
   GetJobFunction:
     Type: AWS::Serverless::Function
     Properties:

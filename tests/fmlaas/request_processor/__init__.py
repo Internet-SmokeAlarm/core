@@ -3,3 +3,4 @@ from .request_processor import RequestProcessorTestCase
 from .key_type_processor import KeyTypeProcessorTestCase
 from .job_config_processor import JobConfigJSONProcessorTestCase
 from .auth_context_processor import AuthContextProcessorTestCase
+from .testing_report import TestingReportTestCase

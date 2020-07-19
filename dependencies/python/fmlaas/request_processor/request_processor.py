@@ -17,3 +17,6 @@ class RequestProcessor:
         :return: boolean
         """
         return int_name is not None and isinstance(int_name, type(0))
+
+    def _is_float_valid(self, val: float) -> bool:
+        return val is not None and isinstance(val, type(0.0))

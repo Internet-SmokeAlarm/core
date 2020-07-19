@@ -18,3 +18,4 @@ from .abstract_controller_testcase import AbstractControllerTestCase
 from .submit_experiment_start_model import *
 from .create_experiment import *
 from .get_experiment import *
+from .testing_report import *

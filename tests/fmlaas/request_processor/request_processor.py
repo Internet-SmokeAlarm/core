@@ -52,3 +52,12 @@ class RequestProcessorTestCase(unittest.TestCase):
         self.assertFalse(
             id_processor._is_int_name_valid(
                 json_data["project_name"]))
+
+    def test_is_float_valid_pass(self):
+        self.assertTrue(IDProcessor({})._is_float_valid(1231.4))
+
+    def test_is_float_valid_fail(self):
+        self.assertFalse(IDProcessor({})._is_float_valid(None))
+
+    def test_is_float_valid_fail_2(self):
+        self.assertFalse(IDProcessor({})._is_float_valid("234234.234"))
