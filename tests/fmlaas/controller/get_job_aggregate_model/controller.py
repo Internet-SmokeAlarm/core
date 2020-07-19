@@ -12,6 +12,8 @@ from dependencies.python.fmlaas.request_processor import AuthContextProcessor
 from dependencies.python.fmlaas.controller.utils.auth.conditions import IsUser
 from dependencies.python.fmlaas.controller.utils.auth.conditions import HasProjectPermissions
 from dependencies.python.fmlaas.controller.utils.auth.conditions import ProjectContainsJob
+from dependencies.python.fmlaas.controller.utils.auth.conditions import ProjectContainsDevice
+from dependencies.python.fmlaas.controller.utils.auth.conditions import IsDevice
 from ..abstract_testcase import AbstractTestCase
 
 
@@ -139,9 +141,18 @@ class GetJobAggregateModelControllerTestCase(AbstractTestCase):
                                                     job.get_id(),
                                                     auth_context)
         controller.load_data()
-        auth_conditions = controller.get_auth_conditions()[0]
+        auth_conditions = controller.get_auth_conditions()
+        correct_auth_conditions = [
+            [
+                IsUser(),
+                HasProjectPermissions(project, ProjectPrivilegeTypesEnum.READ_ONLY),
+                ProjectContainsJob(project, job)
+            ],
+            [
+                IsDevice(),
+                ProjectContainsJob(project, job),
+                ProjectContainsDevice(project)
+            ]
+        ]
 
-        self.assertEqual(len(auth_conditions), 3)
-        self.assertEqual(auth_conditions[0], IsUser())
-        self.assertEqual(auth_conditions[1], HasProjectPermissions(project, ProjectPrivilegeTypesEnum.READ_ONLY))
-        self.assertEqual(auth_conditions[2], ProjectContainsJob(project, job))
+        self.assertEqual(auth_conditions, correct_auth_conditions)

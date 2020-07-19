@@ -10,6 +10,8 @@ from ...request_processor import AuthContextProcessor
 from ..utils.auth.conditions import IsUser
 from ..utils.auth.conditions import HasProjectPermissions
 from ..utils.auth.conditions import ProjectContainsJob
+from ..utils.auth.conditions import IsDevice
+from ..utils.auth.conditions import ProjectContainsDevice
 from ..abstract_controller import AbstractController
 
 
@@ -33,6 +35,11 @@ class GetJobAggregateModelController(AbstractController):
                 IsUser(),
                 HasProjectPermissions(self.project, ProjectPrivilegeTypesEnum.READ_ONLY),
                 ProjectContainsJob(self.project, self.job)
+            ],
+            [
+                IsDevice(),
+                ProjectContainsJob(self.project, self.job),
+                ProjectContainsDevice(self.project)
             ]
         ]
 
