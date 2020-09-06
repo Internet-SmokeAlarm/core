@@ -1,7 +1,6 @@
 from ...database import DB
 from ...request_processor import AuthContextProcessor
 from ...request_processor import TestingReportProcessor
-from ...database import DynamoDBInterface
 from ...model import Job
 from ...model import Project
 from ...model import DBObject

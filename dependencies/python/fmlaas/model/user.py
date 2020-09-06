@@ -14,6 +14,9 @@ class User(DBObject):
         self._projects = projects
         self._api_keys = api_keys
 
+    def get_id(self) -> str:
+        return self.username
+
     @property
     def username(self) -> str:
         return self._username

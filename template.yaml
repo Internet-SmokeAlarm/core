@@ -19,6 +19,7 @@ Globals:
         PROJECTS_TABLE_NAME: !Join ["", [!Ref Stage, "-fl-projects"]]
         JOBS_TABLE_NAME: !Join ["", [!Ref Stage, "-fl-jobs"]]
         AUTH_KEY_TABLE_NAME: !Join ["", [!Ref Stage, "-fl-auth-key"]]
+        USERS_TABLE_NAME: !Join ["", [!Ref Stage, "-fl-users"]]
         AGGREGATION_LAMBDA_FUNCTION_NAME: !Join ["", [!Ref Stage, "-AggregateModels"]]
         COGNITO_USER_POOL_CLIENT_ID: !Ref CognitoUserPoolClientId
         COGNITO_USER_POOL_ID: !Ref CognitoUserPoolId
@@ -587,6 +588,28 @@ Resources:
           Properties:
             RestApiId: !Ref ApiGw
             Path: /v1/experiment/get/{project_id}/{experiment_id}
+            Method: get
+
+  GetUserProjectsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 3
+      MemorySize: 128
+      CodeUri: api/user/get/projects/
+      Handler: app.lambda_handler
+      FunctionName: !Join ["", [!Ref Stage, "-GetUserProjects"]]
+      Layers:
+        - !Ref FMLaaSCoreDependencyLayer
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UsersTable
+      Events:
+        GetUserProjectsApiEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGw
+            Path: /v1/user/projects
             Method: get
 
   AggregateModelsFunction:
