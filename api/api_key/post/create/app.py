@@ -1,6 +1,7 @@
 import json
 
 from fmlaas import get_auth_key_table_from_env
+from fmlaas import get_user_table_from_env
 from fmlaas.database import DynamoDBInterface
 from fmlaas.request_processor import AuthContextProcessor
 from fmlaas.exception import RequestForbiddenException
@@ -22,11 +23,13 @@ def lambda_handler(event, context):
             "body": json.dumps({"error_msg": str(error)})
         }
 
-    dynamodb_ = DynamoDBInterface(get_auth_key_table_from_env())
+    api_key_db = DynamoDBInterface(get_auth_key_table_from_env())
+    user_db = DynamoDBInterface(get_user_table_from_env())
 
     try:
-        key_plaintext = CreateApiKeyController(
-            dynamodb_, auth_context).execute()
+        key_plaintext = CreateApiKeyController(api_key_db,
+                                               user_db,
+                                               auth_context).execute()
 
         return {
             "statusCode": 200,

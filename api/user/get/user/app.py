@@ -1,6 +1,6 @@
 import json
 
-from fmlaas import get_user_table_name_from_env
+from fmlaas import get_user_table_from_env
 from fmlaas.database import DynamoDBInterface
 from fmlaas.request_processor import AuthContextProcessor
 from fmlaas.controller.user.get import GetUserController
@@ -23,7 +23,7 @@ def lambda_handler(event, context):
             "body": json.dumps({"error_msg": str(error)})
         }
 
-    db = DynamoDBInterface(get_user_table_name_from_env())
+    db = DynamoDBInterface(get_user_table_from_env())
 
     try:
         user = GetUserController(db,

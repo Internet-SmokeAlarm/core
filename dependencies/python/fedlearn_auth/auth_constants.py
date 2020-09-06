@@ -6,4 +6,4 @@ class AuthConstants:
 
     # Hashing settings
     ROUNDS = 5
-    MEMORY_COST = 75000
+    MEMORY_COST = 500000

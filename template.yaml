@@ -178,6 +178,8 @@ Resources:
         - AWSLambdaBasicExecutionRole
         - DynamoDBCrudPolicy:
             TableName: !Ref AuthKeyTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UsersTable
       Events:
         CreateApiKeyEvent:
           Type: Api
