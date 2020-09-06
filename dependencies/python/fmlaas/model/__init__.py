@@ -16,3 +16,4 @@ from .project_builder import ProjectBuilder
 from .api_key_type import ApiKeyTypeEnum
 from .api_key import ApiKey
 from .api_key_builder import ApiKeyBuilder
+from .user import User

@@ -1,5 +1,4 @@
 import unittest
-
 from dependencies.python.fedlearn_auth import generate_key_pair
 from dependencies.python.fedlearn_auth import hash_secret
 from dependencies.python.fmlaas.controller.auth import auth_controller
@@ -131,18 +130,3 @@ class AuthControllerTestCase(unittest.TestCase):
             api_key.get_key_type())
         self.assertEqual(result["policyDocument"]
                          ["Statement"][0]["Effect"], "Allow")
-
-    def test_auth_controller_pass_6(self):
-        key_db = InMemoryDBInterface()
-
-        id, key_plaintext = generate_key_pair()
-        auth_event = self._build_default_event(key_plaintext)
-
-        result = auth_controller(auth_event, key_db)
-
-        self.assertEqual(result["context"]["entity_id"], "UNAUTHENTICATED")
-        self.assertEqual(result["policyDocument"]
-                         ["Statement"][0]["Effect"], "Deny")
-        self.assertEqual(
-            result["context"]["authentication_type"],
-            "UNAUTHENTICATED")

@@ -5,6 +5,7 @@ from ...model import ApiKeyTypeEnum
 
 from fedlearn_auth import get_id_from_token
 from fedlearn_auth import verify_key
+from fedlearn_auth import verify_jwt_token
 
 
 def auth_controller(event, key_db):
@@ -31,8 +32,11 @@ def auth_controller(event, key_db):
             event.get_token(),
             auth_token_api_key.get_hash())
     except BaseException:
-        # TODO: Handle JWT from AWS Cognito here
-        pass
+        authenticated, entity_id = verify_jwt_token(event.get_token())
+
+        # If the user authenticated using a JWT, make sure we set that here.
+        if authenticated:
+            authentication_type = ApiKeyTypeEnum.JWT.value
 
     if authenticated:
         policy.allowAllMethods()

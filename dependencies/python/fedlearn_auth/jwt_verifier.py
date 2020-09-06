@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-# Copied/modified from the following application:
+# Copied & modified from the following application:
 # https://github.com/awslabs/aws-support-tools/tree/master/Cognito/decode-verify-jwt
 
 import json
@@ -19,14 +19,11 @@ import urllib.request
 from jose import jwk, jwt
 from jose.utils import base64url_decode
 
-from fedlearn_auth import get_app_client_id_from_env
-from fedlearn_auth import get_userpool_id_from_env
+from .env import get_app_client_id_from_env
+from .env import get_userpool_id_from_env
 
 
-def verify_jwt_token(token):
-    """
-    :param token:
-    """
+def verify_jwt_token(token: str):
     app_client_id = get_app_client_id_from_env()
     userpool_id = get_userpool_id_from_env()
 
@@ -47,7 +44,7 @@ def verify_jwt_token(token):
             break
     if key_index == -1:
         print('Public key not found in jwks.json')
-        return False
+        return False, None
     # construct the public key
     public_key = jwk.construct(keys[key_index])
     # get the last two sections of the token,
@@ -58,7 +55,7 @@ def verify_jwt_token(token):
     # verify the signature
     if not public_key.verify(message.encode("utf8"), decoded_signature):
         print('Signature verification failed')
-        return False
+        return False, None
     print('Signature successfully verified')
     # since we passed the verification, we can now safely
     # use the unverified claims
@@ -66,11 +63,10 @@ def verify_jwt_token(token):
     # additionally we can verify the token expiration
     if time.time() > claims['exp']:
         print('Token is expired')
-        return False
+        return False, None
     # and the Audience  (use claims['client_id'] if verifying an access token)
-    if claims['aud'] != app_client_id:
+    if claims['client_id'] != app_client_id:
         print('Token was not issued for this audience')
-        return False
+        return False, None
     # now we can use the claims
-    print(claims)
-    return claims
+    return True, claims["username"]

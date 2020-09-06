@@ -5,3 +5,4 @@ from .key_management import generate_key_pair
 from .key_management import get_id_from_token
 from .hashing import hash_secret
 from .hashing import verify_key
+from .jwt_verifier import verify_jwt_token
