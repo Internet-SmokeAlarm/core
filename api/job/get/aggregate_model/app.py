@@ -7,6 +7,7 @@ from fmlaas.request_processor import IDProcessor
 from fmlaas.request_processor import AuthContextProcessor
 from fmlaas.controller.get_job_aggregate_model import GetJobAggregateModelController
 from fmlaas.exception import RequestForbiddenException
+from fmlaas.utils import get_allowed_origins
 
 
 def lambda_handler(event, context):
@@ -31,15 +32,24 @@ def lambda_handler(event, context):
 
         return {
             "statusCode": 200,
+            "headers": {
+                "Access-Control-Allow-Origin": get_allowed_origins()
+            },
             "body": json.dumps({"model_url": presigned_url})
         }
     except ValueError as error:
         return {
             "statusCode": 400,
+            "headers": {
+                "Access-Control-Allow-Origin": get_allowed_origins()
+            },
             "body": json.dumps({"error_msg": str(error)})
         }
     except RequestForbiddenException as error:
         return {
             "statusCode": 403,
+            "headers": {
+                "Access-Control-Allow-Origin": get_allowed_origins()
+            },
             "body": json.dumps({"error_msg": str(error)})
         }

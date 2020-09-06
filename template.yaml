@@ -5,10 +5,14 @@ Description: Verge AI Core
 Parameters:
   Stage:
     Type: String
+  CognitoUserPoolClientId:
+    Type: String
+  CognitoUserPoolId:
+    Type: String
 
 Globals:
   Function:
-    Runtime: python3.7
+    Runtime: python3.8
     Environment:
       Variables:
         MODELS_BUCKET: !Join ["", [!Ref Stage, "-fl-models"]]
@@ -16,8 +20,8 @@ Globals:
         JOBS_TABLE_NAME: !Join ["", [!Ref Stage, "-fl-jobs"]]
         AUTH_KEY_TABLE_NAME: !Join ["", [!Ref Stage, "-fl-auth-key"]]
         AGGREGATION_LAMBDA_FUNCTION_NAME: !Join ["", [!Ref Stage, "-AggregateModels"]]
-        COGNITO_USER_POOL_CLIENT_ID: !Ref AuthCognitoUserPoolClient
-        COGNITO_USER_POOL_ID: !Ref AuthCognitoUserPool
+        COGNITO_USER_POOL_CLIENT_ID: !Ref CognitoUserPoolClientId
+        COGNITO_USER_POOL_ID: !Ref CognitoUserPoolId
 
 Resources:
   # ------------ Api ------------
@@ -25,6 +29,10 @@ Resources:
     Type: AWS::Serverless::Api
     Properties:
       StageName: !Ref Stage
+      Cors:
+        AllowMethods: "'*'"
+        AllowHeaders: "'Access-Control-Allow-Headers, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers, Authorization'"
+        AllowOrigin: "'*'"
       Auth:
         DefaultAuthorizer: LambdaRequestAuthorizer
         Authorizers:
@@ -34,6 +42,7 @@ Resources:
             Identity:
               Headers:
                 - Authorization
+        AddDefaultAuthorizerToCorsPreflight: False
 
 
   # ------------ DynamoDB ------------
@@ -79,33 +88,19 @@ Resources:
           KeyType: "HASH"
       TableName: !Join ["", [!Ref Stage, "-fl-auth-key"]]
 
-
-  # ------------ Cognito ------------
-  AuthCognitoUserPool:
-    Type: AWS::Cognito::UserPool
+  UsersTable:
+    Type: AWS::DynamoDB::Table
     Properties:
-      UserPoolName: !Join ["", [!Ref Stage, "-fl-user-pool"]]
-      Policies:
-        PasswordPolicy:
-          MinimumLength: 12
-          RequireLowercase: true
-          RequireNumbers: true
-          RequireSymbols: true
-          RequireUppercase: true
-          TemporaryPasswordValidityDays: 30
-      UsernameAttributes:
-        - email
-      Schema:
-        - AttributeDataType: String
-          Name: email
-          Required: false
-
-  AuthCognitoUserPoolClient:
-    Type: AWS::Cognito::UserPoolClient
-    Properties:
-      UserPoolId: !Ref AuthCognitoUserPool
-      ClientName: !Join ["", [!Ref Stage, "-fl-user-pool-client"]]
-      GenerateSecret: false
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        -
+          AttributeName: "ID"
+          AttributeType: "S"
+      KeySchema:
+        -
+          AttributeName: "ID"
+          KeyType: "HASH"
+      TableName: !Join ["", [!Ref Stage, "-fl-users"]]
 
 
   # ------------ S3 ------------
@@ -625,11 +620,3 @@ Outputs:
   ApiUrl:
     Description: URL for endpoint
     Value: !Sub "https://${ApiGw}.execute-api.${AWS::Region}.amazonaws.com/"
-
-  CognitoUserPoolId:
-    Description: "Cognito User Pool Id"
-    Value: !Ref AuthCognitoUserPool
-
-  CognitoUserPoolClientId:
-    Description: "Cognito User Pool Client Id"
-    Value: !Ref AuthCognitoUserPoolClient

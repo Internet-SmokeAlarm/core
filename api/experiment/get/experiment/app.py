@@ -6,6 +6,7 @@ from fmlaas.database import DynamoDBInterface
 from fmlaas.exception import RequestForbiddenException
 from fmlaas.request_processor import AuthContextProcessor
 from fmlaas.controller.get_experiment import GetExperimentController
+from fmlaas.utils import get_allowed_origins
 
 
 def lambda_handler(event, context):
@@ -28,15 +29,24 @@ def lambda_handler(event, context):
 
         return {
             "statusCode": 200,
+            "headers": {
+                "Access-Control-Allow-Origin": get_allowed_origins()
+            },
             "body": json.dumps(experiment.to_json())
         }
     except ValueError as error:
         return {
             "statusCode": 400,
+            "headers": {
+                "Access-Control-Allow-Origin": get_allowed_origins()
+            },
             "body": json.dumps({"error_msg": str(error)})
         }
     except RequestForbiddenException as error:
         return {
             "statusCode": 403,
+            "headers": {
+                "Access-Control-Allow-Origin": get_allowed_origins()
+            },
             "body": json.dumps({"error_msg": str(error)})
         }

@@ -7,6 +7,7 @@ from fmlaas.request_processor import AuthContextProcessor
 from fmlaas import get_auth_key_table_from_env
 from fmlaas.controller.register_device import RegisterDeviceController
 from fmlaas.exception import RequestForbiddenException
+from fmlaas.utils import get_allowed_origins
 
 
 def lambda_handler(event, context):
@@ -29,15 +30,24 @@ def lambda_handler(event, context):
 
         return {
             "statusCode": 200,
+            "headers": {
+                "Access-Control-Allow-Origin": get_allowed_origins()
+            },
             "body": json.dumps({"device_id": id, "device_api_key": key_plaintext})
         }
     except ValueError as error:
         return {
             "statusCode": 400,
+            "headers": {
+                "Access-Control-Allow-Origin": get_allowed_origins()
+            },
             "body": json.dumps({"error_msg": str(error)})
         }
     except RequestForbiddenException as error:
         return {
             "statusCode": 403,
+            "headers": {
+                "Access-Control-Allow-Origin": get_allowed_origins()
+            },
             "body": json.dumps({"error_msg": str(error)})
         }
