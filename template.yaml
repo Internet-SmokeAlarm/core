@@ -590,14 +590,14 @@ Resources:
             Path: /v1/experiment/get/{project_id}/{experiment_id}
             Method: get
 
-  GetUserProjectsFunction:
+  GetUserFunction:
     Type: AWS::Serverless::Function
     Properties:
       Timeout: 3
       MemorySize: 128
-      CodeUri: api/user/get/projects/
+      CodeUri: api/user/get/user/
       Handler: app.lambda_handler
-      FunctionName: !Join ["", [!Ref Stage, "-GetUserProjects"]]
+      FunctionName: !Join ["", [!Ref Stage, "-GetUser"]]
       Layers:
         - !Ref FMLaaSCoreDependencyLayer
       Policies:
@@ -609,7 +609,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref ApiGw
-            Path: /v1/user/projects
+            Path: /v1/user/get
             Method: get
 
   AggregateModelsFunction:

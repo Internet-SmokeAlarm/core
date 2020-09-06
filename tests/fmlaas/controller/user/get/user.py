@@ -6,10 +6,10 @@ from dependencies.python.fmlaas.model import User
 from dependencies.python.fmlaas.request_processor import AuthContextProcessor
 from dependencies.python.fmlaas.controller.utils.auth.conditions import IsUser
 from dependencies.python.fmlaas.database import InMemoryDBInterface
-from dependencies.python.fmlaas.controller.user.get import GetProjectsController
+from dependencies.python.fmlaas.controller.user.get import GetUserController
 
 
-class GetProjectsControllerTestCase(unittest.TestCase):
+class GetUserControllerTestCase(unittest.TestCase):
 
     def _create_prefilled_user(self):
         username = "valetolpegin"
@@ -71,7 +71,7 @@ class GetProjectsControllerTestCase(unittest.TestCase):
             "entity_id": "valetolpegin"
         }
         auth_context = AuthContextProcessor(auth_json)
-        controller = GetProjectsController(user_db,
+        controller = GetUserController(user_db,
                                            auth_context)
         controller.load_data()
 
@@ -86,7 +86,7 @@ class GetProjectsControllerTestCase(unittest.TestCase):
             "entity_id": "valetolpegin"
         }
         auth_context = AuthContextProcessor(auth_json)
-        controller = GetProjectsController(user_db,
+        controller = GetUserController(user_db,
                                            auth_context)
         controller.load_data()
 
@@ -103,7 +103,7 @@ class GetProjectsControllerTestCase(unittest.TestCase):
             "entity_id": "valetolpegin"
         }
         auth_context = AuthContextProcessor(auth_json)
-        controller = GetProjectsController(user_db,
+        controller = GetUserController(user_db,
                                            auth_context)
         controller.load_data()
         auth_conditions = controller.get_auth_conditions()
@@ -126,7 +126,7 @@ class GetProjectsControllerTestCase(unittest.TestCase):
             "entity_id": "valetolpegin"
         }
         auth_context = AuthContextProcessor(auth_json)
-        projects = GetProjectsController(user_db,
-                                           auth_context).execute()
+        loaded_user = GetUserController(user_db,
+                                        auth_context).execute()
 
-        self.assertEqual(projects, user.projects)
+        self.assertEqual(loaded_user, user.user)

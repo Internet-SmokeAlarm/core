@@ -1,19 +1,19 @@
 from typing import List
-from typing import Dict
 from ...utils.auth.conditions import IsUser
 from ...utils.auth.conditions import AbstractCondition
 from ....database import DB
+from ....model import User
 from ....request_processor import AuthContextProcessor
 from ...utils.user import handle_load_user
 from ...abstract_controller import AbstractController
 
 
-class GetProjectsController(AbstractController):
+class GetUserController(AbstractController):
 
     def __init__(self,
                  user_db: DB,
                  auth_context: AuthContextProcessor):
-        super(GetProjectsController, self).__init__(auth_context)
+        super(GetUserController, self).__init__(auth_context)
 
         self._user_db = user_db
 
@@ -27,5 +27,5 @@ class GetProjectsController(AbstractController):
             ]
         ]
 
-    def execute_controller(self) -> List[Dict[str, str]]:
-        return self._user.projects
+    def execute_controller(self) -> User:
+        return self._user

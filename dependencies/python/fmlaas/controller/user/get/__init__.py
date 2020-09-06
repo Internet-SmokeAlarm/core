@@ -1,1 +1,1 @@
-from .projects import GetProjectsController
+from .user import GetUserController

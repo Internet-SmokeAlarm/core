@@ -1,1 +1,1 @@
-from .projects import GetProjectsControllerTestCase
+from .user import GetUserControllerTestCase
