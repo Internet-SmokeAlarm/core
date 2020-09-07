@@ -20,3 +20,4 @@ from .create_experiment import *
 from .get_experiment import *
 from .testing_report import *
 from .user import *
+from .delete_api_key import *

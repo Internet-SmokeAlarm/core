@@ -7,13 +7,13 @@ class IDProcessor(RequestProcessor):
     PROJECT_ID_KEY = "project_id"
     JOB_ID_KEY = "job_id"
     DEVICE_ID_KEY = "device_id"
-    PREVIOUS_JOB_ID_KEY = "previous_job_id"
+    API_KEY_KEY = "api_key"
     EXPERIMENT_ID_KEY = "experiment_id"
 
     def __init__(self, json):
         self.json = json
 
-    def get_project_name(self, throw_exception=True):
+    def get_project_name(self, throw_exception: bool = True) -> str:
         project_name = self.json.get(IDProcessor.PROJECT_NAME_KEY, None)
 
         if not self._is_string_name_valid(project_name) and throw_exception:
@@ -21,10 +21,7 @@ class IDProcessor(RequestProcessor):
 
         return project_name
 
-    def get_project_id(self, throw_exception=True):
-        """
-        :return: string
-        """
+    def get_project_id(self, throw_exception: bool = True) -> str:
         project_id = self.json.get(IDProcessor.PROJECT_ID_KEY, None)
 
         if not self._is_string_name_valid(project_id) and throw_exception:
@@ -32,10 +29,7 @@ class IDProcessor(RequestProcessor):
 
         return project_id
 
-    def get_experiment_id(self, throw_exception=True):
-        """
-        :return: string
-        """
+    def get_experiment_id(self, throw_exception: bool = True) -> str:
         experiment_id = self.json.get(IDProcessor.EXPERIMENT_ID_KEY, None)
 
         if not self._is_string_name_valid(experiment_id) and throw_exception:
@@ -43,10 +37,7 @@ class IDProcessor(RequestProcessor):
 
         return experiment_id
 
-    def get_job_id(self, throw_exception=True):
-        """
-        :return: string
-        """
+    def get_job_id(self, throw_exception: bool = True) -> str:
         job_id = self.json.get(IDProcessor.JOB_ID_KEY, None)
 
         if not self._is_string_name_valid(job_id) and throw_exception:
@@ -54,21 +45,15 @@ class IDProcessor(RequestProcessor):
 
         return job_id
 
-    def get_previous_job_id(self, throw_exception=True):
-        """
-        :return: string
-        """
-        job_id = self.json.get(IDProcessor.PREVIOUS_JOB_ID_KEY, None)
+    def get_api_key(self, throw_exception: bool = True) -> str:
+        api_key = self.json.get(IDProcessor.API_KEY_KEY, None)
 
-        if not self._is_string_name_valid(job_id) and throw_exception:
-            raise ValueError("Previous job id invalid.")
+        if not self._is_string_name_valid(api_key) and throw_exception:
+            raise ValueError("Provided API key is invalid.")
 
-        return job_id
+        return api_key
 
-    def get_device_id(self, throw_exception=True):
-        """
-        :return: string
-        """
+    def get_device_id(self, throw_exception: bool = True) -> str:
         device_id = self.json.get(IDProcessor.DEVICE_ID_KEY, None)
 
         if not self._is_string_name_valid(device_id) and throw_exception:

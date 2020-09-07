@@ -6,3 +6,4 @@ from .job_contains_device import JobContainsDeviceTestCase
 from .project_contains_device import ProjectContainsDeviceTestCase
 from .is_equal_to_auth_entity import IsEqualToAuthEntityTestCase
 from .project_contains_experiment import ProjectContainsExperimentTestCase
+from .user_contains_api_key import UserContainsApiKeyTestCase

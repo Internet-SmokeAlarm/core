@@ -38,6 +38,12 @@ class User(DBObject):
     def add_api_key(self, id: str):
         self._api_keys.append(id)
 
+    def contains_api_key(self, id: str) -> bool:
+        return id in self._api_keys
+
+    def remove_api_key(self, id: str):
+        self._api_keys.remove(id)
+
     def to_json(self) -> Dict[str, Any]:
         return {
             "ID": self._username,

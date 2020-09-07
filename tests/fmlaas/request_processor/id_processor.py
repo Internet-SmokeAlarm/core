@@ -99,28 +99,28 @@ class IDProcessorTestCase(unittest.TestCase):
 
         self.assertEqual("None", id_processor.get_project_name())
 
-    def test_get_previous_job_id_pass(self):
-        json_data = {"previous_job_id": "None"}
+    def test_get_api_key_pass(self):
+        json_data = {"api_key": "None"}
         id_processor = IDProcessor(json_data)
 
-        self.assertEqual("None", id_processor.get_previous_job_id())
+        self.assertEqual("None", id_processor.get_api_key())
 
-    def test_get_previous_job_id_fail_1(self):
-        json_data = {"previous_job_id": None}
+    def test_get_api_key_fail_1(self):
+        json_data = {"api_key": None}
         id_processor = IDProcessor(json_data)
 
-        self.assertRaises(ValueError, id_processor.get_previous_job_id)
+        self.assertRaises(ValueError, id_processor.get_api_key)
 
-    def test_get_previous_job_id_fail_2(self):
-        json_data = {"previous_job_id": 10}
+    def test_get_api_key_fail_2(self):
+        json_data = {"api_key": 10}
         id_processor = IDProcessor(json_data)
 
-        self.assertRaises(ValueError, id_processor.get_previous_job_id)
+        self.assertRaises(ValueError, id_processor.get_api_key)
 
-    def test_get_previous_job_id_fail_3(self):
-        json_data = {"previous_job_id": None}
+    def test_get_api_key_fail_3(self):
+        json_data = {"api_key": None}
         id_processor = IDProcessor(json_data)
 
         self.assertIsNone(
-            id_processor.get_previous_job_id(
+            id_processor.get_api_key(
                 throw_exception=False))

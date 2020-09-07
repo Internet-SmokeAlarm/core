@@ -188,6 +188,30 @@ Resources:
             Path: /v1/auth/create
             Method: post
 
+  DeleteApiKeyFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 3
+      MemorySize: 128
+      CodeUri: api/api_key/delete/api_key/
+      Handler: app.lambda_handler
+      FunctionName: !Join ["", [!Ref Stage, "-DeleteApiKey"]]
+      Layers:
+        - !Ref FMLaaSCoreDependencyLayer
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuthKeyTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UsersTable
+      Events:
+        DeleteApiKeyEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGw
+            Path: /v1/auth/delete
+            Method: post
+
   RegisterDeviceFunction:
     Type: AWS::Serverless::Function
     Properties:

@@ -100,3 +100,18 @@ class UserTestCase(unittest.TestCase):
         user_tuple_2.user.add_api_key("123121234235afaszf1234")
 
         self.assertNotEqual(user_tuple_1.user, user_tuple_2.user)
+
+    def test_contains_api_key_pass(self):
+        user_tuple = self.create_test_user()
+
+        self.assertTrue(user_tuple.user.contains_api_key(user_tuple.api_keys[0]))
+        self.assertTrue(user_tuple.user.contains_api_key(user_tuple.api_keys[1]))
+        self.assertTrue(user_tuple.user.contains_api_key(user_tuple.api_keys[2]))
+        self.assertFalse(user_tuple.user.contains_api_key("test_api_key"))
+
+    def test_remove_api_key_pass(self):
+        user_tuple = self.create_test_user()
+
+        user_tuple.user.remove_api_key(user_tuple.api_keys[0])
+
+        self.assertEqual(len(user_tuple.user.api_keys), 2)
