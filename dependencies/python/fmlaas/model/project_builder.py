@@ -6,11 +6,15 @@ class ProjectBuilder(Builder):
 
     def __init__(self):
         self.name = None
+        self._description = ""
         self.id = None
         self.devices = {}
         self.experiments = {}
         self.members = {}
         self.billing = {}
+
+    def set_description(self, description: str) -> None:
+        self._description = description
 
     def set_name(self, name):
         """
@@ -45,7 +49,13 @@ class ProjectBuilder(Builder):
     def build(self):
         self._validate_parameters()
 
-        return Project(self.name, self.id, self.devices, self.experiments, self.members, self.billing)
+        return Project(self.name,
+                       self.id,
+                       self.devices,
+                       self.experiments,
+                       self.members,
+                       self.billing,
+                       description=self._description)
 
     def _validate_parameters(self):
         if self.id is None:

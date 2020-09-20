@@ -4,6 +4,7 @@ from .request_processor import RequestProcessor
 class IDProcessor(RequestProcessor):
 
     PROJECT_NAME_KEY = "project_name"
+    PROJECT_DESCRIPTION_KEY = "project_description"
     PROJECT_ID_KEY = "project_id"
     JOB_ID_KEY = "job_id"
     DEVICE_ID_KEY = "device_id"
@@ -28,6 +29,14 @@ class IDProcessor(RequestProcessor):
             raise ValueError("Project id invalid.")
 
         return project_id
+
+    def get_project_description(self, throw_exception: bool = True) -> str:
+        project_description = self.json.get(IDProcessor.PROJECT_DESCRIPTION_KEY, None)
+
+        if not self._is_string_name_valid(project_description) and throw_exception:
+            raise ValueError("Project description invalid.")
+
+        return project_description
 
     def get_experiment_id(self, throw_exception: bool = True) -> str:
         experiment_id = self.json.get(IDProcessor.EXPERIMENT_ID_KEY, None)

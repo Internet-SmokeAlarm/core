@@ -29,6 +29,30 @@ class IDProcessorTestCase(unittest.TestCase):
 
         self.assertEqual("experiment_id_1234234", id_processor.get_experiment_id())
 
+    def test_get_project_description_pass(self):
+        json_data = {"project_description": "this is a test description"}
+        id_processor = IDProcessor(json_data)
+
+        self.assertEqual("this is a test description", id_processor.get_project_description())
+
+    def test_get_project_description_fail(self):
+        json_data = {"project_description": None}
+        id_processor = IDProcessor(json_data)
+
+        self.assertRaises(ValueError, id_processor.get_project_description)
+
+    def test_get_project_description_fail_2(self):
+        json_data = {"project_description": 1234}
+        id_processor = IDProcessor(json_data)
+
+        self.assertRaises(ValueError, id_processor.get_project_description)
+
+    def test_get_project_description_fail_3(self):
+        json_data = {"project_description": {}}
+        id_processor = IDProcessor(json_data)
+
+        self.assertRaises(ValueError, id_processor.get_project_description)
+
     def test_get_project_name_fail(self):
         json_data = {"project_name": None}
         id_processor = IDProcessor(json_data)

@@ -1,6 +1,7 @@
 import json
 
 from fmlaas import get_project_table_name_from_env
+from fmlaas import get_user_table_from_env
 from fmlaas.database import DynamoDBInterface
 from fmlaas.request_processor import IDProcessor
 from fmlaas.request_processor import AuthContextProcessor
@@ -16,6 +17,7 @@ def lambda_handler(event, context):
     try:
         id_processor = IDProcessor(req_json)
         project_name = id_processor.get_project_name()
+        project_description = id_processor.get_project_description()
 
         auth_context = AuthContextProcessor(auth_json)
     except ValueError as error:
@@ -27,19 +29,22 @@ def lambda_handler(event, context):
             "body": json.dumps({"error_msg": str(error)})
         }
 
-    dynamodb_ = DynamoDBInterface(get_project_table_name_from_env())
+    project_db = DynamoDBInterface(get_project_table_name_from_env())
+    user_db = DynamoDBInterface(get_user_table_from_env())
 
     try:
-        project_id = CreateProjectController(dynamodb_,
-                                             project_name,
-                                             auth_context).execute()
+        project = CreateProjectController(project_db,
+                                          user_db,
+                                          project_name,
+                                          project_description,
+                                          auth_context).execute()
 
         return {
             "statusCode": 200,
             "headers": {
                 "Access-Control-Allow-Origin": get_allowed_origins()
             },
-            "body": json.dumps({"project_id": project_id})
+            "body": json.dumps(project.to_json())
         }
     except RequestForbiddenException as error:
         return {

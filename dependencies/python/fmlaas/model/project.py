@@ -13,15 +13,14 @@ from .db_object import DBObject
 class Project(DBObject):
 
     def __init__(self,
-                 name,
-                 id,
+                 name: str,
+                 id: str,
                  devices,
                  experiments,
                  members,
-                 billing):
+                 billing,
+                 description: str = ""):
         """
-        :param name: string
-        :param id: string
         :param devices: dict
         :param experiments: dict
         :param members: dict
@@ -33,6 +32,11 @@ class Project(DBObject):
         self.experiments = experiments
         self.members = members
         self.billing = billing
+        self._description = description
+
+    @property
+    def description(self) -> str:
+        return self._description
 
     def add_device(self, device_id):
         """
@@ -165,11 +169,12 @@ class Project(DBObject):
             "devices": self.devices,
             "experiments": self.experiments,
             "members": self.members,
-            "billing": self.billing
+            "billing": self.billing,
+            "description": self.description
         }
 
     def __eq__(self, other):
-        return (other.name == self.name) and (self.experiments == other.experiments) and (self.devices == other.devices) and (self.members == other.members) and (self.billing == other.billing) and (self.id == other.id)
+        return (other.name == self.name) and (self.experiments == other.experiments) and (self.devices == other.devices) and (self.members == other.members) and (self.billing == other.billing) and (self.id == other.id) and (self.description == other.description)
 
     @staticmethod
     def from_json(json_data):
@@ -178,4 +183,5 @@ class Project(DBObject):
                        json_data["devices"],
                        json_data["experiments"],
                        json_data["members"],
-                       json_data["billing"])
+                       json_data["billing"],
+                       json_data["description"])

@@ -43,12 +43,14 @@ class AbstractModelTestCase(unittest.TestCase):
         builder = ProjectBuilder()
         builder.set_id("id_{}".format(id))
         builder.set_name("my_name")
+        builder.set_description("my_description")
 
         return builder.build()
 
     def _get_simple_project_json(self, id):
         return {
             'name': 'my_name',
+            'description': 'my_description',
             'ID': 'id_{}'.format(id),
             'devices': {},
             "experiments": {},

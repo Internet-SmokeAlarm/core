@@ -442,6 +442,8 @@ Resources:
         - AWSLambdaBasicExecutionRole
         - DynamoDBCrudPolicy:
             TableName: !Ref ProjectsTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UsersTable
       Events:
         CreateProjectApiEvent:
           Type: Api
@@ -631,7 +633,7 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref UsersTable
       Events:
-        GetUserProjectsApiEvent:
+        GetUserApiEvent:
           Type: Api
           Properties:
             RestApiId: !Ref ApiGw
