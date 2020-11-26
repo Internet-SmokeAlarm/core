@@ -3,43 +3,51 @@ from ..s3_storage import PointerFactory
 
 class Model:
 
-    def __init__(self, entity_id, name, size):
-        """
-        :param entity_id: string. ID of the entity that produced this model
-        :param name: str
-        :param size: string. Size of model in bytes
-        """
-        self.entity_id = entity_id
-        self.name = name
-        self.size = size
+    def __init__(self,
+                 entity_id: str,
+                 name: str,
+                 size: int):
+        self._entity_id = entity_id
+        self._name = name
+        self._size = size
 
-    def set_entity_id(self, entity_id):
-        self.entity_id = entity_id
+    @property
+    def entity_id(self) -> str:
+        return self._entity_id
+    
+    @entity_id.setter
+    def entity_id(self, value: str) -> None:
+        self._entity_id = value
 
-    def get_entity_id(self):
-        return self.entity_id
+    @property
+    def name(self) -> str:
+        return PointerFactory.load_pointer(self._name)
 
-    def get_name(self):
-        return PointerFactory.load_pointer(self.name)
+    @property
+    def size(self) -> int:
+        return self._size
 
-    def get_size(self):
-        return self.size
-
-    def to_json(self):
+    def to_json(self) -> dict:
         return {
-            "entity_id": self.entity_id,
-            "name": self.name,
-            "size": self.size
+            "entity_id": self._entity_id,
+            "name": self._name,
+            "size": str(self._size)
         }
 
     @staticmethod
     def from_json(json_data):
         return Model(json_data["entity_id"],
-                     json_data["name"], json_data["size"])
+                     json_data["name"],
+                     int(json_data["size"]))
 
     @staticmethod
-    def is_valid_json(json_data):
-        return "entity_id" in json_data and "name" in json_data and "size" in json_data
+    def is_valid_json(json_data: dict) -> bool:
+        return "entity_id" in json_data and \
+            "name" in json_data and \
+            "size" in json_data
 
-    def __eq__(self, other):
-        return self.entity_id == other.entity_id and self.name == other.name and self.size == other.size
+    def __eq__(self, other) -> bool:
+        return (type(self) == type(other)) and \
+            (self._entity_id == other._entity_id) and \
+            (self._name == other._name) and \
+            (self._size == other._size)

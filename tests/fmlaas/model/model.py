@@ -1,31 +1,21 @@
-import unittest
-
-from dependencies.python.fmlaas.s3_storage import JobAggregateModelPointer
 from dependencies.python.fmlaas.model import Model
 
+from .abstract_model_testcase import AbstractModelTestCase
 
-class ModelTestCase(unittest.TestCase):
+
+class ModelTestCase(AbstractModelTestCase):
 
     def test_to_json_pass(self):
-        model = Model("1234", str(JobAggregateModelPointer("4456", "5567", "1234")), "123552")
+        model, json_repr = self._create_model()
 
-        json_data = model.to_json()
-
-        self.assertEqual(model.get_entity_id(), json_data["entity_id"])
-        self.assertEqual("4456/5567/1234/aggregate_model", json_data["name"])
-        self.assertEqual(model.get_size(), json_data["size"])
+        self.assertEqual(model.to_json(), json_repr)
 
     def test_from_json_pass(self):
-        json_data = {
-            'entity_id': '1234',
-            'name': '4456/5567/1234/aggregate_model',
-            'size': "123552"}
+        orig_model, json_repr = self._create_model()
 
-        model = Model.from_json(json_data)
+        model = Model.from_json(json_repr)
 
-        self.assertEqual(model.get_entity_id(), "1234")
-        self.assertEqual(model.get_name(), JobAggregateModelPointer("4456", "5567", "1234"))
-        self.assertEqual(model.get_size(), "123552")
+        self.assertEqual(model, orig_model)
 
     def test_is_valid_json_pass(self):
         self.assertTrue(Model.is_valid_json(

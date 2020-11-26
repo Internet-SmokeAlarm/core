@@ -1,8 +1,7 @@
-from ....model import Builder
 from .auth import AuthEvent
 
 
-class AuthEventBuilder(Builder):
+class AuthEventBuilder:
 
     def __init__(self):
         self.token = None

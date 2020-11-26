@@ -1,31 +1,25 @@
-from ...database import DB
-from ...model import DBObject
-from ...model import Job
-from ...model import Model
-from ...model import Project
-from ...model import JobStatus
-from ...s3_storage import PointerFactory
-from ...s3_storage import PointerType
+from typing import List
+
 from ...aws import trigger_lambda_function
+from ...database import DB
+from ...model import DBObject, Job, Model, Project, Status
+from ...s3_storage import PointerFactory, PointerType
 from ...utils import get_aggregation_lambda_func_name
 from ..utils import update_experiment
 from .lambda_trigger_helper import generate_aggregation_func_payload
 
 
-def models_uploaded_controller(project_db: DB, job_db: DB, models_uploaded):
-    """
-    :param models_uploaded: list(string)
-    """
+def models_uploaded_controller(project_db: DB, job_db: DB, models_uploaded: List[str]):
     for model in models_uploaded:
-        handler_function = get_model_process_function(str(model.get_name()))
+        handler_function = get_model_process_function(str(model.name))
         should_trigger_aggregation = handler_function(
             model, project_db, job_db)
 
         if should_trigger_aggregation:
             payload = generate_aggregation_func_payload(
-                model.get_name().project_id,
-                model.get_name().experiment_id,
-                model.get_name().job_id)
+                model.name.project_id,
+                model.name.experiment_id,
+                model.name.job_id)
 
             trigger_lambda_function(
                 get_aggregation_lambda_func_name(), payload)
@@ -43,10 +37,10 @@ def get_model_process_function(model_name: str):
 
 
 def handle_experiment_start_model(model: Model, project_db: DB, job_db: DB):
-    model.set_entity_id(model.get_name().experiment_id)
+    model.entity_id = model.name.experiment_id
 
-    project = DBObject.load_from_db(Project, model.get_name().project_id, project_db)
-    experiment = project.get_experiment(model.get_name().experiment_id)
+    project = DBObject.load_from_db(Project, model.name.project_id, project_db)
+    experiment = project.get_experiment(model.name.experiment_id)
     experiment.start_model = model
     experiment.current_model = model
     project.add_or_update_experiment(experiment)
@@ -56,14 +50,14 @@ def handle_experiment_start_model(model: Model, project_db: DB, job_db: DB):
 
 
 def handle_device_model_update(model: Model, project_db: DB, job_db: DB):
-    model.set_entity_id(model.get_name().device_id)
+    model.entity_id = model.name.device_id
 
-    job = DBObject.load_from_db(Job, model.get_name().job_id, job_db)
+    job = DBObject.load_from_db(Job, model.name.job_id, job_db)
     job.add_model(model)
 
     should_aggregate = not job.is_aggregation_in_progress() and job.should_aggregate()
     if should_aggregate:
-        job.set_status(JobStatus.AGGREGATION_IN_PROGRESS)
+        job.status = Status.AGGREGATION_IN_PROGRESS
 
     job.save_to_db(job_db)
 
@@ -71,10 +65,10 @@ def handle_device_model_update(model: Model, project_db: DB, job_db: DB):
 
 
 def handle_job_aggregate_model(model: Model, project_db: DB, job_db: DB):
-    model.set_entity_id(model.get_name().job_id)
+    model.entity_id = model.name.job_id
 
-    job = DBObject.load_from_db(Job, model.get_name().job_id, job_db)
-    job.set_aggregate_model(model)
+    job = DBObject.load_from_db(Job, model.name.job_id, job_db)
+    job.aggregate_model = model
     job.complete()
     job.save_to_db(job_db)
 

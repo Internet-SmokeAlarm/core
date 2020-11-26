@@ -1,16 +1,10 @@
+from dependencies.python.fmlaas.controller.submit_model_update import \
+    SubmitModelUpdateController
+from dependencies.python.fmlaas.controller.utils.auth.conditions import (
+    IsDevice, JobContainsDevice, ProjectContainsJob)
 from dependencies.python.fmlaas.database import InMemoryDBInterface
-from dependencies.python.fmlaas.exception import RequestForbiddenException
-from dependencies.python.fmlaas.model import DBObject
-from dependencies.python.fmlaas.model import ProjectBuilder
-from dependencies.python.fmlaas.model import Model
-from dependencies.python.fmlaas.model import JobBuilder
-from dependencies.python.fmlaas.model import JobConfiguration
-from dependencies.python.fmlaas.model import ProjectPrivilegeTypesEnum
-from dependencies.python.fmlaas.controller.submit_model_update import SubmitModelUpdateController
-from dependencies.python.fmlaas.controller.utils.auth.conditions import IsDevice
-from dependencies.python.fmlaas.controller.utils.auth.conditions import ProjectContainsJob
-from dependencies.python.fmlaas.controller.utils.auth.conditions import JobContainsDevice
 from dependencies.python.fmlaas.request_processor import AuthContextProcessor
+
 from ..abstract_testcase import AbstractTestCase
 
 
@@ -26,8 +20,9 @@ class SubmitModelUpdateControllerTestCase(AbstractTestCase):
         project = self._build_simple_project()
 
         experiment = self._build_simple_experiment()
-        experiment.id = "experiment_id_1"
         experiment.add_job(job)
+        experiment.start_model = job.start_model
+        experiment.current_model = job.start_model
         project.add_or_update_experiment(experiment)
 
         project.save_to_db(project_db_)
@@ -37,66 +32,25 @@ class SubmitModelUpdateControllerTestCase(AbstractTestCase):
             "entity_id": "12344"
         }
         auth_context = AuthContextProcessor(auth_json)
-        can_submit_model_to_job, presigned_url = SubmitModelUpdateController(project_db_,
-                                                                             job_db_,
-                                                                             project.get_id(),
-                                                                             job.get_id(),
-                                                                             auth_context).execute()
+        controller = SubmitModelUpdateController(project_db_,
+                                                 job_db_,
+                                                 project.id,
+                                                 job.id,
+                                                 auth_context)
+        
+        # Auth conditions
+        auth_conditions = controller.get_auth_conditions()
+        correct_auth_conditions = [
+            [
+                IsDevice(),
+                ProjectContainsJob(project, job),
+                JobContainsDevice(job)
+            ]
+        ]
+        self.assertEqual(auth_conditions, correct_auth_conditions)
+        
+        # Execute
+        can_submit_model_to_job, presigned_url = controller.execute()
         self.assertTrue(can_submit_model_to_job)
         self.assertIsNotNone(presigned_url)
         self.assertTrue("device_models" in presigned_url["fields"]["key"])
-
-    def test_load_data_pass(self):
-        project_db_ = InMemoryDBInterface()
-        job_db_ = InMemoryDBInterface()
-
-        job = self._build_simple_job()
-        job.save_to_db(job_db_)
-
-        project = self._build_simple_project()
-        project.save_to_db(project_db_)
-
-        auth_json = {
-            "authentication_type": "DEVICE",
-            "entity_id": "12344"
-        }
-        auth_context = AuthContextProcessor(auth_json)
-        controller = SubmitModelUpdateController(project_db_,
-                                                 job_db_,
-                                                 project.get_id(),
-                                                 job.get_id(),
-                                                 auth_context)
-        controller.load_data()
-
-        self.assertEqual(controller.job, job)
-        self.assertEqual(controller.project, project)
-
-    def test_get_auth_conditions_pass(self):
-        project_db_ = InMemoryDBInterface()
-        job_db_ = InMemoryDBInterface()
-
-        job = self._build_simple_job()
-        job.save_to_db(job_db_)
-
-        project = self._build_simple_project()
-        project.save_to_db(project_db_)
-
-        auth_json = {
-            "authentication_type": "DEVICE",
-            "entity_id": "12344"
-        }
-        auth_context = AuthContextProcessor(auth_json)
-        controller = SubmitModelUpdateController(project_db_,
-                                                 job_db_,
-                                                 project.get_id(),
-                                                 job.get_id(),
-                                                 auth_context)
-        controller.load_data()
-        auth_conditions = controller.get_auth_conditions()
-
-        self.assertEqual(len(auth_conditions), 1)
-
-        self.assertEqual(len(auth_conditions[0]), 3)
-        self.assertEqual(auth_conditions[0][0], IsDevice())
-        self.assertEqual(auth_conditions[0][1], ProjectContainsJob(project, job))
-        self.assertEqual(auth_conditions[0][2], JobContainsDevice(job))

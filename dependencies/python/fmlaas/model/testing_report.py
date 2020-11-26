@@ -20,4 +20,7 @@ class TestingReport:
 
     @staticmethod
     def from_json(data: dict):
-        return TestingReport(data["confusion_matrix"], data["accuracy"], data["loss"], data["device_id"])
+        return TestingReport(data["confusion_matrix"],
+                             data["accuracy"],
+                             data["loss"],
+                             data["device_id"])

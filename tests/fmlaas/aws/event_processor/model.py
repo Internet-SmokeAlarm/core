@@ -48,5 +48,5 @@ class ModelUploadEventProcessorTestCase(unittest.TestCase):
         models = ModelUploadEventProcessor().process_event(json_data)
 
         self.assertEqual(1, len(models))
-        self.assertEqual("1024", models[0].get_size())
-        self.assertEqual(DeviceModelPointer("1234", "3434", "4356", "device-id-123"), models[0].get_name())
+        self.assertEqual("1024", models[0].size)
+        self.assertEqual(DeviceModelPointer("1234", "3434", "4356", "device-id-123"), models[0].name)

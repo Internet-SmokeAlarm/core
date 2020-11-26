@@ -1,117 +1,66 @@
-import unittest
-from collections import namedtuple
 from dependencies.python.fmlaas.model import User
 
+from .abstract_model_testcase import AbstractModelTestCase
 
-class UserTestCase(unittest.TestCase):
 
-    def create_test_user(self) -> User:
-        username = "valetolpegin"
-        projects = [
-            {
-                "id": "123123afsd1234saf23",
-                "name": "vales_first_project"
-            }
-        ]
-        api_keys = [
-            "12312124afasdf24qfawqr",
-            "46435dsfd4234dfgdfg4fg324dfsdf",
-            "6y54ewfdsgsy54y0s0ddfsjd"
-        ]
-
-        user = User(username,
-                    projects,
-                    api_keys)
-
-        user_json = {
-            "ID": username,
-            "projects": projects,
-            "api_keys": api_keys
-        }
-
-        UserTuple = namedtuple("UserTuple", "username projects api_keys user user_json")
-
-        return UserTuple(username,
-                         projects,
-                         api_keys,
-                         user,
-                         user_json)
-
-    def test_construction_and_props_pass(self):
-        user_tuple = self.create_test_user()
-
-        self.assertEqual(user_tuple.user.projects, user_tuple.projects)
-        self.assertEqual(user_tuple.user.api_keys, user_tuple.api_keys)
-        self.assertEqual(user_tuple.user.username, user_tuple.username)
+class UserTestCase(AbstractModelTestCase):
 
     def test_add_project_pass(self):
-        user_tuple = self.create_test_user()
-
-        new_project = {
-            "id": "123123",
-            "name": "vales_third_project"
+        user, _ = self._create_test_user()
+        new_projects = {
+            "123123": {
+                "id": "123123",
+                "name": "vales_third_project"
+            }
         }
-        user_tuple.user.add_project(new_project["id"], new_project["name"])
+        user.add_project(new_projects["123123"]["id"], new_projects["123123"]["name"])
 
-        updated_projects = user_tuple.projects
-        updated_projects.append(new_project)
+        self.assertEqual(user.projects, new_projects)
 
-        self.assertEqual(user_tuple.user.projects, updated_projects)
+    def test_add_api_key_pass(self):
+        user, _ = self._create_test_user()
+        api_key, _ = self._create_api_key()
 
-    def test_add_api_keys_pass(self):
-        user_tuple = self.create_test_user()
+        user.add_api_key(api_key.id)
 
-        new_api_key = "adfs23sdfsdfasdf234sdfsd234fsdf12"
-        user_tuple.user.add_api_key(new_api_key)
-
-        updated_api_keys = user_tuple.api_keys
-        updated_api_keys.append(new_api_key)
-
-        self.assertEqual(user_tuple.user.api_keys, updated_api_keys)
+        self.assertEqual(user.api_keys, set([api_key.id]))
 
     def test_to_json_pass(self):
-        user_tuple = self.create_test_user()
+        user, json_repr = self._create_test_user()
 
-        self.assertEqual(user_tuple.user.to_json(), user_tuple.user_json)
+        self.assertEqual(user.to_json(), json_repr)
 
     def test_from_json_pass(self):
-        user_tuple = self.create_test_user()
-
-        self.assertEqual(user_tuple.user.from_json(user_tuple.user_json), user_tuple.user)
+        user, json_repr = self._create_test_user()
+        
+        self.assertEqual(user, User.from_json(json_repr))
 
     def test_eq_pass(self):
-        user_tuple_1 = self.create_test_user()
-        user_tuple_2 = self.create_test_user()
+        user_1, _ = self._create_test_user()
+        user_2, _ = self._create_test_user()
+        user_3, _ = self._create_test_user(username="tolpv")
 
-        self.assertEqual(user_tuple_1.user, user_tuple_2.user)
-
-    def test_eq_fail_1(self):
-        user_tuple_1 = self.create_test_user()
-        user_tuple_2 = self.create_test_user()
-
-        user_tuple_2.user.add_project("123121234235afaszf1234", "vales_second_project")
-
-        self.assertNotEqual(user_tuple_1.user, user_tuple_2.user)
-
-    def test_eq_fail_2(self):
-        user_tuple_1 = self.create_test_user()
-        user_tuple_2 = self.create_test_user()
-
-        user_tuple_2.user.add_api_key("123121234235afaszf1234")
-
-        self.assertNotEqual(user_tuple_1.user, user_tuple_2.user)
+        self.assertEqual(user_1, user_2)
+        self.assertNotEqual(user_3, user_1)
 
     def test_contains_api_key_pass(self):
-        user_tuple = self.create_test_user()
+        user, _ = self._create_test_user()
+        api_key, _ = self._create_api_key()
+        api_key_2, _ = self._create_api_key()
 
-        self.assertTrue(user_tuple.user.contains_api_key(user_tuple.api_keys[0]))
-        self.assertTrue(user_tuple.user.contains_api_key(user_tuple.api_keys[1]))
-        self.assertTrue(user_tuple.user.contains_api_key(user_tuple.api_keys[2]))
-        self.assertFalse(user_tuple.user.contains_api_key("test_api_key"))
+        self.assertFalse(user.contains_api_key(api_key_2.id))
+        self.assertFalse(user.contains_api_key(api_key.id))
+
+        user.add_api_key(api_key_2.id)
+
+        self.assertTrue(user.contains_api_key(api_key_2.id))
+        self.assertFalse(user.contains_api_key(api_key.id))
 
     def test_remove_api_key_pass(self):
-        user_tuple = self.create_test_user()
+        user, _ = self._create_test_user()
+        api_key, _ = self._create_api_key()
+        user.add_api_key(api_key.id)
 
-        user_tuple.user.remove_api_key(user_tuple.api_keys[0])
+        user.remove_api_key(api_key.id)
 
-        self.assertEqual(len(user_tuple.user.api_keys), 2)
+        self.assertEqual(len(user.api_keys), 0)

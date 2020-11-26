@@ -244,3 +244,4 @@ $RECYCLE.BIN/
 
 *.model
 .aws-sam
+settings.json

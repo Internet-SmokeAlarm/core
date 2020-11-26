@@ -1,7 +1,6 @@
-from ...database import DB
 from ... import generate_unique_id
-from ...model import ProjectBuilder
-from ...model import ProjectPrivilegeTypesEnum
+from ...database import DB
+from ...model import Project, ProjectFactory, ProjectPrivilegeTypesEnum
 from ...request_processor import AuthContextProcessor
 from ..abstract_controller import AbstractController
 from ..utils.auth.conditions import IsUser
@@ -23,9 +22,6 @@ class CreateProjectController(AbstractController):
         self._project_name = project_name
         self._project_description = project_description
 
-    def load_data(self):
-        self._user = handle_load_user(self._user_db, self.auth_context.get_entity_id())
-
     def get_auth_conditions(self):
         return [
             [
@@ -33,15 +29,15 @@ class CreateProjectController(AbstractController):
             ]
         ]
 
-    def execute_controller(self):
+    def execute_controller(self) -> Project:
+        self._user = handle_load_user(self._user_db, self._auth_context.get_entity_id())
+
         # Create a new project, save it to the project DB
         project_id = generate_unique_id()
 
-        builder = ProjectBuilder()
-        builder.set_id(project_id)
-        builder.set_name(self._project_name)
-        builder.set_description(self._project_description)
-        project = builder.build()
+        project = ProjectFactory.create_project(project_id,
+                                                self._project_name,
+                                                self._project_description)
         project.add_or_update_member(
             self.auth_context.get_entity_id(),
             ProjectPrivilegeTypesEnum.OWNER)

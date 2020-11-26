@@ -1,5 +1,5 @@
 import time
 
 
-def get_epoch_time():
-    return str(time.time())
+def get_epoch_time() -> int:
+    return int(time.time())

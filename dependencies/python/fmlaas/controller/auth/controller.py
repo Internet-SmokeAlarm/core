@@ -22,15 +22,15 @@ def auth_controller(event, key_db):
     entity_id = "UNAUTHENTICATED"
     try:
         auth_token_api_key = DBObject.load_from_db(ApiKey, token_id, key_db)
-        authentication_type = auth_token_api_key.get_key_type()
+        authentication_type = auth_token_api_key.key_type
         if ApiKeyTypeEnum(authentication_type) == ApiKeyTypeEnum.DEVICE:
-            entity_id = auth_token_api_key.get_id()
+            entity_id = auth_token_api_key.id
         else:
-            entity_id = auth_token_api_key.get_entity_id()
+            entity_id = auth_token_api_key.entity_id
 
         authenticated = verify_key(
             event.get_token(),
-            auth_token_api_key.get_hash())
+            auth_token_api_key.hash)
     except BaseException:
         authenticated, entity_id = verify_jwt_token(event.get_token())
 

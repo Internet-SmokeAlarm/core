@@ -1,8 +1,8 @@
 import unittest
 
+from dependencies.python.fmlaas.controller.utils.auth.conditions import (
+    IsEqualToAuthEntity, IsUser)
 from dependencies.python.fmlaas.request_processor import AuthContextProcessor
-from dependencies.python.fmlaas.controller.utils.auth.conditions import IsEqualToAuthEntity
-from dependencies.python.fmlaas.controller.utils.auth.conditions import IsUser
 
 
 class IsEqualToAuthEntityTestCase(unittest.TestCase):

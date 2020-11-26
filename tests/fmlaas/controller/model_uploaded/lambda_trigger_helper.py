@@ -1,6 +1,7 @@
 import unittest
 
-from dependencies.python.fmlaas.controller.model_uploaded import generate_aggregation_func_payload
+from dependencies.python.fmlaas.controller.model_uploaded import \
+    generate_aggregation_func_payload
 
 
 class LambdaTriggerHelperTestCase(unittest.TestCase):

@@ -1,8 +1,8 @@
 import unittest
 
-from dependencies.python.fmlaas.model.termination_criteria import get_termination_criteria_from_json
-from dependencies.python.fmlaas.model.termination_criteria import get_termination_criteria_class_from_json
-from dependencies.python.fmlaas.model.termination_criteria import DurationTerminationCriteria
+from dependencies.python.fmlaas.model.termination_criteria import (
+    DurationTerminationCriteria, get_termination_criteria_class_from_json,
+    get_termination_criteria_from_json)
 
 
 class TerminationCriteriaUtilsTestCase(unittest.TestCase):
@@ -11,14 +11,14 @@ class TerminationCriteriaUtilsTestCase(unittest.TestCase):
         criteria_json = {
             "type": "DurationTerminationCriteria",
             "max_duration_sec": "100",
-            "start_epoch_time": "1235345.5234"
+            "start_epoch_time": "1235345"
         }
 
         criteria = get_termination_criteria_from_json(criteria_json)
 
         self.assertEqual(criteria.__class__, DurationTerminationCriteria)
-        self.assertEqual(criteria.get_max_duration_sec(), 100)
-        self.assertEqual(criteria.get_start_epoch_time(), 1235345.5234)
+        self.assertEqual(criteria.max_duration_sec, 100)
+        self.assertEqual(criteria.start_epoch_time, 1235345)
 
     def test_get_termination_criteria_from_json_fail_1(self):
         criteria_json = {

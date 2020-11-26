@@ -1,8 +1,7 @@
-import unittest
-
+from dependencies.python.fmlaas.controller.utils.auth.conditions import \
+    ProjectContainsJob
 from dependencies.python.fmlaas.request_processor import AuthContextProcessor
-from dependencies.python.fmlaas.controller.utils.auth.conditions import IsDevice
-from dependencies.python.fmlaas.controller.utils.auth.conditions import ProjectContainsJob
+
 from ....abstract_testcase import AbstractTestCase
 
 
@@ -29,8 +28,8 @@ class ProjectContainsJobTestCase(AbstractTestCase):
 
         project = self._build_simple_project()
         job = self._build_simple_job()
-        experiment = self._build_simple_experiment()
-        experiment.add_job(job)
+        experiment, _ = self._build_simple_experiment("1")
+        experiment.add_or_update_job(job)
         project.add_or_update_experiment(experiment)
 
         self.assertTrue(ProjectContainsJob(project, job).verify(auth_context))
@@ -44,8 +43,8 @@ class ProjectContainsJobTestCase(AbstractTestCase):
     def test_eq_fail(self):
         project = self._build_simple_project()
         job = self._build_simple_job()
-        experiment = self._build_simple_experiment()
-        experiment.add_job(job)
+        experiment, _ = self._build_simple_experiment("1")
+        experiment.add_or_update_job(job)
 
         project_2 = self._build_simple_project()
         project_2.add_or_update_experiment(experiment)

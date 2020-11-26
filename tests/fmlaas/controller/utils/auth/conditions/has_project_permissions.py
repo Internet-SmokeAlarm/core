@@ -1,19 +1,17 @@
 import unittest
 
+from dependencies.python.fmlaas.controller.utils.auth.conditions import (
+    HasProjectPermissions, IsDevice)
+from dependencies.python.fmlaas.model import (ProjectFactory,
+                                              ProjectPrivilegeTypesEnum)
 from dependencies.python.fmlaas.request_processor import AuthContextProcessor
-from dependencies.python.fmlaas.controller.utils.auth.conditions import IsDevice
-from dependencies.python.fmlaas.controller.utils.auth.conditions import HasProjectPermissions
-from dependencies.python.fmlaas.model import ProjectPrivilegeTypesEnum
-from dependencies.python.fmlaas.model import ProjectBuilder
 
 
 class HasProjectPermissionsTestCase(unittest.TestCase):
 
     def _build_project(self):
-        builder = ProjectBuilder()
-        builder.set_id("test_id")
-        builder.set_name("test_name")
-        project = builder.build()
+        project = ProjectFactory.create_project("test_id",
+                                                "test_name")
         project.add_or_update_member(
             "user_12344", ProjectPrivilegeTypesEnum.OWNER)
 

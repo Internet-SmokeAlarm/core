@@ -1,28 +1,31 @@
-from .db_object import DBObject
+class Device:
 
+    def __init__(self,
+                id: str,
+                registered_at: int):
+        self._id = id
+        self._registered_at = registered_at
+    
+    @property
+    def id(self) -> str:
+        return self._id
 
-class Device(DBObject):
-
-    def __init__(self, id, registered_on):
-        """
-        :param id: string
-        :param registered_on: string
-        """
-        self.id = id
-        self.registered_on = registered_on
-
-    def get_id(self):
-        return self.id
-
-    def get_registered_on(self):
-        return self.registered_on
+    @property
+    def registered_at(self) -> int:
+        return self._registered_at
 
     def to_json(self):
         return {
-            "ID": self.id,
-            "registered_on": self.registered_on
+            "ID": self._id,
+            "registered_at": str(self._registered_at)
         }
 
     @staticmethod
     def from_json(json_data):
-        return Device(json_data["ID"], json_data["registered_on"])
+        return Device(json_data["ID"],
+                      int(json_data["registered_at"]))
+    
+    def __eq__(self, other) -> bool:
+        return (type(self) == type(other)) and \
+            (self._id == other._id) and \
+            (self._registered_at == other._registered_at)

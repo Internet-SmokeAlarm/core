@@ -1,15 +1,15 @@
-from ..abstract_testcase import AbstractTestCase
-from dependencies.python.fmlaas.database import InMemoryDBInterface
-from dependencies.python.fmlaas.model import DBObject
-from dependencies.python.fmlaas.model import Job
-from dependencies.python.fmlaas.model import JobStatus
-from dependencies.python.fmlaas.request_processor import TestingReportProcessor
-from dependencies.python.fmlaas.controller.testing_report import TestingReportController
-from dependencies.python.fmlaas.controller.utils.auth.conditions import IsDevice
-from dependencies.python.fmlaas.controller.utils.auth.conditions import ProjectContainsJob
-from dependencies.python.fmlaas.controller.utils.auth.conditions import ProjectContainsDevice
-from dependencies.python.fmlaas.request_processor import AuthContextProcessor
 from collections import namedtuple
+
+from dependencies.python.fmlaas.controller.testing_report import \
+    TestingReportController
+from dependencies.python.fmlaas.controller.utils.auth.conditions import (
+    IsDevice, ProjectContainsDevice, ProjectContainsJob)
+from dependencies.python.fmlaas.database import InMemoryDBInterface
+from dependencies.python.fmlaas.model import DBObject, Job, Status
+from dependencies.python.fmlaas.request_processor import (
+    AuthContextProcessor, TestingReportProcessor)
+
+from ..abstract_testcase import AbstractTestCase
 
 
 class TestingReportControllerTestCase(AbstractTestCase):
@@ -24,8 +24,10 @@ class TestingReportControllerTestCase(AbstractTestCase):
         project = self._build_simple_project()
 
         experiment = self._build_simple_experiment()
-        experiment.id = "experiment_id_1"
         experiment.add_job(job)
+        experiment.start_model = job.start_model
+        experiment.current_model = job.start_model
+        experiment.proceed_to_next_job()
 
         project.add_or_update_experiment(experiment)
         project.save_to_db(project_db)
@@ -54,57 +56,43 @@ class TestingReportControllerTestCase(AbstractTestCase):
 
     def test_execute_pass(self):
         resources = self.setup_resources()
-        resources.job.set_status(JobStatus.COMPLETED)
+        resources.job.status = Status.COMPLETED
         resources.job.save_to_db(resources.job_db)
 
         TestingReportController(resources.project_db,
                                 resources.job_db,
-                                resources.job.get_id(),
+                                resources.job.id,
                                 resources.testing_report_processor,
                                 resources.auth_context).execute()
 
-        updated_job = DBObject.load_from_db(Job, resources.job.get_id(), resources.job_db)
+        updated_job = DBObject.load_from_db(Job, resources.job.id, resources.job_db)
 
         correct_json = resources.testing_report_json
         correct_json["device_id"] = "12344"
 
-        self.assertTrue("12344" in updated_job.get_testing_reports())
-        self.assertEqual(correct_json, updated_job.get_testing_reports()["12344"])
+        self.assertTrue("12344" in updated_job.testing_reports)
+        self.assertEqual(correct_json, updated_job.testing_reports["12344"])
 
     def test_execute_fail(self):
         resources = self.setup_resources()
 
         controller = TestingReportController(resources.project_db,
                                              resources.job_db,
-                                             resources.job.get_id(),
+                                             resources.job.id,
                                              resources.testing_report_processor,
                                              resources.auth_context)
         self.assertRaises(ValueError, controller.execute)
-
-    def test_load_data_pass(self):
-        resources = self.setup_resources()
-
-        controller = TestingReportController(resources.project_db,
-                                             resources.job_db,
-                                             resources.job.get_id(),
-                                             resources.testing_report_processor,
-                                             resources.auth_context)
-        controller.load_data()
-
-        self.assertEqual(controller.job, resources.job)
-        self.assertEqual(controller.project, resources.project)
 
     def test_get_auth_conditions_pass(self):
         resources = self.setup_resources()
 
         controller = TestingReportController(resources.project_db,
                                              resources.job_db,
-                                             resources.job.get_id(),
+                                             resources.job.id,
                                              resources.testing_report_processor,
                                              resources.auth_context)
-        controller.load_data()
-        auth_conditions = controller.get_auth_conditions()
 
+        auth_conditions = controller.get_auth_conditions()
         correct_auth_conditions = [
             [
                 IsDevice(),
@@ -112,5 +100,4 @@ class TestingReportControllerTestCase(AbstractTestCase):
                 ProjectContainsDevice(resources.project)
             ]
         ]
-
         self.assertEqual(auth_conditions, correct_auth_conditions)

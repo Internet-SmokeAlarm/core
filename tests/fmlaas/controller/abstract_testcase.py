@@ -1,58 +1,85 @@
 import unittest
-from typing import List
-from typing import Dict
 from collections import namedtuple
-from dependencies.python.fmlaas.model import JobConfiguration
-from dependencies.python.fmlaas.model import ProjectBuilder
-from dependencies.python.fmlaas.model import JobBuilder
-from dependencies.python.fmlaas.model import ExperimentBuilder
-from dependencies.python.fmlaas.model import Model
-from dependencies.python.fmlaas.model import ApiKey
-from dependencies.python.fmlaas.model import User
-from dependencies.python.fmlaas.model import ProjectPrivilegeTypesEnum
+from typing import Dict, List, Tuple
+
+from dependencies.python.fmlaas.model import (ApiKey, DeviceFactory,
+                                              Experiment, ExperimentFactory,
+                                              JobConfiguration, JobFactory,
+                                              Model, ProjectFactory,
+                                              ProjectPrivilegeTypesEnum,
+                                              UserFactory)
+from dependencies.python.fmlaas.model.device_selection_strategy import \
+    DeviceSelectionStrategy
+from dependencies.python.fmlaas.model.experiment_configuration import (
+    AggregationStrategy, DataCollectionConfig, ExperimentConfiguration,
+    InitializationStrategy, MLType, Runtime)
+from dependencies.python.fmlaas.s3_storage import StartModelPointer
 
 
 class AbstractTestCase(unittest.TestCase):
 
     def _build_simple_project(self):
-        project_builder = ProjectBuilder()
-        project_builder.set_id("test_id")
-        project_builder.set_name("test_name")
+        project = ProjectFactory.create_project("test_id",
+                                                "test_name")
 
-        project = project_builder.build()
-        project.add_device("12344")
+        project.add_device(DeviceFactory.create_device("12344"))
         project.add_or_update_member(
             "user_12345", ProjectPrivilegeTypesEnum.ADMIN)
 
         return project
+    
+    def _build_simple_experiment(self,
+                           id: str,
+                           name: str = "exp_name",
+                           description: str = "test description",
+                           project_id: str = "test123") -> Tuple[Experiment, dict]:
+        config_code = "Code!"
+        config_learning_config = dict()
+        config_parameters = Model("0", str(StartModelPointer.from_str(f"{project_id}/{id}/start_model")), 1234).to_json()
+        config = ExperimentConfiguration(DataCollectionConfig.MINIMAL_RETAIN,
+                                         Runtime.CUSTOM,
+                                         AggregationStrategy.AVERAGE,
+                                         MLType.NN,
+                                         InitializationStrategy.CUSTOMER_PROVIDED,
+                                         config_code,
+                                         config_learning_config,
+                                         config_parameters)
 
-    def _build_simple_experiment(self):
-        builder = ExperimentBuilder()
-        builder.id = "test_id_2"
+        experiment_json = {
+            "ID" : id,
+            "name": name,
+            "description": description,
+            "jobs" : dict(),
+            "configuration": {
+                "data_collection_config": DataCollectionConfig.MINIMAL_RETAIN.value,
+                "runtime": Runtime.CUSTOM.value,
+                "aggregation_strategy": AggregationStrategy.AVERAGE.value,
+                "ml_type": MLType.NN.value,
+                "initialization_strategy": InitializationStrategy.CUSTOMER_PROVIDED.value,
+                "code": config_code,
+                "learning_config": config_learning_config,
+                "parameters": config_parameters
+            },
+            "current_job_id" : ""
+        }
 
-        return builder.build()
+        return ExperimentFactory.create_experiment(id,
+                                                   name,
+                                                   description,
+                                                   config), experiment_json
 
     def _build_simple_job(self):
-        job_builder = JobBuilder()
-        job_builder.set_id("job_test_id")
-        job_builder.set_project_id("test_id")
-        job_builder.set_experiment_id("test_id_2")
-        job_builder.set_configuration(
-            JobConfiguration(
-                1, 0, "RANDOM", []).to_json())
-        job_builder.set_start_model(
-            Model(
-                "12312414",
-                "12312414/start_model",
-                "123211").to_json())
-        job_builder.set_aggregate_model(
-            Model(
-                "1234",
-                "1234/aggregate_model",
-                "123211").to_json())
-        job_builder.set_devices(["12344"])
+        job_configuration = JobConfiguration(1, 0, DeviceSelectionStrategy.RANDOM, [])
+        start_model = Model("12312414",
+                            "12312414/start_model",
+                            "123211")
 
-        return job_builder.build()
+        job = JobFactory.create_job("job_test_id",
+                                     job_configuration,
+                                     ["12344"])
+        job.start_model = start_model
+
+        return job
 
     def _build_simple_api_key(self):
         id = "fasdf234af21ad1ds5d66f64dl2jjsmc6"
@@ -73,51 +100,12 @@ class AbstractTestCase(unittest.TestCase):
                            entity_id,
                            api_key)
 
-    def _create_prefilled_user(self):
-        username = "valetolpegin"
-        projects = [
-            {
-                "id": "123123afsd1234saf23",
-                "name": "vales_first_project"
-            }
-        ]
-        api_keys = [
-            "12312124afasdf24qfawqr",
-            "46435dsfd4234dfgdfg4fg324dfsdf",
-            "6y54ewfdsgsy54y0s0ddfsjd"
-        ]
-
-        return self._create_user_tuple(username,
-                                       projects,
-                                       api_keys)
-
-    def _create_empty_user(self):
-        username = "valetolpegin"
-        projects = []
-        api_keys = []
-
-        return self._create_user_tuple(username,
-                                       projects,
-                                       api_keys)
-
-    def _create_user_tuple(self,
-                           username: str,
-                           projects: List[Dict[str, str]],
-                           api_keys: List[str]):
-        user = User(username,
-                    projects,
-                    api_keys)
-
+    def _create_empty_user(self, username: str = "valetolpegin"):
+        user = UserFactory.create_user(username)
         user_json = {
             "ID": username,
-            "projects": projects,
-            "api_keys": api_keys
+            "projects": dict(),
+            "api_keys": list()
         }
 
-        UserTuple = namedtuple("UserTuple", "username projects api_keys user user_json")
-
-        return UserTuple(username,
-                         projects,
-                         api_keys,
-                         user,
-                         user_json)
+        return user, user_json

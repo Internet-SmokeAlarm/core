@@ -1,20 +1,12 @@
-from ...database import DB
-from ...model import DBObject
-from ...model import JobBuilder
-from ...model import Job
-from ...model import Project
-from ...model import Model
-from ...model import ProjectPrivilegeTypesEnum
-from ...model import JobConfiguration
-from ...device_selection import DeviceSelector
-from ...request_processor import AuthContextProcessor
-from ...exception import raise_default_request_forbidden_error
 from ... import generate_unique_id
-from ..utils.auth.conditions import IsUser
-from ..utils.auth.conditions import HasProjectPermissions
-from ..utils.auth.conditions import ProjectContainsExperiment
-from ...device_selection import DeviceSelectorFactory
+from ...database import DB
+from ...device_selection import DeviceSelector, DeviceSelectorFactory
+from ...model import (DBObject, Job, JobConfiguration, JobFactory, Project,
+                      ProjectPrivilegeTypesEnum, Status)
+from ...request_processor import AuthContextProcessor
 from ..abstract_controller import AbstractController
+from ..utils.auth.conditions import (HasProjectPermissions, IsUser,
+                                     ProjectContainsExperiment)
 
 
 class StartJobController(AbstractController):
@@ -28,57 +20,53 @@ class StartJobController(AbstractController):
                  auth_context: AuthContextProcessor):
         super(StartJobController, self).__init__(auth_context)
 
-        self.job_db = job_db
-        self.project_db = project_db
-        self.project_id = project_id
-        self.experiment_id = experiment_id
-        self.job_config = job_config
+        self._job_db = job_db
+        self._project_db = project_db
+        self._project_id = project_id
+        self._experiment_id = experiment_id
+        self._job_config = job_config
 
-    def load_data(self):
-        self.project = DBObject.load_from_db(Project, self.project_id, self.project_db)
+        self._project = DBObject.load_from_db(Project, self._project_id, self._project_db)
 
     def get_auth_conditions(self):
         return [
             [
                 IsUser(),
-                HasProjectPermissions(self.project, ProjectPrivilegeTypesEnum.READ_WRITE),
-                ProjectContainsExperiment(self.project, self.experiment_id)
+                HasProjectPermissions(self._project, ProjectPrivilegeTypesEnum.READ_WRITE),
+                ProjectContainsExperiment(self._project, self._experiment_id)
             ]
         ]
 
-    def execute_controller(self):
-        experiment = self.project.get_experiment(self.experiment_id)
-        project_device_list = self.project.get_device_list()
-        if self.job_config.get_num_devices() > len(project_device_list):
+    def execute_controller(self) -> Job:
+        experiment = self._project.get_experiment(self._experiment_id)
+        project_device_list = self._project.get_device_list()
+        if self._job_config.num_devices > len(project_device_list):
             raise ValueError(
                 "Cannot start job with more devices than exist in project.")
 
         device_selector = self.get_device_selector()
-        devices = device_selector.select_devices(project_device_list, self.job_config)
+        devices = device_selector.select_devices(project_device_list, self._job_config)
 
-        new_job = self.create_job(devices)
-
-        if not experiment.is_active:
-            new_job.set_start_model(experiment.current_model)
+        new_job = JobFactory.create_job(generate_unique_id(),
+                                        self._job_config,
+                                        self._project_id,
+                                        self._experiment_id,
+                                        devices)
 
         experiment.add_job(new_job)
-        self.project.add_or_update_experiment(experiment)
 
-        new_job.save_to_db(self.job_db)
-        self.project.save_to_db(self.project_db)
+        if experiment.status != Status.IN_PROGRESS:
+            new_job.start_model = experiment.current_model
+
+            experiment.proceed_to_next_job()
+
+        self._project.add_or_update_experiment(experiment)
+
+        new_job.save_to_db(self._job_db)
+        self._project.save_to_db(self._project_db)
 
         return new_job
 
     def get_device_selector(self) -> DeviceSelector:
         return DeviceSelectorFactory().get_device_selector(
-            self.job_config.get_device_selection_strategy())
-
-    def create_job(self, devices: list) -> Job:
-        builder = JobBuilder()
-        builder.set_id(generate_unique_id())
-        builder.set_project_id(self.project_id)
-        builder.set_experiment_id(self.experiment_id)
-        builder.set_configuration(self.job_config.to_json())
-        builder.set_devices(devices)
-
-        return builder.build()
+            self._job_config.device_selection_strategy)

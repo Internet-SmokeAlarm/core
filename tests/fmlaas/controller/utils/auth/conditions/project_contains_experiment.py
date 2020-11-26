@@ -1,7 +1,7 @@
-import unittest
-
+from dependencies.python.fmlaas.controller.utils.auth.conditions import \
+    ProjectContainsExperiment
 from dependencies.python.fmlaas.request_processor import AuthContextProcessor
-from dependencies.python.fmlaas.controller.utils.auth.conditions import ProjectContainsExperiment
+
 from ....abstract_testcase import AbstractTestCase
 
 
@@ -15,7 +15,7 @@ class ProjectContainsExperimentTestCase(AbstractTestCase):
         auth_context = AuthContextProcessor(auth_json)
 
         project = self._build_simple_project()
-        experiment = self._build_simple_experiment()
+        experiment, _ = self._build_simple_experiment("1")
 
         self.assertFalse(ProjectContainsExperiment(project, experiment.id).verify(auth_context))
 
@@ -27,21 +27,21 @@ class ProjectContainsExperimentTestCase(AbstractTestCase):
         auth_context = AuthContextProcessor(auth_json)
 
         project = self._build_simple_project()
-        experiment = self._build_simple_experiment()
+        experiment, _ = self._build_simple_experiment("1")
         project.add_or_update_experiment(experiment)
 
         self.assertTrue(ProjectContainsExperiment(project, experiment.id).verify(auth_context))
 
     def test_eq_pass(self):
         project = self._build_simple_project()
-        job = self._build_simple_job()
+        experiment, _ = self._build_simple_experiment("1")
 
-        self.assertTrue(ProjectContainsExperiment(project, job) == ProjectContainsExperiment(project, job))
+        self.assertTrue(ProjectContainsExperiment(project, experiment) == ProjectContainsExperiment(project, experiment))
 
     def test_eq_fail(self):
         project = self._build_simple_project()
 
-        experiment = self._build_simple_experiment()
+        experiment, _ = self._build_simple_experiment("1")
         project_2 = self._build_simple_project()
         project_2.add_or_update_experiment(experiment)
 

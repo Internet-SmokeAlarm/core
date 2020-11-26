@@ -1,8 +1,8 @@
 import unittest
 
-from dependencies.python.fedlearn_auth import generate_secret
-from dependencies.python.fedlearn_auth import generate_key_pair
-from dependencies.python.fedlearn_auth import get_id_from_token
+from dependencies.python.fedlearn_auth import (generate_key_pair,
+                                               generate_secret,
+                                               get_id_from_token)
 
 
 class KeyManagementTestCase(unittest.TestCase):

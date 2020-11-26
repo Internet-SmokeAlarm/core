@@ -1,8 +1,11 @@
-from .abstract_testcase import AbstractTestCase
-from dependencies.python.fmlaas.controller.utils.auth.conditions import AbstractCondition
 from dependencies.python.fmlaas.controller import AbstractController
-from dependencies.python.fmlaas.request_processor import AuthContextProcessor
+from dependencies.python.fmlaas.controller.utils.auth.conditions import \
+    AbstractCondition
 from dependencies.python.fmlaas.exception import RequestForbiddenException
+from dependencies.python.fmlaas.request_processor import AuthContextProcessor
+
+from .abstract_testcase import AbstractTestCase
+
 
 class DummyAuthVerifier(AbstractCondition):
 

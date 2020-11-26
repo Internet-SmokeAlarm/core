@@ -3,7 +3,7 @@ from dependencies.python.fedlearn_auth import generate_key_pair
 from dependencies.python.fedlearn_auth import hash_secret
 from dependencies.python.fmlaas.controller.auth import auth_controller
 from dependencies.python.fmlaas.model import ApiKey
-from dependencies.python.fmlaas.model import ApiKeyBuilder
+from dependencies.python.fmlaas.model import ApiKeyFactory
 from dependencies.python.fmlaas.aws.event_processor import AuthEventProcessor
 from dependencies.python.fmlaas.model import DBObject
 from dependencies.python.fmlaas.database import InMemoryDBInterface
@@ -72,7 +72,7 @@ class AuthControllerTestCase(unittest.TestCase):
 
         id, key_plaintext = generate_key_pair()
         key_hash = hash_secret(key_plaintext)
-        builder = ApiKeyBuilder(id, key_hash)
+        builder = ApiKeyFactory(id, key_hash)
         builder.set_entity_id("123123")
         builder.set_key_type("USER")
         api_key = builder.build()
@@ -93,7 +93,7 @@ class AuthControllerTestCase(unittest.TestCase):
 
         id, key_plaintext = generate_key_pair()
         key_hash = hash_secret(key_plaintext)
-        builder = ApiKeyBuilder(id, key_hash)
+        builder = ApiKeyFactory(id, key_hash)
         builder.set_entity_id("123123")
         builder.set_key_type("USER")
         api_key = builder.build()
@@ -114,7 +114,7 @@ class AuthControllerTestCase(unittest.TestCase):
 
         id, key_plaintext = generate_key_pair()
         key_hash = hash_secret(key_plaintext)
-        builder = ApiKeyBuilder(id, key_hash)
+        builder = ApiKeyFactory(id, key_hash)
         builder.set_entity_id("123123")
         builder.set_key_type("DEVICE")
         api_key = builder.build()

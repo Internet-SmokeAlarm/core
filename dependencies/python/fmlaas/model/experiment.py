@@ -1,140 +1,134 @@
-from .db_object import DBObject
-from .model import Model
+from typing import Dict
+
+from .job import Job
+from .experiment_configuration import ExperimentConfiguration
 
 
-class Experiment(DBObject):
+class Experiment:
 
     def __init__(self,
-                 id,
-                 jobs,
-                 hyperparameters,
-                 current_job,
-                 start_model,
-                 current_model,
-                 is_active):
-        """
-        :param id: string
-        :param jobs: List(string)
-        :param hyperparameters: dict(string : string)
-        :param current_job: string
-        :param start_model: json
-        :param current_model: json
-        :param is_active: bool
-        """
+                 id: str,
+                 name: str,
+                 description: str,
+                 jobs: Dict[str, Job],
+                 configuration: ExperimentConfiguration,
+                 current_job_id: str):
         self._id = id
+        self._name = name
+        self._description = description
         self._jobs = jobs
-        self._hyperparameters = hyperparameters
-        self._current_job = current_job
-        self._start_model = start_model
-        self._current_model = current_model
-        self._is_active = is_active
+        self._configuration = configuration
+        self._current_job_id = current_job_id
 
     @property
-    def id(self):
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def id(self) -> str:
         return self._id
 
-    @id.setter
-    def id(self, value):
-        """
-        :param value: string
-        """
-        self._id = value
-
     @property
-    def jobs(self):
+    def jobs(self) -> Dict[str, Job]:
         return self._jobs
-
+    
     @property
-    def current_job(self):
-        return self._current_job
-
-    @current_job.setter
-    def current_job(self, value):
-        """
-        :param value: string
-        """
-        self._current_job = value
-
+    def current_job(self) -> Job:
+        if self._current_job_id not in self._jobs:
+            return None
+        
+        return self._jobs[self._current_job_id]
+    
     @property
-    def start_model(self):
-        return Model.from_json(self._start_model)
+    def configuration(self) -> ExperimentConfiguration:
+        return self._configuration
 
-    @property
-    def is_active(self):
-        return self._is_active
+    def contains_job(self, id: str) -> bool:
+        return id in self._jobs
 
-    @is_active.setter
-    def is_active(self, value):
-        """
-        :param value: bool
-        """
-        self._is_active = value
+    def add_or_update_job(self, job: Job) -> None:
+        job_exists = self.contains_job(job.id)
+        self._jobs[job.id] = job
+        
+        if not job_exists:
+            self.add_new_job(job)
+        else:
+            self.update_job(job)
+    
+    def add_new_job(self, job: Job) -> None:
+        if self.current_job is None:
+            self._current_job_id = job.id
+            job.start_model = self._configuration.parameters
 
-    @start_model.setter
-    def start_model(self, value):
-        """
-        :param value: Model
-        """
-        self._start_model = value.to_json()
+            self._jobs[job.id] = job
+        elif self.current_job.is_complete():
+            self.proceed_to_next_job()
+    
+    def update_job(self, job: Job) -> None:
+        if self.current_job.id == job.id and (job.is_complete() or job.is_cancelled()):
+            self.proceed_to_next_job()
 
-    @property
-    def current_model(self):
-        return Model.from_json(self._current_model)
+    def proceed_to_next_job(self) -> None:
+        next_job_id = str(int(self.current_job.id) + 1)
 
-    @current_model.setter
-    def current_model(self, value):
-        """
-        :param value: Model
-        """
-        self._current_model = value.to_json()
+        if next_job_id in self._jobs:
+            next_job = self._jobs[next_job_id]
+            next_job.start_model = self.current_job.end_model
 
-    def is_start_model_set(self):
-        return Model.is_valid_json(self._start_model)
+            self._current_job_id = next_job_id
+    
+    def handle_termination_check(self) -> None:
+        """
+        If the current job should be terminated, then this will terminate the job,
+        and proceed to the next job.
+        """
+        current_job = self.current_job
 
-    def contains_job(self, job_id):
-        """
-        :param job_id: string
-        """
-        return job_id in self.jobs
+        if current_job.should_terminate():
+            current_job.cancel()
+
+        self.add_or_update_job(current_job)
+
+    
+    def convert_jobs_to_json(self) -> Dict[str, dict]:
+        converted_jobs = dict()
+        for id, job in self._jobs.items():
+            converted_jobs[id] = job.to_json()
+
+        return converted_jobs
+    
+    @staticmethod
+    def convert_json_to_jobs(json_data: Dict[str, dict]) -> Dict[str, Job]:
+        converted_jobs = dict()
+        for id, job in json_data.items():
+            converted_jobs[id] = Job.from_json(job)
+
+        return converted_jobs
 
     @staticmethod
     def from_json(json_data):
         return Experiment(json_data["ID"],
-                           json_data["jobs"],
-                           json_data["hyperparameters"],
-                           json_data["current_job"],
-                           json_data["start_model"],
-                           json_data["current_model"],
-                           json_data["is_active"])
+                          json_data["name"],
+                          json_data["description"],
+                          Experiment.convert_json_to_jobs(json_data["jobs"]),
+                          ExperimentConfiguration.from_json(json_data["configuration"]),
+                          json_data["current_job_id"])
 
-    def to_json(self):
+    def to_json(self) -> dict:
         return {
-            "ID" : self._id,
-            "jobs" : self._jobs,
-            "hyperparameters" : self._hyperparameters,
-            "current_job" : self._current_job,
-            "start_model" : self._start_model,
-            "current_model" : self._current_model,
-            "is_active" : self._is_active
+            "ID": self._id,
+            "name": self._name,
+            "description": self._description,
+            "jobs": self.convert_jobs_to_json(),
+            "configuration": self._configuration.to_json(),
+            "current_job_id": self._current_job_id
         }
 
-    def proceed_to_next_job(self):
-        for i in range(len(self.jobs) - 1):
-            if self.current_job == self.jobs[i]:
-                self.current_job = self.jobs[i + 1]
-                return
-
-        self.is_active = False
-
-    def add_job(self, job):
-        """
-        :param job: Job
-        """
-        self._jobs.append(job.get_id())
-
-        if self.current_job == "NONE" or not self.is_active:
-            self.current_job = job.get_id()
-            self.is_active = True
-
-    def __eq__(self, other):
-        return (self._id == other._id) and (self._jobs == other._jobs) and (self._hyperparameters == other._hyperparameters) and (self._current_job == other._current_job) and (self._start_model == other._start_model) and (self.is_active == other.is_active) and (self._current_model == other._current_model)
+    def __eq__(self, other) -> bool:
+        return (type(other) == type(self)) and \
+            (self._id == other._id) and \
+            (self._name == other._name) and \
+            (self._description == other._description) and \
+            (self._jobs == other._jobs) and \
+            (self._configuration == other._configuration) and \
+            (self._current_job_id == other._current_job_id)

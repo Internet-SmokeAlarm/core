@@ -1,11 +1,11 @@
 from typing import List
-from ...utils.auth.conditions import IsUser
-from ...utils.auth.conditions import AbstractCondition
+
 from ....database import DB
 from ....model import User
 from ....request_processor import AuthContextProcessor
-from ...utils.user import handle_load_user
 from ...abstract_controller import AbstractController
+from ...utils.auth.conditions import AbstractCondition, IsUser
+from ...utils.user import handle_load_user
 
 
 class GetUserController(AbstractController):
@@ -17,7 +17,6 @@ class GetUserController(AbstractController):
 
         self._user_db = user_db
 
-    def load_data(self) -> None:
         self._user = handle_load_user(self._user_db, self.auth_context.get_entity_id())
 
     def get_auth_conditions(self) -> List[List[AbstractCondition]]:

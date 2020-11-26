@@ -1,8 +1,7 @@
-from ..abstract_controller import AbstractController
 from ...database import DB
 from ...request_processor import AuthContextProcessor
-from ..utils.auth.conditions import IsUser
-from ..utils.auth.conditions import UserContainsApiKey
+from ..abstract_controller import AbstractController
+from ..utils.auth.conditions import IsUser, UserContainsApiKey
 from ..utils.user import handle_load_user
 
 
@@ -19,12 +18,6 @@ class DeleteApiKeyController(AbstractController):
         self._user_db = user_db
         self._api_key_id = api_key_id
 
-    def load_data(self):
-        # TODO
-        # NOTE: The following *MIGHT* be a security vulnerability. If someone passes in a
-        # non-user auth context, then the following line will create a user with the entity ID.
-        # Need to find a way to fix this...Maybe only provision users when they sign-up in the
-        # Cognito user pool?
         self._user = handle_load_user(self._user_db, self.auth_context.get_entity_id())
 
     def get_auth_conditions(self):
@@ -35,7 +28,7 @@ class DeleteApiKeyController(AbstractController):
             ]
         ]
 
-    def execute_controller(self):
+    def execute_controller(self) -> None:
         self._api_key_db.delete_object(self._api_key_id)
         self._user.remove_api_key(self._api_key_id)
         self._user.save_to_db(self._user_db)

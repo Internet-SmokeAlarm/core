@@ -1,6 +1,7 @@
+from dependencies.python.fmlaas.controller.utils.auth.conditions import (
+    IsDevice, ProjectContainsDevice)
 from dependencies.python.fmlaas.request_processor import AuthContextProcessor
-from dependencies.python.fmlaas.controller.utils.auth.conditions import IsDevice
-from dependencies.python.fmlaas.controller.utils.auth.conditions import ProjectContainsDevice
+
 from ....abstract_testcase import AbstractTestCase
 
 
@@ -34,9 +35,10 @@ class ProjectContainsDeviceTestCase(AbstractTestCase):
         self.assertEqual(ProjectContainsDevice(project), ProjectContainsDevice(project))
 
     def test_eq_fail(self):
+        experiment, _ = self._build_simple_experiment("1")
         project = self._build_simple_project()
         project_2 = self._build_simple_project()
-        project_2.add_or_update_experiment(self._build_simple_experiment())
+        project_2.add_or_update_experiment(experiment)
 
         self.assertNotEqual(ProjectContainsDevice(project), ProjectContainsDevice(project_2))
 

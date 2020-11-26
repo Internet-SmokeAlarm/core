@@ -1,75 +1,78 @@
-from .termination_criteria import get_termination_criteria_from_json
+from typing import List
+
+from .device_selection_strategy import DeviceSelectionStrategy
+from .termination_criteria import (TerminationCriteria,
+                                   save_termination_criteria_to_json,
+                                   load_termination_criteria_from_json)
 
 
 class JobConfiguration:
 
-    def __init__(self, num_devices, num_buffer_devices,
-                 device_selection_strategy, termination_criteria):
-        """
-        :param num_devices: int
-        :param num_buffer_devices: int
-        :param device_selection_strategy: string
-        :param termination_criteria: list(dict)
-        """
-        self.num_devices = num_devices
-        self.num_buffer_devices = num_buffer_devices
-        self.device_selection_strategy = device_selection_strategy
-        self.termination_criteria = termination_criteria
+    def __init__(self,
+                 num_devices: int,
+                 num_backup_devices: int,
+                 device_selection_strategy: DeviceSelectionStrategy,
+                 termination_criteria: List[TerminationCriteria]):
+        self._num_devices = num_devices
+        self._num_backup_devices = num_backup_devices
+        self._device_selection_strategy = device_selection_strategy
+        self._termination_criteria = termination_criteria
 
-    def get_num_devices(self):
-        return self.num_devices
+    @property
+    def num_devices(self) -> int:
+        return self._num_devices
 
-    def get_num_buffer_devices(self):
-        return self.num_buffer_devices
+    @property
+    def num_backup_devices(self) -> int:
+        return self._num_backup_devices
+    
+    @property
+    def device_selection_strategy(self) -> DeviceSelectionStrategy:
+        return self._device_selection_strategy
 
-    def get_total_num_devices(self):
-        return self.num_devices + self.num_buffer_devices
-
-    def get_device_selection_strategy(self):
-        return self.device_selection_strategy
-
-    def get_termination_criteria(self):
-        return [get_termination_criteria_from_json(
-            criteria) for criteria in self.termination_criteria]
-
-    def add_termination_criteria(self, termination_criteria):
-        """
-        :param termination_criteria: TerminationCriteria
-        """
-        self.termination_criteria.append(termination_criteria.to_json())
-
-    def set_termination_criteria(self, termination_criteria):
-        """
-        :param termination_criteria: list(TerminationCriteria)
-        """
-        self.termination_criteria = []
+    @property
+    def termination_criteria(self) -> List[TerminationCriteria]:
+        return self._termination_criteria
+    
+    @termination_criteria.setter
+    def termination_criteria(self, termination_criteria: List[TerminationCriteria]) -> None:
+        self._termination_criteria = list()
         for criteria in termination_criteria:
-            self.termination_criteria.append(criteria.to_json())
+            self._termination_criteria.append(criteria)
 
-    def reset_termination_criteria(self):
-        termination_criteria = self.get_termination_criteria()
-        updated_criteria = []
-        for criteria in termination_criteria:
+    def get_total_num_devices(self) -> int:
+        return self._num_devices + self._num_backup_devices
+
+    def add_termination_criteria(self, termination_criteria: TerminationCriteria) -> None:
+        self._termination_criteria.append(termination_criteria)
+
+    def reset_termination_criteria(self) -> None:
+        updated_criteria = list()
+        for criteria in self._termination_criteria:
             criteria.reset()
 
-            updated_criteria.append(criteria.to_json())
+            updated_criteria.append(criteria)
 
-        self.termination_criteria = updated_criteria
+        self._termination_criteria = updated_criteria
 
-    def to_json(self):
+    def to_json(self) -> dict:
         return {
-            "num_devices": str(self.num_devices),
-            "num_buffer_devices": str(self.num_buffer_devices),
-            "device_selection_strategy": self.device_selection_strategy,
-            "termination_criteria": self.termination_criteria
+            "num_devices": str(self._num_devices),
+            "num_backup_devices": str(self._num_backup_devices),
+            "device_selection_strategy": self._device_selection_strategy.value,
+            "termination_criteria": save_termination_criteria_to_json(self._termination_criteria)
         }
 
-    def __eq__(self, other):
-        return (self.num_devices == other.num_devices) and (self.num_buffer_devices == other.num_buffer_devices) and (self.device_selection_strategy == other.device_selection_strategy) and (self.termination_criteria == other.termination_criteria)
+    def __eq__(self, other) -> bool:
+        return (type(self) == type(other)) and \
+            (self._num_devices == other._num_devices) and \
+            (self._num_backup_devices == other._num_backup_devices) and \
+            (self._device_selection_strategy == other._device_selection_strategy) and \
+            (self._termination_criteria == other._termination_criteria)
 
     @staticmethod
     def from_json(json_data):
         return JobConfiguration(int(json_data["num_devices"]),
-                                int(json_data["num_buffer_devices"]),
-                                json_data["device_selection_strategy"],
-                                json_data["termination_criteria"])
+                                int(json_data["num_backup_devices"]),
+                                DeviceSelectionStrategy(json_data["device_selection_strategy"]),
+                                load_termination_criteria_from_json(json_data["termination_criteria"]))

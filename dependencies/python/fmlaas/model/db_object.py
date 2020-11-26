@@ -1,37 +1,24 @@
 from abc import abstractmethod
 
+from ..database import DB
+
 
 class DBObject:
 
+    def __init__(self, id: str):
+        self._id = id
+
     @staticmethod
-    def load_from_db(object_class, id, db_):
-        """
-        Load a specific instance from the DB.
+    def load_from_db(object_class: any, id: str, db_: DB) -> any:
+        return object_class.from_json(db_.get_object(id))
 
-        :param object_class: Class
-        :param id: int
-        :param db_: database
-        """
-        object = db_.get_object(id)
-
-        return object_class.from_json(object)
+    @property
+    def id(self) -> int:
+        return self._id
 
     @abstractmethod
-    def get_id(self):
-        """
-        :return: ID associated with DB object
-        """
-        raise NotImplementedError("get_id() not implemented")
-
-    @abstractmethod
-    def to_json(self):
-        """
-        :return: dict representation of self
-        """
+    def to_json(self) -> dict:
         raise NotImplementedError("to_json() not implemented")
 
-    def save_to_db(self, db_):
-        """
-        :param db_: database
-        """
-        return db_.create_or_update_object(self.get_id(), self.to_json())
+    def save_to_db(self, db_: DB) -> bool:
+        return db_.create_or_update_object(self._id, self.to_json())

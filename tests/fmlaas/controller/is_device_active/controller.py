@@ -1,26 +1,18 @@
+from dependencies.python.fmlaas.controller.is_device_active import \
+    IsDeviceActiveController
+from dependencies.python.fmlaas.controller.utils.auth.conditions import (
+    HasProjectPermissions, IsDevice, IsEqualToAuthEntity, IsUser,
+    JobContainsDevice, ProjectContainsJob)
 from dependencies.python.fmlaas.database import InMemoryDBInterface
-from dependencies.python.fmlaas.exception import RequestForbiddenException
-from dependencies.python.fmlaas.model import DBObject
-from dependencies.python.fmlaas.model import ProjectBuilder
-from dependencies.python.fmlaas.model import Model
-from dependencies.python.fmlaas.model import JobBuilder
-from dependencies.python.fmlaas.model import ExperimentBuilder
-from dependencies.python.fmlaas.model import JobConfiguration
 from dependencies.python.fmlaas.model import ProjectPrivilegeTypesEnum
-from dependencies.python.fmlaas.controller.is_device_active import IsDeviceActiveController
-from dependencies.python.fmlaas.controller.utils.auth.conditions import IsUser
-from dependencies.python.fmlaas.controller.utils.auth.conditions import IsDevice
-from dependencies.python.fmlaas.controller.utils.auth.conditions import HasProjectPermissions
-from dependencies.python.fmlaas.controller.utils.auth.conditions import ProjectContainsJob
-from dependencies.python.fmlaas.controller.utils.auth.conditions import JobContainsDevice
-from dependencies.python.fmlaas.controller.utils.auth.conditions import IsEqualToAuthEntity
 from dependencies.python.fmlaas.request_processor import AuthContextProcessor
+
 from ..abstract_testcase import AbstractTestCase
 
 
 class IsDeviceActiveControllerTestCase(AbstractTestCase):
 
-    def test_pass_device(self):
+    def test_pass(self):
         project_db_ = InMemoryDBInterface()
         job_db_ = InMemoryDBInterface()
 
@@ -28,10 +20,7 @@ class IsDeviceActiveControllerTestCase(AbstractTestCase):
         job.save_to_db(job_db_)
 
         project = self._build_simple_project()
-
-        builder = ExperimentBuilder()
-        builder.id = "test_experiment_1"
-        experiment = builder.build()
+        experiment = self._build_simple_experiment()
 
         experiment.add_job(job)
         project.add_or_update_experiment(experiment)
@@ -45,29 +34,11 @@ class IsDeviceActiveControllerTestCase(AbstractTestCase):
         auth_context = AuthContextProcessor(auth_json)
         is_device_active = IsDeviceActiveController(project_db_,
                                                     job_db_,
-                                                    project.get_id(),
-                                                    job.get_id(),
+                                                    project.id,
+                                                    job.id,
                                                     "12344",
                                                     auth_context).execute()
         self.assertTrue(is_device_active)
-
-    def test_pass_user(self):
-        project_db_ = InMemoryDBInterface()
-        job_db_ = InMemoryDBInterface()
-
-        job = self._build_simple_job()
-        job.save_to_db(job_db_)
-
-        project = self._build_simple_project()
-
-        builder = ExperimentBuilder()
-        builder.id = "test_experiment_1"
-        experiment = builder.build()
-
-        experiment.add_job(job)
-        project.add_or_update_experiment(experiment)
-
-        project.save_to_db(project_db_)
 
         auth_json = {
             "authentication_type": "USER",
@@ -76,95 +47,40 @@ class IsDeviceActiveControllerTestCase(AbstractTestCase):
         auth_context = AuthContextProcessor(auth_json)
         is_device_active = IsDeviceActiveController(project_db_,
                                                     job_db_,
-                                                    project.get_id(),
-                                                    job.get_id(),
+                                                    project.id,
+                                                    job.id,
                                                     "12344",
                                                     auth_context).execute()
         self.assertTrue(is_device_active)
 
         is_device_active = IsDeviceActiveController(project_db_,
                                                     job_db_,
-                                                    project.get_id(),
-                                                    job.get_id(),
+                                                    project.id,
+                                                    job.id,
                                                     "123445",
                                                     auth_context).execute()
         self.assertFalse(is_device_active)
 
-    def test_load_data_pass(self):
-        project_db_ = InMemoryDBInterface()
-        job_db_ = InMemoryDBInterface()
-
-        job = self._build_simple_job()
-        job.save_to_db(job_db_)
-
-        project = self._build_simple_project()
-
-        builder = ExperimentBuilder()
-        builder.id = "test_experiment_1"
-        experiment = builder.build()
-
-        experiment.add_job(job)
-        project.add_or_update_experiment(experiment)
-
-        project.save_to_db(project_db_)
-
-        auth_json = {
-            "authentication_type": "USER",
-            "entity_id": "user_12345"
-        }
-        auth_context = AuthContextProcessor(auth_json)
         controller = IsDeviceActiveController(project_db_,
                                               job_db_,
-                                              project.get_id(),
-                                              job.get_id(),
+                                              project.id,
+                                              job.id,
                                               "123445",
                                               auth_context)
-        controller.load_data()
 
-        self.assertEqual(controller.project, project)
-        self.assertEqual(controller.job, job)
-
-    def test_get_auth_conditions_pass(self):
-        project_db_ = InMemoryDBInterface()
-        job_db_ = InMemoryDBInterface()
-
-        job = self._build_simple_job()
-        job.save_to_db(job_db_)
-
-        project = self._build_simple_project()
-
-        builder = ExperimentBuilder()
-        builder.id = "test_experiment_1"
-        experiment = builder.build()
-
-        experiment.add_job(job)
-        project.add_or_update_experiment(experiment)
-
-        project.save_to_db(project_db_)
-
-        auth_json = {
-            "authentication_type": "USER",
-            "entity_id": "user_12345"
-        }
-        auth_context = AuthContextProcessor(auth_json)
-        controller = IsDeviceActiveController(project_db_,
-                                              job_db_,
-                                              project.get_id(),
-                                              job.get_id(),
-                                              "123445",
-                                              auth_context)
-        controller.load_data()
+        # Auth conditions
         auth_conditions = controller.get_auth_conditions()
-
-        self.assertEqual(len(auth_conditions), 2)
-
-        self.assertEqual(len(auth_conditions[0]), 3)
-        self.assertEqual(auth_conditions[0][0], IsUser())
-        self.assertEqual(auth_conditions[0][1], HasProjectPermissions(project, ProjectPrivilegeTypesEnum.READ_ONLY))
-        self.assertEqual(auth_conditions[0][2], ProjectContainsJob(project, job))
-
-        self.assertEqual(len(auth_conditions[1]), 4)
-        self.assertEqual(auth_conditions[1][0], IsDevice())
-        self.assertEqual(auth_conditions[1][1], JobContainsDevice(job))
-        self.assertEqual(auth_conditions[1][2], ProjectContainsJob(project, job))
-        self.assertEqual(auth_conditions[1][3], IsEqualToAuthEntity("123445"))
+        correct_auth_conditions = [
+            [
+                IsUser(),
+                HasProjectPermissions(project, ProjectPrivilegeTypesEnum.READ_ONLY),
+                ProjectContainsJob(project, job)
+            ],
+            [
+                IsDevice(),
+                JobContainsDevice(job),
+                ProjectContainsJob(project, job),
+                IsEqualToAuthEntity("123445")
+            ]
+        ]
+        self.assertEqual(auth_conditions, correct_auth_conditions)

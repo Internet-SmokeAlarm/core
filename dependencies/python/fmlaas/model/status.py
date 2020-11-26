@@ -1,10 +1,11 @@
 from enum import Enum
 
 
-class JobStatus(Enum):
+class Status(Enum):
 
     INITIALIZED = "INITIALIZED"
     IN_PROGRESS = "IN_PROGRESS"
     COMPLETED = "COMPLETED"
     CANCELLED = "CANCELLED"
+    FAILED = "FAILED"
     AGGREGATION_IN_PROGRESS = "AGGREGATION_IN_PROGRESS"
