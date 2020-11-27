@@ -1,14 +1,12 @@
+from fedlearn_auth import get_id_from_token, verify_jwt_token, verify_key
+
 from ...auth import AuthPolicy
-from ...model import DBObject
-from ...model import ApiKey
-from ...model import ApiKeyTypeEnum
-
-from fedlearn_auth import get_id_from_token
-from fedlearn_auth import verify_key
-from fedlearn_auth import verify_jwt_token
+from ...model import ApiKey, ApiKeyTypeEnum, DBObject
+from ...model.user_factory import UserFactory
+from ..utils.user import handle_load_user
 
 
-def auth_controller(event, key_db):
+def auth_controller(event, key_db, user_db):
     token_id = get_id_from_token(event.get_token())
     principalId = "user|" + token_id
 
@@ -22,7 +20,7 @@ def auth_controller(event, key_db):
     entity_id = "UNAUTHENTICATED"
     try:
         auth_token_api_key = DBObject.load_from_db(ApiKey, token_id, key_db)
-        authentication_type = auth_token_api_key.key_type
+        authentication_type = auth_token_api_key.key_type.value
         if ApiKeyTypeEnum(authentication_type) == ApiKeyTypeEnum.DEVICE:
             entity_id = auth_token_api_key.id
         else:
@@ -37,6 +35,12 @@ def auth_controller(event, key_db):
         # If the user authenticated using a JWT, make sure we set that here.
         if authenticated:
             authentication_type = ApiKeyTypeEnum.JWT.value
+
+            # If the user doesn't exist in the user DB, we want to add them
+            user = handle_load_user(user_db, entity_id)
+            if not user:
+                new_user = UserFactory.create_user(entity_id)
+                new_user.save_to_db(user_db)
 
     if authenticated:
         policy.allowAllMethods()

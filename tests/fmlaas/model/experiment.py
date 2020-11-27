@@ -107,6 +107,27 @@ class ExperimentTestCase(AbstractModelTestCase):
         self.assertEqual(exp.current_job, job_2)
         self.assertEqual(exp.current_job.start_model, aggregate_model)
     
+    def test_add_or_update_job_pass_4(self):
+        """
+        1. Add a job to a new experiment
+        2. Cancel the job, and re-add the job to the experiment
+        3. Create a new job, add it to the experiment
+        """
+        exp, _ = self._create_experiment("1")
+        job_1, _ = self._create_job("1")
+        job_2, _ = self._create_job("2")
+
+        exp.add_or_update_job(job_1)
+
+        job_1.cancel()
+        exp.add_or_update_job(job_1)
+
+        exp.add_or_update_job(job_2)
+
+        self.assertEqual(exp.current_job, job_2)
+        self.assertEqual(exp._current_job_id, job_2.id)
+        self.assertEqual(exp.current_job.start_model, job_1.start_model)
+    
     def test_handle_termination_check_pass(self):
         """
         1. Add 2 jobs to a new experiment (first of which times out)
@@ -141,3 +162,23 @@ class ExperimentTestCase(AbstractModelTestCase):
         self.assertEqual(experiment, experiment_2)
         self.assertNotEqual(experiment, experiment_3)
         self.assertNotEqual(experiment_2, experiment_3)
+
+    def test_get_job_pass(self):
+        experiment, _ = self._create_experiment("1")
+        job_1, _ = self._create_job("1")
+
+        experiment.add_or_update_job(job_1)
+
+        self.assertEqual(job_1, experiment.get_job(job_1.id))
+    
+    def test_get_next_job_id_pass(self):
+        experiment, _ = self._create_experiment("1")
+        job_1, _ = self._create_job("1")
+        job_2, _ = self._create_job("2")
+        job_3, _ = self._create_job("3")
+
+        experiment.add_or_update_job(job_1)
+        experiment.add_or_update_job(job_2)
+        experiment.add_or_update_job(job_3)
+
+        self.assertEqual("4", experiment.get_next_job_id())

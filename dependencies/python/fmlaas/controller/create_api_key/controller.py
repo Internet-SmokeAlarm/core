@@ -1,5 +1,3 @@
-from fedlearn_auth import generate_key_pair, hash_secret
-
 from ...database import DB
 from ...model import ApiKeyFactory, ApiKeyTypeEnum
 from ...request_processor import AuthContextProcessor
@@ -29,14 +27,8 @@ class CreateApiKeyController(AbstractController):
         ]
 
     def execute_controller(self) -> str:
-        # Generate new API Key
-        id, key_plaintext = generate_key_pair()
-        key_hash = hash_secret(key_plaintext)
-
-        api_key = ApiKeyFactory.create_api_key(id,
-                                               key_hash,
-                                               self.auth_context.get_entity_id(),
-                                               ApiKeyTypeEnum.USER)
+        api_key, key_plaintext = ApiKeyFactory.create_api_key(self.auth_context.get_entity_id(),
+                                                              ApiKeyTypeEnum.USER)
 
         # Save API Key to DB
         api_key.save_to_db(self._key_db)

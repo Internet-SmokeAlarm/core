@@ -1,12 +1,9 @@
 import unittest
-from dependencies.python.fedlearn_auth import generate_key_pair
-from dependencies.python.fedlearn_auth import hash_secret
-from dependencies.python.fmlaas.controller.auth import auth_controller
-from dependencies.python.fmlaas.model import ApiKey
-from dependencies.python.fmlaas.model import ApiKeyFactory
+
 from dependencies.python.fmlaas.aws.event_processor import AuthEventProcessor
-from dependencies.python.fmlaas.model import DBObject
+from dependencies.python.fmlaas.controller.auth import auth_controller
 from dependencies.python.fmlaas.database import InMemoryDBInterface
+from dependencies.python.fmlaas.model import ApiKeyFactory, ApiKeyTypeEnum
 
 
 class AuthControllerTestCase(unittest.TestCase):
@@ -69,64 +66,52 @@ class AuthControllerTestCase(unittest.TestCase):
 
     def test_auth_controller_pass_1(self):
         key_db = InMemoryDBInterface()
+        user_db = InMemoryDBInterface()
 
-        id, key_plaintext = generate_key_pair()
-        key_hash = hash_secret(key_plaintext)
-        builder = ApiKeyFactory(id, key_hash)
-        builder.set_entity_id("123123")
-        builder.set_key_type("USER")
-        api_key = builder.build()
+        api_key, key_plaintext = ApiKeyFactory.create_api_key("123123", ApiKeyTypeEnum.USER)
 
         api_key.save_to_db(key_db)
 
         auth_event = self._build_default_event(key_plaintext)
-        result = auth_controller(auth_event, key_db)
+        result = auth_controller(auth_event, key_db, user_db)
 
         self.assertEqual(
             result["context"]["entity_id"],
-            api_key.get_entity_id())
+            api_key.entity_id)
         self.assertEqual(result["policyDocument"]
                          ["Statement"][0]["Effect"], "Allow")
 
     def test_auth_controller_pass_2(self):
         key_db = InMemoryDBInterface()
+        user_db = InMemoryDBInterface()
 
-        id, key_plaintext = generate_key_pair()
-        key_hash = hash_secret(key_plaintext)
-        builder = ApiKeyFactory(id, key_hash)
-        builder.set_entity_id("123123")
-        builder.set_key_type("USER")
-        api_key = builder.build()
-
+        api_key, key_plaintext = ApiKeyFactory.create_api_key("123123", ApiKeyTypeEnum.USER)
         api_key.save_to_db(key_db)
+
         auth_event = self._build_default_event(key_plaintext)
 
-        result = auth_controller(auth_event, key_db)
+        result = auth_controller(auth_event, key_db, user_db)
 
         self.assertEqual(
             result["context"]["entity_id"],
-            api_key.get_entity_id())
+            api_key.entity_id)
         self.assertEqual(result["policyDocument"]
                          ["Statement"][0]["Effect"], "Allow")
 
     def test_auth_controller_pass_3(self):
         key_db = InMemoryDBInterface()
+        user_db = InMemoryDBInterface()
 
-        id, key_plaintext = generate_key_pair()
-        key_hash = hash_secret(key_plaintext)
-        builder = ApiKeyFactory(id, key_hash)
-        builder.set_entity_id("123123")
-        builder.set_key_type("DEVICE")
-        api_key = builder.build()
-
+        api_key, key_plaintext = ApiKeyFactory.create_api_key("123123", ApiKeyTypeEnum.DEVICE)
         api_key.save_to_db(key_db)
+
         auth_event = self._build_default_event(key_plaintext)
 
-        result = auth_controller(auth_event, key_db)
+        result = auth_controller(auth_event, key_db, user_db)
 
-        self.assertEqual(result["context"]["entity_id"], api_key.get_id())
+        self.assertEqual(result["context"]["entity_id"], api_key.id)
         self.assertEqual(
             result["context"]["authentication_type"],
-            api_key.get_key_type())
+            api_key.key_type.value)
         self.assertEqual(result["policyDocument"]
                          ["Statement"][0]["Effect"], "Allow")

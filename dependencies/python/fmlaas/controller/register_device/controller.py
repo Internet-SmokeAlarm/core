@@ -1,5 +1,3 @@
-from fedlearn_auth import generate_key_pair, hash_secret
-
 from ...database import DB
 from ...model import (ApiKeyFactory, ApiKeyTypeEnum, DBObject, Project,
                       ProjectPrivilegeTypesEnum, DeviceFactory)
@@ -32,15 +30,11 @@ class RegisterDeviceController(AbstractController):
         ]
 
     def execute_controller(self):
-        id, key_plaintext = generate_key_pair()
-        key_hash = hash_secret(key_plaintext)
-        api_key = ApiKeyFactory.create_api_key(id,
-                                               key_hash,
-                                               self.auth_context.get_entity_id(),
-                                               ApiKeyTypeEnum.DEVICE)
+        api_key, key_plaintext = ApiKeyFactory.create_api_key(self.auth_context.get_entity_id(),
+                                                              ApiKeyTypeEnum.DEVICE)
         api_key.save_to_db(self._key_db)
 
         self._project.add_device(DeviceFactory.create_device(api_key.id))
         self._project.save_to_db(self._project_db)
 
-        return id, key_plaintext
+        return api_key.id, key_plaintext

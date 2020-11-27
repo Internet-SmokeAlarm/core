@@ -15,8 +15,8 @@ class CreateProjectControllerTestCase(AbstractTestCase):
         project_db = InMemoryDBInterface()
         user_db = InMemoryDBInterface()
 
-        user = self._create_empty_user()
-        user.user.save_to_db(user_db)
+        user, _ = self._create_empty_user()
+        user.save_to_db(user_db)
 
         project_name = "hello_world"
         project_description = "test description"
@@ -51,4 +51,4 @@ class CreateProjectControllerTestCase(AbstractTestCase):
         self.assertEqual(loaded_project.description, project.description)
         self.assertEqual(loaded_project.get_member_auth_level(
             user.username), ProjectPrivilegeTypesEnum.OWNER)
-        self.assertEqual(DBObject.load_from_db(User, user.username, user_db).projects[0]["name"], project_name)
+        self.assertEqual(DBObject.load_from_db(User, user.username, user_db).projects[project.id]["name"], project_name)

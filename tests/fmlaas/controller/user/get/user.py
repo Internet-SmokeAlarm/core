@@ -10,9 +10,9 @@ class GetUserControllerTestCase(AbstractTestCase):
 
     def test_pass(self):
         user_db = InMemoryDBInterface()
-        user = self._create_prefilled_user()
+        user, _ = self._create_empty_user()
 
-        user.user.save_to_db(user_db)
+        user.save_to_db(user_db)
 
         auth_json = {
             "authentication_type": "USER",
@@ -33,4 +33,4 @@ class GetUserControllerTestCase(AbstractTestCase):
 
         # Execute
         loaded_user = controller.execute()
-        self.assertEqual(loaded_user, user.user)
+        self.assertEqual(loaded_user, user)

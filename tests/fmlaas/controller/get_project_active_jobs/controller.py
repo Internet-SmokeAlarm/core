@@ -15,11 +15,10 @@ class GetProjectActiveJobIdsControllerTestCase(AbstractTestCase):
         db_ = InMemoryDBInterface()
 
         project = self._build_simple_project()
-        experiment = self._build_simple_experiment()
+        experiment, _ = self._build_simple_experiment("1")
         job = self._build_simple_job()
 
-        experiment.add_job(job)
-        experiment.proceed_to_next_job()
+        experiment.add_or_update_job(job)
         project.add_or_update_experiment(experiment)
 
         project.save_to_db(db_)

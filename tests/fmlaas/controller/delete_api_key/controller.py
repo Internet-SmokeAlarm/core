@@ -15,15 +15,15 @@ class DeleteApiKeyControllerTestCase(AbstractTestCase):
         key_db = InMemoryDBInterface()
         user_db = InMemoryDBInterface()
 
-        api_key = self._build_simple_api_key()
-        api_key.api_key.save_to_db(key_db)
+        api_key, _ = self._build_simple_api_key()
+        api_key.save_to_db(key_db)
 
-        user = self._create_empty_user()
-        user.user.add_api_key(api_key.id)
-        user.user.save_to_db(user_db)
+        user, _ = self._create_empty_user()
+        user.add_api_key(api_key.id)
+        user.save_to_db(user_db)
 
         auth_json = {
-            "authentication_type": "DEVICE",
+            "authentication_type": "USER",
             "entity_id": user.username
         }
         auth_context = AuthContextProcessor(auth_json)
@@ -37,7 +37,7 @@ class DeleteApiKeyControllerTestCase(AbstractTestCase):
         correct_auth_conditions = [
             [
                 IsUser(),
-                UserContainsApiKey(user.user, api_key.id)
+                UserContainsApiKey(user, api_key.id)
             ]
         ]
 
@@ -46,4 +46,4 @@ class DeleteApiKeyControllerTestCase(AbstractTestCase):
         # Execute
         controller.execute()
         self.assertRaises(ValueError, DBObject.load_from_db, ApiKey, api_key.id, key_db)
-        self.assertEqual(DBObject.load_from_db(User, user.username, user_db).api_keys, list())
+        self.assertEqual(DBObject.load_from_db(User, user.username, user_db).api_keys, set())

@@ -3,6 +3,7 @@ from typing import List
 from .db_object import DBObject
 from .device import Device
 from .experiment import Experiment
+from .job import Job
 from .project_privilege_types import ProjectPrivilegeTypesEnum
 
 
@@ -82,7 +83,7 @@ class Project(DBObject):
                 active_jobs.append(experiment.current_job.id)
 
         return active_jobs
-
+    
     def get_device_list(self) -> List[str]:
         return list(self._devices.keys())
 

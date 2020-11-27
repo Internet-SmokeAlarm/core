@@ -1,30 +1,26 @@
 from ...database import DB
-from ...model import DBObject
-from ...model import Job
-from ...model import Project
-from ...model import ProjectPrivilegeTypesEnum
+from ...model import DBObject, Project, ProjectPrivilegeTypesEnum
 from ...request_processor import AuthContextProcessor
-from ..utils import update_experiment
-from ..utils.auth.conditions import IsUser
-from ..utils.auth.conditions import HasProjectPermissions
 from ..abstract_controller import AbstractController
+from ..utils.auth.conditions import HasProjectPermissions, IsUser
 
 
 class CancelJobController(AbstractController):
 
     def __init__(self,
                  project_db: DB,
-                 job_db: DB,
+                 project_id: str,
+                 experiment_id: str,
                  job_id: str,
                  auth_context: AuthContextProcessor):
         super(CancelJobController, self).__init__(auth_context)
 
         self._project_db = project_db
-        self._job_db = job_db
+        self._project_id = project_id
+        self._experiment_id = experiment_id
         self._job_id = job_id
 
-        self._job = DBObject.load_from_db(Job, self._job_id, self._job_db)
-        self._project = DBObject.load_from_db(Project, self._job.project_id, self._project_db)
+        self._project = DBObject.load_from_db(Project, project_id, self._project_db)
 
     def get_auth_conditions(self):
         return [
@@ -35,10 +31,17 @@ class CancelJobController(AbstractController):
         ]
 
     def execute_controller(self) -> None:
-        if self._job.is_complete():
-            raise Exception("cannot cancel a job that has already been completed.")
+        experiment = self._project.get_experiment(self._experiment_id)
 
-        self._job.cancel()
-        self._job.save_to_db(self._job_db)
+        experiment.handle_termination_check()
 
-        update_experiment(self._job, self._job_db, self._project_db)
+        job = experiment.get_job(self._job_id)
+
+        if job.is_complete():
+            raise Exception("Cannot cancel a job that has already been completed.")
+
+        job.cancel()
+        experiment.add_or_update_job(job)
+
+        self._project.add_or_update_experiment(experiment)
+        self._project.save_to_db(self._project_db)

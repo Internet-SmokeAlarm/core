@@ -16,17 +16,21 @@ class CreateExperimentControllerTestCase(AbstractTestCase):
         db = InMemoryDBInterface()
 
         project = self._build_simple_project()
-        experiment = self._build_simple_experiment()
-        project.add_or_update_experiment(experiment)
-
         project.save_to_db(db)
+
+        exp, _ = self._build_simple_experiment("1")
 
         auth_json = {
             "authentication_type": "USER",
             "entity_id": "user_12345"
         }
         auth_context = AuthContextProcessor(auth_json)
-        controller = CreateExperimentController(db, project.id, auth_context)
+        controller = CreateExperimentController(db,
+                                                project.id,
+                                                exp.name,
+                                                exp.description,
+                                                exp.configuration,
+                                                auth_context)
 
         # Auth conditions
         auth_conditions = controller.get_auth_conditions()

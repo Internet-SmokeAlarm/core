@@ -6,6 +6,7 @@ from .device import Device
 from .device_factory import DeviceFactory
 from .device_selection_strategy import DeviceSelectionStrategy
 from .experiment import Experiment
+from .experiment_configuration import ExperimentConfiguration
 from .experiment_factory import ExperimentFactory
 from .job import Job
 from .job_configuration import JobConfiguration

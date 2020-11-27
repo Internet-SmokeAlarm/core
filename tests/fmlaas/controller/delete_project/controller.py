@@ -3,8 +3,7 @@ from dependencies.python.fmlaas.controller.delete_project import \
 from dependencies.python.fmlaas.controller.utils.auth.conditions import (
     HasProjectPermissions, IsUser)
 from dependencies.python.fmlaas.database import InMemoryDBInterface
-from dependencies.python.fmlaas.model import (DBObject, ExperimentFactory, Job,
-                                              Project,
+from dependencies.python.fmlaas.model import (DBObject, Project,
                                               ProjectPrivilegeTypesEnum)
 from dependencies.python.fmlaas.request_processor import AuthContextProcessor
 
@@ -15,26 +14,22 @@ class DeleteProjectControllerTestCase(AbstractTestCase):
 
     def test_pass(self):
         project_db = InMemoryDBInterface()
-        job_db = InMemoryDBInterface()
 
         project = self._build_simple_project()
         job = self._build_simple_job()
-        experiment = ExperimentFactory.create_experiment("slksdklsdsdfsf",
-                                                         "test_name")
+        experiment, _ = self._build_simple_experiment("slksdklsdsdfsf")
 
-        experiment.add_job(job)
+        experiment.add_or_update_job(job)
         project.add_or_update_experiment(experiment)
 
         project.save_to_db(project_db)
-        job.save_to_db(job_db)
 
         auth_json = {
             "authentication_type": "JWT",
-            "entity_id": "user12344"
+            "entity_id": "user_12345"
         }
         auth_context = AuthContextProcessor(auth_json)
         controller = DeleteProjectController(project_db,
-                                             job_db,
                                              project.id,
                                              auth_context)
 
@@ -54,6 +49,6 @@ class DeleteProjectControllerTestCase(AbstractTestCase):
         self.assertRaises(
             ValueError,
             DBObject.load_from_db,
-            Job,
-            job.id,
-            job_db)
+            Project,
+            project.id,
+            project_db)

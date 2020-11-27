@@ -23,6 +23,10 @@ class Experiment:
     @property
     def name(self) -> str:
         return self._name
+    
+    @property
+    def description(self) -> str:
+        return self._description
 
     @property
     def id(self) -> str:
@@ -45,27 +49,26 @@ class Experiment:
 
     def contains_job(self, id: str) -> bool:
         return id in self._jobs
+    
+    def get_job(self, id: str) -> Job:
+        if not self.contains_job(id):
+            raise ValueError("Requested job does not exist in Experiment")
+
+        return self._jobs[id]
+    
+    def get_next_job_id(self) -> str:
+        return str(len(self._jobs.keys()) + 1)
 
     def add_or_update_job(self, job: Job) -> None:
-        job_exists = self.contains_job(job.id)
         self._jobs[job.id] = job
         
-        if not job_exists:
-            self.add_new_job(job)
-        else:
-            self.update_job(job)
-    
-    def add_new_job(self, job: Job) -> None:
-        if self.current_job is None:
+        if not self.current_job:
             self._current_job_id = job.id
             job.start_model = self._configuration.parameters
 
             self._jobs[job.id] = job
-        elif self.current_job.is_complete():
-            self.proceed_to_next_job()
-    
-    def update_job(self, job: Job) -> None:
-        if self.current_job.id == job.id and (job.is_complete() or job.is_cancelled()):
+        
+        if self.current_job.is_complete() or self.current_job.is_cancelled():
             self.proceed_to_next_job()
 
     def proceed_to_next_job(self) -> None:
@@ -84,12 +87,12 @@ class Experiment:
         """
         current_job = self.current_job
 
-        if current_job.should_terminate():
-            current_job.cancel()
+        if current_job:
+            if current_job.should_terminate():
+                current_job.cancel()
 
-        self.add_or_update_job(current_job)
+            self.add_or_update_job(current_job)
 
-    
     def convert_jobs_to_json(self) -> Dict[str, dict]:
         converted_jobs = dict()
         for id, job in self._jobs.items():

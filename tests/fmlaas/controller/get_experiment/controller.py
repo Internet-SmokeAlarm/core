@@ -15,7 +15,7 @@ class GetExperimentControllerTestCase(AbstractTestCase):
         db = InMemoryDBInterface()
 
         project = self._build_simple_project()
-        experiment = self._build_simple_experiment()
+        experiment, _ = self._build_simple_experiment("1")
         project.add_or_update_experiment(experiment)
 
         project.save_to_db(db)

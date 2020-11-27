@@ -1,12 +1,13 @@
 import unittest
-from collections import namedtuple
-from typing import Dict, List, Tuple
+from typing import Tuple
 
-from dependencies.python.fmlaas.model import (ApiKey, DeviceFactory,
+from dependencies.python.fmlaas.model import (ApiKey, ApiKeyFactory,
+                                              ApiKeyTypeEnum, DeviceFactory,
                                               Experiment, ExperimentFactory,
-                                              JobConfiguration, JobFactory,
-                                              Model, ProjectFactory,
-                                              ProjectPrivilegeTypesEnum,
+                                              Job, JobConfiguration,
+                                              JobFactory, Model, Project,
+                                              ProjectFactory,
+                                              ProjectPrivilegeTypesEnum, User,
                                               UserFactory)
 from dependencies.python.fmlaas.model.device_selection_strategy import \
     DeviceSelectionStrategy
@@ -18,7 +19,7 @@ from dependencies.python.fmlaas.s3_storage import StartModelPointer
 
 class AbstractTestCase(unittest.TestCase):
 
-    def _build_simple_project(self):
+    def _build_simple_project(self) -> Project:
         project = ProjectFactory.create_project("test_id",
                                                 "test_name")
 
@@ -68,39 +69,25 @@ class AbstractTestCase(unittest.TestCase):
                                                    description,
                                                    config), experiment_json
 
-    def _build_simple_job(self):
+    def _build_simple_job(self, id: str = "1") -> Job:
         job_configuration = JobConfiguration(1, 0, DeviceSelectionStrategy.RANDOM, [])
         start_model = Model("12312414",
                             "12312414/start_model",
                             "123211")
 
-        job = JobFactory.create_job("job_test_id",
+        job = JobFactory.create_job(id,
                                      job_configuration,
                                      ["12344"])
         job.start_model = start_model
 
         return job
 
-    def _build_simple_api_key(self):
-        id = "fasdf234af21ad1ds5d66f64dl2jjsmc6"
-        hash = "kgfldsxknjvdoi49f34sofgjna3qouthe03hQFDFH5gffdge"
-        created_on = "123123.234"
-        event_log = {}
-        key_type = "USER"
-        entity_id = "user_123442"
-        api_key = ApiKey(id, hash, created_on, event_log, key_type, entity_id)
+    def _build_simple_api_key(self, entity_id: str = "valetolpegin") -> Tuple[ApiKey, str]:
+        api_key, plaintext = ApiKeyFactory.create_api_key(entity_id, ApiKeyTypeEnum.USER)
 
-        ApiKeyTuple = namedtuple("ApiKeyTuple", "id hash created_on event_log key_type entity_id api_key")
+        return api_key, plaintext
 
-        return ApiKeyTuple(id,
-                           hash,
-                           created_on,
-                           event_log,
-                           key_type,
-                           entity_id,
-                           api_key)
-
-    def _create_empty_user(self, username: str = "valetolpegin"):
+    def _create_empty_user(self, username: str = "valetolpegin") -> Tuple[User, dict]:
         user = UserFactory.create_user(username)
         user_json = {
             "ID": username,

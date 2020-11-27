@@ -2,6 +2,8 @@ import unittest
 
 from dependencies.python.fmlaas.device_selection import RandomDeviceSelector
 from dependencies.python.fmlaas.model import JobConfiguration
+from dependencies.python.fmlaas.model.device_selection_strategy import \
+    DeviceSelectionStrategy
 
 
 class RandomDeviceSelectorTestCase(unittest.TestCase):
@@ -9,7 +11,7 @@ class RandomDeviceSelectorTestCase(unittest.TestCase):
     def test_select_devices_pass(self):
         selector = RandomDeviceSelector()
 
-        configuration = JobConfiguration(3, 1, "RANDOM", [])
+        configuration = JobConfiguration(3, 1, DeviceSelectionStrategy.RANDOM, [])
 
         devices_to_pick = ["123", "456", "789", "101"]
 
@@ -25,7 +27,7 @@ class RandomDeviceSelectorTestCase(unittest.TestCase):
     def test_select_devices_fail_too_many_devices(self):
         selector = RandomDeviceSelector()
 
-        configuration = JobConfiguration(10, 0, "RANDOM", [])
+        configuration = JobConfiguration(10, 0, DeviceSelectionStrategy.RANDOM, [])
 
         devices_to_pick = ["123", "456", "789", "101"]
 
@@ -38,7 +40,7 @@ class RandomDeviceSelectorTestCase(unittest.TestCase):
     def test_select_devices_fail_too_many_devices(self):
         selector = RandomDeviceSelector()
 
-        configuration = JobConfiguration(1, 6, "RANDOM", [])
+        configuration = JobConfiguration(1, 6, DeviceSelectionStrategy.RANDOM, [])
 
         devices_to_pick = ["123", "456", "789", "101"]
 
