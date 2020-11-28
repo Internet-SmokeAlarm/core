@@ -1,3 +1,4 @@
+from os import curdir
 from typing import Dict
 
 from .job import Job
@@ -59,7 +60,10 @@ class Experiment:
         return self._jobs[id]
     
     def get_next_job_id(self) -> str:
-        return str(len(self._jobs.keys()) + 1)
+        return str(self.get_num_jobs() + 1)
+    
+    def get_num_jobs(self) -> int:
+        return len(self._jobs.keys())
 
     def add_or_update_job(self, job: Job) -> None:
         self._jobs[job.id] = job
@@ -70,19 +74,32 @@ class Experiment:
             if not self.current_job:
                 self._current_job_id = Experiment.DEFAULT_JOB_ID
                 self.current_job.start_model = self._configuration.parameters
+                self.current_job.activate()
             
             # Setup subsequent jobs
             if self.current_job.is_complete() or self.current_job.is_cancelled():
                 self.proceed_to_next_job()
 
     def proceed_to_next_job(self) -> None:
-        next_job_id = str(int(self.current_job.id) + 1)
+        """
+        Proceeds to the next active job.
+        """
+        while True:
+            next_job_id = str(int(self.current_job.id) + 1)
 
-        if next_job_id in self._jobs:
-            next_job = self._jobs[next_job_id]
-            next_job.start_model = self.current_job.end_model
+            if next_job_id in self._jobs:
+                next_job = self._jobs[next_job_id]
+                next_job.start_model = self.current_job.end_model
+                self._jobs[next_job_id] = next_job
 
-            self._current_job_id = next_job_id
+                self._current_job_id = next_job_id
+
+                if not self.current_job.is_cancelled():
+                    self.current_job.activate()
+                    
+                    return
+            else:
+                return
     
     def handle_termination_check(self) -> None:
         """

@@ -105,6 +105,7 @@ class JobTestCase(AbstractModelTestCase):
         job, _ = self._create_job("1")
         model, _ = self._create_model()
         job.start_model = model
+        job.activate()
 
         self.assertTrue(job.is_device_active("123"))
         self.assertTrue(job.is_device_active("234"))
@@ -148,7 +149,7 @@ class JobTestCase(AbstractModelTestCase):
     def test_is_in_initialization_pass_2(self):
         job, _ = self._create_job("1")
 
-        job.start_model = Model("1234", "1234/start_model", "1234345")
+        job.activate()
 
         self.assertFalse(job.is_in_initialization())
         self.assertEqual(job.status, Status.IN_PROGRESS)
@@ -162,7 +163,6 @@ class JobTestCase(AbstractModelTestCase):
         self.assertEqual(
             start_model.to_json(),
             job.start_model.to_json())
-        self.assertEqual(job.status, Status.IN_PROGRESS)
 
     def test_is_ready_for_aggregation_pass_2(self):
         job, _ = self._create_job("1")
@@ -182,6 +182,7 @@ class JobTestCase(AbstractModelTestCase):
         job, _ = self._create_job("1")
 
         job.start_model = Model("123456", "123456/start_model", "12321")
+        job.activate()
         job.add_model(Model("123", "fdldasf", "1231231"))
         job.add_model(Model("234", "fdldasf", "1231231"))
 
@@ -217,15 +218,12 @@ class JobTestCase(AbstractModelTestCase):
         job, _ = self._create_job("1")
 
         job.start_model = Model("1234", "1234/start_model", 231241)
-
-        self.assertEqual(job.status, Status.IN_PROGRESS)
+        job.activate()
 
         job.cancel()
 
         self.assertEqual(job.status, Status.CANCELLED)
-        self.assertEqual(
-            job.start_model.to_json(),
-            job.end_model.to_json())
+        self.assertEqual(job.start_model, job.end_model)
         self.assertEqual(job.billable_size, 231241)
 
     def test_cancel_pass_2(self):

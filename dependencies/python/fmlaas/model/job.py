@@ -60,11 +60,7 @@ class Job:
 
     @start_model.setter
     def start_model(self, start_model: Model) -> None:
-        if not self.is_in_initialization():
-            return
-
         self._start_model = start_model.to_json()
-        self._status = Status.IN_PROGRESS
 
     @property
     def end_model(self) -> Model:
@@ -161,6 +157,12 @@ class Job:
         self._end_model = self._aggregate_model
 
         self._billable_size = self.calculate_billable_size()
+    
+    def aggregate(self) -> None:
+        self._status = Status.AGGREGATION_IN_PROGRESS
+    
+    def activate(self) -> None:
+        self._status = Status.IN_PROGRESS
 
     def calculate_billable_size(self) -> int:
         """

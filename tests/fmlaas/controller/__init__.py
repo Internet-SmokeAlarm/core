@@ -1,4 +1,4 @@
-# from .model_uploaded import *
+from .model_uploaded import *
 from .start_job import *
 from .auth import *
 from .create_project import *

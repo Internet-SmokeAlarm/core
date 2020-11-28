@@ -127,6 +127,33 @@ class ExperimentTestCase(AbstractModelTestCase):
         self.assertEqual(exp._current_job_id, job_2.id)
         self.assertEqual(exp.current_job.start_model, job_1.start_model)
     
+    def test_proceed_to_next_job_pass(self):
+        """
+        What happens if:
+        - Job 1 is active
+        - Job 2 is queued, but cancelled
+        - Job 3 is queued
+
+        When we proceed to the next job, we need to go from job 1 -> job 3
+        """
+        exp, _ = self._create_experiment("1")
+
+        job_1, _ = self._create_job(exp.get_next_job_id())
+        exp.add_or_update_job(job_1)
+
+        job_2, _ = self._create_job(exp.get_next_job_id())
+        job_2.cancel()
+        exp.add_or_update_job(job_2)
+
+        job_3, _ = self._create_job(exp.get_next_job_id())
+        exp.add_or_update_job(job_3)
+
+        job_1.cancel()
+        exp.add_or_update_job(job_1)
+
+        self.assertEqual(exp.current_job, job_3)
+        self.assertEqual(exp.current_job.start_model, job_1.start_model)
+    
     def test_handle_termination_check_pass(self):
         """
         1. Add 2 jobs to a new experiment (first of which times out)

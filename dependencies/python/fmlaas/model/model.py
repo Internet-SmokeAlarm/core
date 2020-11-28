@@ -1,4 +1,4 @@
-from ..s3_storage import PointerFactory
+from ..s3_storage import PointerFactory, S3ObjectPointer
 
 
 class Model:
@@ -20,7 +20,7 @@ class Model:
         self._entity_id = value
 
     @property
-    def name(self) -> str:
+    def name(self) -> S3ObjectPointer:
         return PointerFactory.load_pointer(self._name)
 
     @property
