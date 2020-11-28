@@ -81,6 +81,13 @@ class ExperimentConfiguration:
     def parameters(self) -> Model:
         return Model.from_json(self._parameters)
     
+    @parameters.setter
+    def parameters(self, parameters: Model) -> None:
+        self._parameters = parameters.to_json()
+    
+    def is_parameters_set(self) -> bool:
+        return Model.is_valid_json(self._parameters)
+    
     def __eq__(self, other) -> bool:
         return (type(self) == type(other)) and \
             (self._data_collection_config == other._data_collection_config) and \

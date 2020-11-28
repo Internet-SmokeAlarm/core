@@ -15,7 +15,12 @@ class SubmitExperimentStartModelControllerTestCase(AbstractTestCase):
         project_db = InMemoryDBInterface()
 
         project = self._build_simple_project()
-        experiment = self._build_simple_experiment()
+        experiment, _ = self._build_simple_experiment("1")
+
+        # By default, we add parameters to the experiment. We want to remove
+        #   those parameters so that we can set them again in the test.
+        experiment.configuration._parameters = dict()
+        
         project.add_or_update_experiment(experiment)
         project.save_to_db(project_db)
 

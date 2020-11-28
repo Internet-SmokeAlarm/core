@@ -1,9 +1,8 @@
-from typing import List
+from typing import Dict, List
 
 from .db_object import DBObject
 from .device import Device
 from .experiment import Experiment
-from .job import Job
 from .project_privilege_types import ProjectPrivilegeTypesEnum
 
 
@@ -65,22 +64,36 @@ class Project(DBObject):
     def contains_experiment(self, experiment_id: str) -> bool:
         return experiment_id in self._experiments
 
-    def contains_job(self, job_id: str) -> bool:
-        for i in self._experiments.keys():
-            if self.get_experiment(i).contains_job(job_id):
-                return True
-
-        return False
+    def contains_job(self, exp_id: str, job_id: str) -> bool:
+        return self.get_experiment(exp_id).contains_job(job_id)
     
     def get_num_experiments(self) -> int:
         return len(self._experiments.keys())
+    
+    def get_next_experiment_id(self) -> str:
+        return str(self.get_num_experiments() + 1)
 
-    def get_active_jobs(self) -> List[str]:
+    def get_active_jobs(self) -> List[Dict[str, str]]:
         active_jobs = []
         for i in self._experiments.keys():
             experiment = self.get_experiment(i)
             if experiment.current_job and experiment.current_job.is_in_progress():
-                active_jobs.append(experiment.current_job.id)
+                active_jobs.append({
+                    "experiment_id": experiment.id,
+                    "job_id": experiment.current_job.id
+                })
+
+        return active_jobs
+    
+    def get_active_jobs_for_device(self, device_id: str) -> List[Dict[str, str]]:
+        active_jobs = []
+        for i in self._experiments.keys():
+            experiment = self.get_experiment(i)
+            if experiment.current_job and experiment.current_job.is_in_progress() and experiment.current_job.contains_device(device_id):
+                active_jobs.append({
+                    "experiment_id": experiment.id,
+                    "job_id": experiment.current_job.id
+                })
 
         return active_jobs
     

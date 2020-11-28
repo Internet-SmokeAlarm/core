@@ -103,13 +103,20 @@ class StartJobControllerTestCase(AbstractTestCase):
         
         updated_project = DBObject.load_from_db(
             Project, project.id, project_db)
-        
+
+        correct_active_jobs = [
+            {
+                "experiment_id": experiment.id,
+                "job_id": new_job.id
+            }
+        ]
+
         self.assertEqual(job.end_model, new_job.start_model)
-        self.assertEqual(updated_project.get_active_jobs(), [new_job.id])
-        self.assertTrue(updated_project.contains_job(new_job.id))
-        self.assertTrue(updated_project.contains_job(new_job_2.id))
-        self.assertTrue(updated_project.contains_job(new_job_3.id))
-        self.assertTrue(updated_project.contains_job(new_job_4.id))
+        self.assertEqual(updated_project.get_active_jobs(), correct_active_jobs)
+        self.assertTrue(updated_project.contains_job(experiment.id, new_job.id))
+        self.assertTrue(updated_project.contains_job(experiment.id, new_job_2.id))
+        self.assertTrue(updated_project.contains_job(experiment.id, new_job_3.id))
+        self.assertTrue(updated_project.contains_job(experiment.id, new_job_4.id))
 
     def test_fail_no_devices(self):
         project_db = InMemoryDBInterface()

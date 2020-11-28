@@ -1,7 +1,7 @@
 from dependencies.python.fmlaas.controller.submit_model_update import \
     SubmitModelUpdateController
 from dependencies.python.fmlaas.controller.utils.auth.conditions import (
-    IsDevice, JobContainsDevice, ProjectContainsJob)
+    IsDevice, JobContainsDevice)
 from dependencies.python.fmlaas.database import InMemoryDBInterface
 from dependencies.python.fmlaas.request_processor import AuthContextProcessor
 
@@ -12,17 +12,14 @@ class SubmitModelUpdateControllerTestCase(AbstractTestCase):
 
     def test_pass(self):
         project_db_ = InMemoryDBInterface()
-        job_db_ = InMemoryDBInterface()
 
         job = self._build_simple_job()
-        job.save_to_db(job_db_)
 
         project = self._build_simple_project()
 
-        experiment = self._build_simple_experiment()
-        experiment.add_job(job)
-        experiment.start_model = job.start_model
-        experiment.current_model = job.start_model
+        experiment, _ = self._build_simple_experiment("1")
+        experiment.add_or_update_job(job)
+
         project.add_or_update_experiment(experiment)
 
         project.save_to_db(project_db_)
@@ -33,8 +30,8 @@ class SubmitModelUpdateControllerTestCase(AbstractTestCase):
         }
         auth_context = AuthContextProcessor(auth_json)
         controller = SubmitModelUpdateController(project_db_,
-                                                 job_db_,
                                                  project.id,
+                                                 experiment.id,
                                                  job.id,
                                                  auth_context)
         
@@ -43,7 +40,6 @@ class SubmitModelUpdateControllerTestCase(AbstractTestCase):
         correct_auth_conditions = [
             [
                 IsDevice(),
-                ProjectContainsJob(project, job),
                 JobContainsDevice(job)
             ]
         ]

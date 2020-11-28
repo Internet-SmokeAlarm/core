@@ -6,6 +6,8 @@ from .experiment_configuration import ExperimentConfiguration
 
 class Experiment:
 
+    DEFAULT_JOB_ID = "1"
+
     def __init__(self,
                  id: str,
                  name: str,
@@ -62,14 +64,16 @@ class Experiment:
     def add_or_update_job(self, job: Job) -> None:
         self._jobs[job.id] = job
         
-        if not self.current_job:
-            self._current_job_id = job.id
-            job.start_model = self._configuration.parameters
-
-            self._jobs[job.id] = job
-        
-        if self.current_job.is_complete() or self.current_job.is_cancelled():
-            self.proceed_to_next_job()
+        # Don't start the experiment until the parameters have been initialized
+        if self._configuration.is_parameters_set():
+            # Setup initial job
+            if not self.current_job:
+                self._current_job_id = Experiment.DEFAULT_JOB_ID
+                self.current_job.start_model = self._configuration.parameters
+            
+            # Setup subsequent jobs
+            if self.current_job.is_complete() or self.current_job.is_cancelled():
+                self.proceed_to_next_job()
 
     def proceed_to_next_job(self) -> None:
         next_job_id = str(int(self.current_job.id) + 1)

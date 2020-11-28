@@ -21,6 +21,7 @@ class GetJobController(AbstractController):
         self._job_id = job_id
 
         self._project = DBObject.load_from_db(Project, self._project_id, self._project_db)
+        self._experiment = self._project.get_experiment(self._experiment_id)
 
     def get_auth_conditions(self):
         return [
@@ -31,8 +32,8 @@ class GetJobController(AbstractController):
         ]
 
     def execute_controller(self) -> Job:
-        experiment = self._project.get_experiment(self._experiment_id)
+        self._experiment.handle_termination_check()
+        self._project.add_or_update_experiment(self._experiment)
+        self._project.save_to_db(self._project_db)
 
-        experiment.handle_termination_check()
-
-        return experiment.get_job(self._job_id)
+        return self._experiment.get_job(self._job_id)

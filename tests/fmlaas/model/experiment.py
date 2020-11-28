@@ -25,22 +25,21 @@ class ExperimentTestCase(AbstractModelTestCase):
     def test_contains_job_pass(self):
         exp, _ = self._create_experiment("1")
 
-        job_1, _ = self._create_job("1")
+        job_1, _ = self._create_job(exp.get_next_job_id())
 
         self.assertFalse(exp.contains_job(job_1.id))
 
-        job_2, _ = self._create_job("2")
+        exp.add_or_update_job(job_1)
+
+        job_2, _ = self._create_job(exp.get_next_job_id())
         exp.add_or_update_job(job_2)
 
         self.assertTrue(exp.contains_job(job_2.id))
-        self.assertFalse(exp.contains_job(job_1.id))
 
-        job_3, _ = self._create_job("3")
+        job_3, _ = self._create_job(exp.get_next_job_id())
         exp.add_or_update_job(job_3)
 
         self.assertTrue(exp.contains_job(job_3.id))
-        self.assertTrue(exp.contains_job(job_2.id))
-        self.assertFalse(exp.contains_job(job_1.id))
 
     def test_add_or_update_job_pass_1(self):
         """

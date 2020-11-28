@@ -3,9 +3,9 @@ from collections import namedtuple
 from dependencies.python.fmlaas.controller.testing_report import \
     TestingReportController
 from dependencies.python.fmlaas.controller.utils.auth.conditions import (
-    IsDevice, ProjectContainsDevice, ProjectContainsJob)
+    IsDevice, ProjectContainsDevice)
 from dependencies.python.fmlaas.database import InMemoryDBInterface
-from dependencies.python.fmlaas.model import DBObject, Job, Status
+from dependencies.python.fmlaas.model import DBObject, Project
 from dependencies.python.fmlaas.request_processor import (
     AuthContextProcessor, TestingReportProcessor)
 
@@ -16,18 +16,14 @@ class TestingReportControllerTestCase(AbstractTestCase):
 
     def setup_resources(self):
         project_db = InMemoryDBInterface()
-        job_db = InMemoryDBInterface()
 
         job = self._build_simple_job()
-        job.save_to_db(job_db)
 
         project = self._build_simple_project()
 
-        experiment = self._build_simple_experiment()
-        experiment.add_job(job)
-        experiment.start_model = job.start_model
-        experiment.current_model = job.start_model
-        experiment.proceed_to_next_job()
+        experiment, _ = self._build_simple_experiment("1")
+
+        experiment.add_or_update_job(job)
 
         project.add_or_update_experiment(experiment)
         project.save_to_db(project_db)
@@ -45,10 +41,10 @@ class TestingReportControllerTestCase(AbstractTestCase):
         }
         testing_report_processor = TestingReportProcessor(testing_report_json)
 
-        Resources = namedtuple('Resources', 'project_db job_db project job auth_context testing_report_json testing_report_processor')
+        Resources = namedtuple('Resources', 'project_db project experiment job auth_context testing_report_json testing_report_processor')
         return Resources(project_db,
-                         job_db,
                          project,
+                         experiment,
                          job,
                          auth_context,
                          testing_report_json,
@@ -56,16 +52,21 @@ class TestingReportControllerTestCase(AbstractTestCase):
 
     def test_execute_pass(self):
         resources = self.setup_resources()
-        resources.job.status = Status.COMPLETED
-        resources.job.save_to_db(resources.job_db)
+        
+        resources.job.complete()
+        resources.experiment.add_or_update_job(resources.job)
+        resources.project.add_or_update_experiment(resources.experiment)
+        resources.project.save_to_db(resources.project_db)
 
         TestingReportController(resources.project_db,
-                                resources.job_db,
+                                resources.project.id,
+                                resources.experiment.id,
                                 resources.job.id,
                                 resources.testing_report_processor,
                                 resources.auth_context).execute()
 
-        updated_job = DBObject.load_from_db(Job, resources.job.id, resources.job_db)
+        updated_project = DBObject.load_from_db(Project, resources.project.id, resources.project_db)
+        updated_job = updated_project.get_experiment(resources.experiment.id).get_job(resources.job.id)
 
         correct_json = resources.testing_report_json
         correct_json["device_id"] = "12344"
@@ -77,7 +78,8 @@ class TestingReportControllerTestCase(AbstractTestCase):
         resources = self.setup_resources()
 
         controller = TestingReportController(resources.project_db,
-                                             resources.job_db,
+                                             resources.project.id,
+                                             resources.experiment.id,
                                              resources.job.id,
                                              resources.testing_report_processor,
                                              resources.auth_context)
@@ -87,7 +89,8 @@ class TestingReportControllerTestCase(AbstractTestCase):
         resources = self.setup_resources()
 
         controller = TestingReportController(resources.project_db,
-                                             resources.job_db,
+                                             resources.project.id,
+                                             resources.experiment.id,
                                              resources.job.id,
                                              resources.testing_report_processor,
                                              resources.auth_context)
@@ -96,7 +99,6 @@ class TestingReportControllerTestCase(AbstractTestCase):
         correct_auth_conditions = [
             [
                 IsDevice(),
-                ProjectContainsJob(resources.project, resources.job),
                 ProjectContainsDevice(resources.project)
             ]
         ]

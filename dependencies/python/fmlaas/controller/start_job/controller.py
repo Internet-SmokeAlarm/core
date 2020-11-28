@@ -23,6 +23,7 @@ class StartJobController(AbstractController):
         self._job_config = job_config
 
         self._project = DBObject.load_from_db(Project, self._project_id, self._project_db)
+        self._experiment = self._project.get_experiment(self._experiment_id)
 
     def get_auth_conditions(self):
         return [
@@ -33,9 +34,7 @@ class StartJobController(AbstractController):
         ]
 
     def execute_controller(self) -> Job:
-        experiment = self._project.get_experiment(self._experiment_id)
-
-        experiment.handle_termination_check()
+        self._experiment.handle_termination_check()
 
         project_device_list = self._project.get_device_list()
 
@@ -46,13 +45,13 @@ class StartJobController(AbstractController):
         device_selector = self.get_device_selector()
         devices = device_selector.select_devices(project_device_list, self._job_config)
 
-        new_job = JobFactory.create_job(experiment.get_next_job_id(),
+        new_job = JobFactory.create_job(self._experiment.get_next_job_id(),
                                         self._job_config,
                                         devices)
 
-        experiment.add_or_update_job(new_job)
+        self._experiment.add_or_update_job(new_job)
 
-        self._project.add_or_update_experiment(experiment)
+        self._project.add_or_update_experiment(self._experiment)
         self._project.save_to_db(self._project_db)
 
         return new_job

@@ -280,6 +280,18 @@ class JobTestCase(AbstractModelTestCase):
         job._configuration = config
 
         self.assertFalse(job.should_terminate())
+    
+    def test_should_terminate_pass_3(self):
+        """
+        If the job is already complete, then we shouldn't terminate it.
+        """
+        job, _ = self._create_job("1")
+        config = job.configuration
+        config.add_termination_criteria(DurationTerminationCriteria(0, get_epoch_time()))
+        job._configuration = config
+        job.complete()
+
+        self.assertFalse(job.should_terminate())
 
     def test_reset_termination_criteria_pass(self):
         job, _ = self._create_job("1")

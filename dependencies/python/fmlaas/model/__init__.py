@@ -7,6 +7,11 @@ from .device_factory import DeviceFactory
 from .device_selection_strategy import DeviceSelectionStrategy
 from .experiment import Experiment
 from .experiment_configuration import ExperimentConfiguration
+from .experiment_configuration import Runtime
+from .experiment_configuration import MLType
+from .experiment_configuration import DataCollectionConfig
+from .experiment_configuration import AggregationStrategy
+from .experiment_configuration import InitializationStrategy
 from .experiment_factory import ExperimentFactory
 from .job import Job
 from .job_configuration import JobConfiguration

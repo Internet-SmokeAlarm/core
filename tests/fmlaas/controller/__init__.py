@@ -7,17 +7,16 @@ from .create_api_key import *
 from .get_project import *
 from .get_project_active_jobs import *
 from .get_job import *
-# from .get_job_aggregate_model import *
-# from .get_job_start_model import *
-# from .is_device_active import *
+from .get_job_aggregate_model import *
+from .get_job_start_model import *
 from .register_device import *
-# from .submit_model_update import *
+from .submit_model_update import *
 from .cancel_job import *
 from .utils import *
 from .abstract_controller_testcase import AbstractControllerTestCase
-# from .submit_experiment_start_model import *
+from .submit_experiment_start_model import *
 from .create_experiment import *
 from .get_experiment import *
-# from .testing_report import *
+from .testing_report import *
 from .user import *
 from .delete_api_key import *

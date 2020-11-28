@@ -44,4 +44,4 @@ class SubmitExperimentStartModelController(AbstractController):
             CONDITIONS,
             expiration=EXPIRATION_SEC)
 
-        return not self._experiment.is_start_model_set(), presigned_url
+        return not self._experiment.configuration.is_parameters_set(), presigned_url

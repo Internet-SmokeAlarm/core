@@ -34,4 +34,10 @@ class GetProjectActiveJobsController(AbstractController):
         ]
 
     def execute_controller(self) -> List[str]:
-        return self._project.get_active_jobs()
+        active_jobs = list()
+        if self.auth_context.is_type_device():
+            active_jobs = self._project.get_active_jobs_for_device(self.auth_context.get_entity_id())
+        else:
+            active_jobs = self._project.get_active_jobs()
+
+        return active_jobs

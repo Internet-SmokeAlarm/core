@@ -1,6 +1,7 @@
 from .db_object import DBObjectTestCase
 from .device import DeviceTestCase
 from .experiment import ExperimentTestCase
+from .experiment_configuration import ExperimentConfigurationTestCase
 from .job import JobTestCase
 from .job_configuration import JobConfigurationTestCase
 from .model import ModelTestCase

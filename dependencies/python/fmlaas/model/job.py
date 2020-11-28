@@ -184,6 +184,9 @@ class Job:
         Returns True if the job should be terminated, false if not. "should be" is determined
         by termination criteria in job configuration.
         """
+        if self.is_complete() or self.is_cancelled() or self.is_aggregation_in_progress():
+            return False
+
         termination_criteria = self._configuration.termination_criteria
         for criteria in termination_criteria:
             if criteria.is_criteria_satisfied():

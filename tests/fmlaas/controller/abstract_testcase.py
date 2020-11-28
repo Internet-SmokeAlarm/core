@@ -1,5 +1,5 @@
 import unittest
-from typing import Tuple
+from typing import List, Tuple
 
 from dependencies.python.fmlaas.model import (ApiKey, ApiKeyFactory,
                                               ApiKeyTypeEnum, DeviceFactory,
@@ -69,15 +69,15 @@ class AbstractTestCase(unittest.TestCase):
                                                    description,
                                                    config), experiment_json
 
-    def _build_simple_job(self, id: str = "1") -> Job:
+    def _build_simple_job(self, id: str = "1", devices: List[str] = ["12344"]) -> Job:
         job_configuration = JobConfiguration(1, 0, DeviceSelectionStrategy.RANDOM, [])
         start_model = Model("12312414",
                             "12312414/start_model",
                             "123211")
 
         job = JobFactory.create_job(id,
-                                     job_configuration,
-                                     ["12344"])
+                                    job_configuration,
+                                    devices)
         job.start_model = start_model
 
         return job

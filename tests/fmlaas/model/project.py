@@ -1,4 +1,5 @@
-from dependencies.python.fmlaas.model import Project, ProjectPrivilegeTypesEnum
+from dependencies.python.fmlaas.model import (DeviceFactory, Project,
+                                              ProjectPrivilegeTypesEnum)
 
 from .abstract_model_testcase import AbstractModelTestCase
 
@@ -162,7 +163,7 @@ class ProjectTestCase(AbstractModelTestCase):
         job_1, _ = self._create_job("1")
         job_2, _ = self._create_job("2")
         job_3, _ = self._create_job("3")
-        job_4, _ = self._create_job("4")
+        job_4, _ = self._create_job(experiment_2.get_next_job_id())
 
         experiment.add_or_update_job(job_1)
         experiment.add_or_update_job(job_3)
@@ -171,10 +172,10 @@ class ProjectTestCase(AbstractModelTestCase):
         project.add_or_update_experiment(experiment)
         project.add_or_update_experiment(experiment_2)
 
-        self.assertTrue(project.contains_job(job_1.id))
-        self.assertFalse(project.contains_job(job_2.id))
-        self.assertTrue(project.contains_job(job_3.id))
-        self.assertTrue(project.contains_job(job_4.id))
+        self.assertTrue(project.contains_job(experiment.id, job_1.id))
+        self.assertFalse(project.contains_job(experiment.id, job_2.id))
+        self.assertTrue(project.contains_job(experiment.id, job_3.id))
+        self.assertTrue(project.contains_job(experiment_2.id, job_4.id))
 
     def test_get_active_jobs_pass(self):
         project, _ = self._create_project("1")
@@ -184,7 +185,7 @@ class ProjectTestCase(AbstractModelTestCase):
 
         job_1, _ = self._create_job("1")
         job_3, _ = self._create_job("3")
-        job_4, _ = self._create_job("4")
+        job_4, _ = self._create_job(experiment_2.get_next_job_id())
 
         experiment.add_or_update_job(job_1)
         experiment.add_or_update_job(job_3)
@@ -196,9 +197,53 @@ class ProjectTestCase(AbstractModelTestCase):
         project.add_or_update_experiment(experiment)
         project.add_or_update_experiment(experiment_2)
 
-        self.assertTrue(job_1.id in project.get_active_jobs())
-        self.assertTrue(job_4.id in project.get_active_jobs())
-        self.assertFalse(job_3.id in project.get_active_jobs())
+        correct_active_jobs = [
+            {
+                "experiment_id": experiment.id,
+                "job_id": job_1.id
+            },
+            {
+                "experiment_id": experiment_2.id,
+                "job_id": job_4.id
+            }
+        ]
+        self.assertEqual(correct_active_jobs, project.get_active_jobs())
+    
+    def test_get_active_jobs_for_device_pass(self):
+        """
+        Tests get active jobs for a specified device.
+        """
+        project, _ = self._create_project("1")
+
+        device = DeviceFactory.create_device("12344")
+        project.add_device(device)
+
+        experiment, _ = self._create_experiment("1")
+        experiment_2, _ = self._create_experiment("2")
+
+        job_1, _ = self._create_job("1")
+        job_3, _ = self._create_job("2", devices=["3456", device.id])
+        job_4, _ = self._create_job("1")
+
+        experiment.add_or_update_job(job_1)
+        job_1.cancel()
+        experiment.add_or_update_job(job_1)
+
+        experiment.add_or_update_job(job_3)
+
+        experiment_2.add_or_update_job(job_4)
+
+        project.add_or_update_experiment(experiment)
+        project.add_or_update_experiment(experiment_2)
+
+        correct_active_jobs = [
+            {
+                "experiment_id": experiment.id,
+                "job_id": job_3.id
+            }
+        ]
+        active_jobs_for_device = project.get_active_jobs_for_device(device.id)
+        self.assertEqual(correct_active_jobs, active_jobs_for_device)
 
     def test_get_all_jobs_ids_pass(self):
         project, _ = self._create_project("1")
@@ -208,7 +253,7 @@ class ProjectTestCase(AbstractModelTestCase):
                                                     str(i))
 
             for j in range(5):
-                job, _ = self._create_job("job_test_id_{}_{}".format(i, j))
+                job, _ = self._create_job(experiment.get_next_job_id())
 
                 experiment.add_or_update_job(job)
 
@@ -222,9 +267,19 @@ class ProjectTestCase(AbstractModelTestCase):
         project, _ = self._create_project("1")
 
         for i in range(10):
-            experiment, _ = self._create_experiment(str(i))
+            experiment, _ = self._create_experiment(project.get_next_experiment_id())
 
             project.add_or_update_experiment(experiment)
 
         self.assertTrue(project.contains_experiment("5"))
         self.assertFalse(project.contains_experiment("50"))
+    
+    def test_get_next_experiment_id_pass(self):
+        project, _ = self._create_project("1")
+
+        self.assertEqual(project.get_next_experiment_id(), "1")
+
+        experiment, _ = self._create_experiment(project.get_next_experiment_id())
+        project.add_or_update_experiment(experiment)
+
+        self.assertEqual(project.get_next_experiment_id(), "2")
