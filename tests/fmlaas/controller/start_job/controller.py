@@ -37,7 +37,8 @@ class StartJobControllerTestCase(AbstractTestCase):
         auth_context = AuthContextProcessor(auth_json)
         controller = StartJobController(project_db,
                                         project.id,
-                                        experiment.id, 
+                                        experiment.id,
+                                        1,
                                         job_config,
                                         auth_context)
         
@@ -80,26 +81,12 @@ class StartJobControllerTestCase(AbstractTestCase):
         }
         auth_context = AuthContextProcessor(auth_json)
 
-        new_job = StartJobController(project_db,
+        new_jobs = StartJobController(project_db,
                                      project.id,
                                      experiment.id,
+                                     4,
                                      job_config,
                                      auth_context).execute()
-        new_job_2 = StartJobController(project_db,
-                                       project.id,
-                                       experiment.id,
-                                       job_config,
-                                       auth_context).execute()
-        new_job_3 = StartJobController(project_db,
-                                       project.id,
-                                       experiment.id,
-                                       job_config,
-                                       auth_context).execute()
-        new_job_4 = StartJobController(project_db,
-                                       project.id,
-                                       experiment.id,
-                                       job_config,
-                                       auth_context).execute()
         
         updated_project = DBObject.load_from_db(
             Project, project.id, project_db)
@@ -107,16 +94,16 @@ class StartJobControllerTestCase(AbstractTestCase):
         correct_active_jobs = [
             {
                 "experiment_id": experiment.id,
-                "job_id": new_job.id
+                "job_id": new_jobs[0].id
             }
         ]
 
-        self.assertEqual(job.end_model, new_job.start_model)
+        self.assertEqual(job.end_model, new_jobs[0].start_model)
         self.assertEqual(updated_project.get_active_jobs(), correct_active_jobs)
-        self.assertTrue(updated_project.contains_job(experiment.id, new_job.id))
-        self.assertTrue(updated_project.contains_job(experiment.id, new_job_2.id))
-        self.assertTrue(updated_project.contains_job(experiment.id, new_job_3.id))
-        self.assertTrue(updated_project.contains_job(experiment.id, new_job_4.id))
+        self.assertTrue(updated_project.contains_job(experiment.id, new_jobs[0].id))
+        self.assertTrue(updated_project.contains_job(experiment.id, new_jobs[1].id))
+        self.assertTrue(updated_project.contains_job(experiment.id, new_jobs[2].id))
+        self.assertTrue(updated_project.contains_job(experiment.id, new_jobs[3].id))
 
     def test_fail_no_devices(self):
         project_db = InMemoryDBInterface()
@@ -145,5 +132,6 @@ class StartJobControllerTestCase(AbstractTestCase):
             StartJobController(project_db,
                                project.id,
                                experiment.id,
+                               1,
                                job_config,
                                auth_context).execute)
