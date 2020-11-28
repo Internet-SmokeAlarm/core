@@ -27,6 +27,7 @@ class RegisterDeviceControllerTestCase(AbstractTestCase):
         controller = RegisterDeviceController(project_db_,
                                               key_db_,
                                               project.id,
+                                              5,
                                               auth_context)
 
         # Auth conditions
@@ -40,8 +41,10 @@ class RegisterDeviceControllerTestCase(AbstractTestCase):
         self.assertEqual(auth_conditions, correct_auth_conditions)
 
         # Execute
-        id, key_plaintext = controller.execute()
+        devices = controller.execute()
 
-        self.assertIsNotNone(id)
-        self.assertIsNotNone(key_plaintext)
-        self.assertEqual(id, DBObject.load_from_db(ApiKey, id, key_db_).id)
+        self.assertEqual(len(devices), 5)
+        for id, key_plaintext in devices:
+            self.assertIsNotNone(id)
+            self.assertIsNotNone(key_plaintext)
+            self.assertEqual(id, DBObject.load_from_db(ApiKey, id, key_db_).id)
