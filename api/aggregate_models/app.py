@@ -1,5 +1,4 @@
 from tempfile import NamedTemporaryFile
-import json
 
 from fmlaas.aws import download_s3_object
 from fmlaas.aws import upload_s3_object
@@ -7,11 +6,10 @@ from fmlaas.aggregation import FederatedAveraging
 from fmlaas.serde import deserialize_state_dict
 from fmlaas.serde import serialize_numpy
 from fmlaas.storage import DiskModelStorage
-from fmlaas import get_job_table_name_from_env
+from fmlaas import get_project_table_name_from_env
 from fmlaas.database import DynamoDBInterface
 from fmlaas.model import DBObject
-from fmlaas.model import Job
-from fmlaas.model import Model
+from fmlaas.model import Project
 from fmlaas.request_processor import IDProcessor
 from fmlaas.s3_storage import JobAggregateModelPointer
 
@@ -74,13 +72,15 @@ def lambda_handler(event, context):
             "body": str(error)
         }
 
-    dynamodb_ = DynamoDBInterface(get_job_table_name_from_env())
-    job = DBObject.load_from_db(Job, job_id, dynamodb_)
+    dynamodb = DynamoDBInterface(get_project_table_name_from_env())
+    project = DBObject.load_from_db(Project, project_id, dynamodb)
+    experiment = project.get_experiment(experiment_id)
+    job = experiment.get_job(job_id)
 
     aggregate_model_pointer = JobAggregateModelPointer(project_id, experiment_id, job_id)
 
-    models = job.get_models()
-    model_names = [str(models[model].get_name())
+    models = job.models
+    model_names = [str(models[model].name)
                    for model in models.keys()]
     num_models = len(model_names)
 

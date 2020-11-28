@@ -1,6 +1,7 @@
 import json
 
 from fmlaas.request_processor import IDProcessor
+from fmlaas.request_processor import ExperimentConfigProcessor
 from fmlaas import get_project_table_name_from_env
 from fmlaas.database import DynamoDBInterface
 from fmlaas.exception import RequestForbiddenException
@@ -16,6 +17,11 @@ def lambda_handler(event, context):
     try:
         id_processor = IDProcessor(req_json)
         project_id = id_processor.get_project_id()
+        experiment_name = id_processor.get_experiment_name()
+        experiment_description = id_processor.get_experiment_description()
+
+        experiment_config_processor = ExperimentConfigProcessor(req_json)
+        experiment_config = experiment_config_processor.generate_experiment_config()
 
         auth_context = AuthContextProcessor(auth_json)
 
@@ -23,6 +29,9 @@ def lambda_handler(event, context):
 
         experiment = CreateExperimentController(project_db,
                                                 project_id,
+                                                experiment_name,
+                                                experiment_description,
+                                                experiment_config,
                                                 auth_context).execute()
 
         return {

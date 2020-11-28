@@ -17,23 +17,25 @@ def lambda_handler(event, context):
     try:
         id_processor = IDProcessor(req_json)
         project_id = id_processor.get_project_id()
+        num_devices = id_processor.get_num_devices()
 
         auth_context = AuthContextProcessor(auth_json)
 
         project_db = DynamoDBInterface(get_project_table_name_from_env())
         key_db = DynamoDBInterface(get_auth_key_table_from_env())
 
-        id, key_plaintext = RegisterDeviceController(project_db,
-                                                     key_db,
-                                                     project_id,
-                                                     auth_context).execute()
+        devices = RegisterDeviceController(project_db,
+                                           key_db,
+                                           project_id,
+                                           num_devices,
+                                           auth_context).execute()
 
         return {
             "statusCode": 200,
             "headers": {
                 "Access-Control-Allow-Origin": get_allowed_origins()
             },
-            "body": json.dumps({"device_id": id, "device_api_key": key_plaintext})
+            "body": json.dumps({"devices": devices})
         }
     except ValueError as error:
         return {

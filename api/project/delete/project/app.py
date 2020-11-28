@@ -1,7 +1,6 @@
 import json
 
 from fmlaas import get_project_table_name_from_env
-from fmlaas import get_job_table_name_from_env
 from fmlaas.aws import delete_s3_objects_with_prefix
 from fmlaas.aws import get_models_bucket_name
 from fmlaas.database import DynamoDBInterface
@@ -31,11 +30,9 @@ def lambda_handler(event, context):
         }
 
     project_db = DynamoDBInterface(get_project_table_name_from_env())
-    job_db = DynamoDBInterface(get_job_table_name_from_env())
 
     try:
         DeleteProjectController(project_db,
-                                job_db,
                                 project_id,
                                 auth_context).execute()
         delete_s3_objects_with_prefix(get_models_bucket_name(), project_id)

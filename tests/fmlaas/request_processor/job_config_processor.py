@@ -1,9 +1,8 @@
 import unittest
 from typing import List
 
-from dependencies.python.fmlaas.model import JobConfiguration
-from dependencies.python.fmlaas.model.device_selection_strategy import \
-    DeviceSelectionStrategy
+from dependencies.python.fmlaas.model import (DeviceSelectionStrategy,
+                                              JobConfiguration)
 from dependencies.python.fmlaas.request_processor import JobConfigJSONProcessor
 
 

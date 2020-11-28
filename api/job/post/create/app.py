@@ -1,6 +1,5 @@
 import json
 
-from fmlaas import get_job_table_name_from_env
 from fmlaas import get_project_table_name_from_env
 from fmlaas.database import DynamoDBInterface
 from fmlaas.controller.start_job import StartJobController
@@ -18,19 +17,19 @@ def lambda_handler(event, context):
         id_processor = IDProcessor(req_json)
         project_id = id_processor.get_project_id()
         experiment_id = id_processor.get_experiment_id()
+        num_jobs = id_processor.get_num_jobs()
 
         job_config_processor = JobConfigJSONProcessor(req_json)
         job_config = job_config_processor.generate_job_config()
 
         auth_context = AuthContextProcessor(auth_json)
 
-        job_db = DynamoDBInterface(get_job_table_name_from_env())
         project_db = DynamoDBInterface(get_project_table_name_from_env())
 
-        job = StartJobController(job_db,
-                                 project_db,
+        job = StartJobController(project_db,
                                  project_id,
                                  experiment_id,
+                                 num_jobs,
                                  job_config,
                                  auth_context).execute()
 

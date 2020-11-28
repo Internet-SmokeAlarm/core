@@ -61,20 +61,6 @@ Resources:
           KeyType: "HASH"
       TableName: !Join ["", [!Ref Stage, "-fl-projects"]]
 
-  JobsTable:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      BillingMode: PAY_PER_REQUEST
-      AttributeDefinitions:
-        -
-          AttributeName: "ID"
-          AttributeType: "S"
-      KeySchema:
-        -
-          AttributeName: "ID"
-          KeyType: "HASH"
-      TableName: !Join ["", [!Ref Stage, "-fl-jobs"]]
-
   AuthKeyTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -163,6 +149,8 @@ Resources:
         - AWSLambdaBasicExecutionRole
         - DynamoDBCrudPolicy:
             TableName: !Ref AuthKeyTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UsersTable
 
   CreateApiKeyFunction:
     Type: AWS::Serverless::Function
@@ -354,7 +342,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref ApiGw
-            Path: /v1/job/get/{project_id}/{job_id}
+            Path: /v1/job/get/{project_id}/{experiment_id}/{job_id}
             Method: get
 
   GetProjectFunction:
@@ -425,7 +413,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref ApiGw
-            Path: /v1/job/aggregate_model/{project_id}/{job_id}
+            Path: /v1/job/aggregate_model/{project_id}/{experiment_id}/{job_id}
             Method: get
 
   CreateProjectFunction:
@@ -477,30 +465,6 @@ Resources:
             RestApiId: !Ref ApiGw
             Path: /v1/project/delete
             Method: post
-
-  IsDeviceActiveFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      Timeout: 3
-      MemorySize: 128
-      CodeUri: api/device/get/is_active/
-      Handler: app.lambda_handler
-      FunctionName: !Join ["", [!Ref Stage, "-IsDeviceActive"]]
-      Layers:
-        - !Ref FMLaaSCoreDependencyLayer
-      Policies:
-        - AWSLambdaBasicExecutionRole
-        - DynamoDBCrudPolicy:
-            TableName: !Ref JobsTable
-        - DynamoDBCrudPolicy:
-            TableName: !Ref ProjectsTable
-      Events:
-        IsDeviceActiveApiEvent:
-          Type: Api
-          Properties:
-            RestApiId: !Ref ApiGw
-            Path: /v1/device/is_active/{project_id}/{job_id}/{device_id}
-            Method: get
 
   GetProjectActiveJobsFunction:
     Type: AWS::Serverless::Function
@@ -571,7 +535,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref ApiGw
-            Path: /v1/job/start_model/{project_id}/{job_id}
+            Path: /v1/job/start_model/{project_id}/{experiment_id}/{job_id}
             Method: get
 
   CreateExperimentFunction:
