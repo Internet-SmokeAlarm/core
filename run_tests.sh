@@ -2,4 +2,4 @@
 
 export MODELS_BUCKET="fedlearn-models-bucket-test"
 
-python3 -m unittest tests
+/usr/local/opt/python@3.8/bin/python3 -m unittest tests
