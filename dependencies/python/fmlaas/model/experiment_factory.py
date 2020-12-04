@@ -1,4 +1,4 @@
-from dependencies.python.fmlaas.model.experiment_configuration import ExperimentConfiguration
+from .experiment_configuration import ExperimentConfiguration
 from .experiment import Experiment
 
 

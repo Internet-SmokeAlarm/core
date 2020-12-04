@@ -1,4 +1,3 @@
-from dependencies.python.fmlaas.model.api_key import ApiKey
 from ..utils.time import get_epoch_time
 from .device import Device
 

@@ -36,11 +36,12 @@ def auth_controller(event, key_db, user_db):
         if authenticated:
             authentication_type = ApiKeyTypeEnum.JWT.value
 
-            # If the user doesn't exist in the user DB, we want to add them
-            user = handle_load_user(user_db, entity_id)
-            if not user:
-                new_user = UserFactory.create_user(entity_id)
-                new_user.save_to_db(user_db)
+    if authenticated and ApiKeyTypeEnum(authentication_type) != ApiKeyTypeEnum.DEVICE:
+        # If the user doesn't exist in the user DB, we want to add them
+        user = handle_load_user(user_db, entity_id)
+        if not user:
+            new_user = UserFactory.create_user(entity_id)
+            new_user.save_to_db(user_db)
 
     if authenticated:
         policy.allowAllMethods()

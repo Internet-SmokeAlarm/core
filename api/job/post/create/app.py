@@ -26,16 +26,16 @@ def lambda_handler(event, context):
 
         project_db = DynamoDBInterface(get_project_table_name_from_env())
 
-        job = StartJobController(project_db,
-                                 project_id,
-                                 experiment_id,
-                                 num_jobs,
-                                 job_config,
-                                 auth_context).execute()
+        jobs = StartJobController(project_db,
+                                  project_id,
+                                  experiment_id,
+                                  num_jobs,
+                                  job_config,
+                                  auth_context).execute()
 
         return {
             "statusCode": 200,
-            "body": json.dumps(job.to_json())
+            "body": json.dumps([job.to_json() for job in jobs])
         }
     except ValueError as error:
         return {

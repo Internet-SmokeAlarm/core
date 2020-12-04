@@ -34,7 +34,7 @@ class CreateApiKeyController(AbstractController):
         api_key.save_to_db(self._key_db)
 
         # Register API Key with User
-        self._user.add_api_key(id)
+        self._user.add_api_key(api_key.id)
         self._user.save_to_db(self._user_db)
 
         return key_plaintext

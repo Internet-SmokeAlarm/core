@@ -130,7 +130,7 @@ Resources:
       LayerName: core-sam-dependencies
       ContentUri: dependencies/
       CompatibleRuntimes:
-        - python3.7
+        - python3.8
       RetentionPolicy: Delete
 
 
@@ -203,7 +203,7 @@ Resources:
   RegisterDeviceFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Timeout: 10
+      Timeout: 30
       MemorySize: 1536
       CodeUri: api/project/post/register_device/
       Handler: app.lambda_handler
@@ -238,8 +238,6 @@ Resources:
         - AWSLambdaBasicExecutionRole
         - DynamoDBCrudPolicy:
             TableName: !Ref ProjectsTable
-        - DynamoDBCrudPolicy:
-            TableName: !Ref JobsTable
       Events:
         CancelJobApiEvent:
           Type: Api
@@ -262,8 +260,6 @@ Resources:
         - AWSLambdaBasicExecutionRole
         - DynamoDBCrudPolicy:
             TableName: !Ref ProjectsTable
-        - DynamoDBCrudPolicy:
-            TableName: !Ref JobsTable
         - !Ref S3PutObjectPolicy
       Events:
         SubmitExperimentStartModelApiEvent:
@@ -287,8 +283,6 @@ Resources:
         - AWSLambdaBasicExecutionRole
         - DynamoDBCrudPolicy:
             TableName: !Ref ProjectsTable
-        - DynamoDBCrudPolicy:
-            TableName: !Ref JobsTable
       Events:
         CreateJobApiEvent:
           Type: Api
@@ -311,8 +305,6 @@ Resources:
         - AWSLambdaBasicExecutionRole
         - DynamoDBCrudPolicy:
             TableName: !Ref ProjectsTable
-        - DynamoDBCrudPolicy:
-            TableName: !Ref JobsTable
       Events:
         TestingReportApiEvent:
           Type: Api
@@ -333,8 +325,6 @@ Resources:
         - !Ref FMLaaSCoreDependencyLayer
       Policies:
         - AWSLambdaBasicExecutionRole
-        - DynamoDBCrudPolicy:
-            TableName: !Ref JobsTable
         - DynamoDBCrudPolicy:
             TableName: !Ref ProjectsTable
       Events:
@@ -382,8 +372,6 @@ Resources:
         - AWSLambdaRole
         - DynamoDBCrudPolicy:
             TableName: !Ref ProjectsTable
-        - DynamoDBCrudPolicy:
-            TableName: !Ref JobsTable
       Events:
         ModelUploadedEvent:
           Type: S3
@@ -403,8 +391,6 @@ Resources:
         - !Ref FMLaaSCoreDependencyLayer
       Policies:
         - AWSLambdaBasicExecutionRole
-        - DynamoDBCrudPolicy:
-            TableName: !Ref JobsTable
         - DynamoDBCrudPolicy:
             TableName: !Ref ProjectsTable
         - !Ref S3GetObjectPolicy
@@ -454,8 +440,6 @@ Resources:
         - AWSLambdaBasicExecutionRole
         - DynamoDBCrudPolicy:
             TableName: !Ref ProjectsTable
-        - DynamoDBCrudPolicy:
-            TableName: !Ref JobsTable
         - S3CrudPolicy:
             BucketName: !Ref ModelBucket
       Events:
@@ -501,8 +485,6 @@ Resources:
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref ProjectsTable
-        - DynamoDBCrudPolicy:
-            TableName: !Ref JobsTable
         - AWSLambdaBasicExecutionRole
         - !Ref S3PutObjectPolicy
       Events:
@@ -525,8 +507,6 @@ Resources:
         - !Ref FMLaaSCoreDependencyLayer
       Policies:
         - AWSLambdaBasicExecutionRole
-        - DynamoDBCrudPolicy:
-            TableName: !Ref JobsTable
         - DynamoDBCrudPolicy:
             TableName: !Ref ProjectsTable
         - !Ref S3GetObjectPolicy
@@ -618,8 +598,6 @@ Resources:
         - AWSLambdaBasicExecutionRole
         - DynamoDBCrudPolicy:
             TableName: !Ref ProjectsTable
-        - DynamoDBCrudPolicy:
-            TableName: !Ref JobsTable
         - !Ref S3GetObjectPolicy
         - !Ref S3PutObjectPolicy
 

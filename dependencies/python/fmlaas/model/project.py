@@ -106,10 +106,10 @@ class Project(DBObject):
     def add_or_update_member(self,
                              user_id: str,
                              permission_level: ProjectPrivilegeTypesEnum) -> None:
-        self._members[user_id] = {"permission_level": permission_level.value}
+        self._members[user_id] = {"permission_level": str(permission_level.value)}
 
     def get_member_auth_level(self, user_id: str) -> ProjectPrivilegeTypesEnum:
-        return ProjectPrivilegeTypesEnum(self._members[user_id]["permission_level"])
+        return ProjectPrivilegeTypesEnum(int(self._members[user_id]["permission_level"]))
 
     def does_member_have_auth(self,
                               user_id: str,

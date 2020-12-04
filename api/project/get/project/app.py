@@ -6,7 +6,6 @@ from fmlaas.request_processor import IDProcessor
 from fmlaas.request_processor import AuthContextProcessor
 from fmlaas.controller.get_project import GetProjectController
 from fmlaas.exception import RequestForbiddenException
-from fmlaas import DecimalEncoder
 from fmlaas.utils import get_allowed_origins
 
 
@@ -40,7 +39,7 @@ def lambda_handler(event, context):
             "headers": {
                 "Access-Control-Allow-Origin": get_allowed_origins()
             },
-            "body": json.dumps(project_json, cls=DecimalEncoder)
+            "body": json.dumps(project_json)
         }
     except RequestForbiddenException as error:
         return {

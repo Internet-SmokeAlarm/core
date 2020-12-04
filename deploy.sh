@@ -34,7 +34,7 @@ aws s3api create-bucket --bucket ${STAGE}-verge-ai-core --region us-east-1
 # These values are used to authenticate with AWS Amplify Auth resources.
 # Long-term, this needs to be defined somewhere outside of Amplify....
 
-sam build
+sam build --parallel
 sam package --s3-bucket ${STAGE}-verge-ai-core --output-template-file build/packaged.yaml
 sam deploy  \
     --template-file build/packaged.yaml \
