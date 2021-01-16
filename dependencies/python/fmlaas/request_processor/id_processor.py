@@ -52,7 +52,7 @@ class IDProcessor(RequestProcessor):
             raise ValueError("Experiment id invalid.")
 
         return experiment_id
-    
+
     def get_experiment_name(self, throw_exception: bool = True) -> str:
         experiment_name = self.json.get(IDProcessor.EXPERIMENT_NAME_KEY, None)
 
@@ -60,7 +60,7 @@ class IDProcessor(RequestProcessor):
             raise ValueError("Experiment name invalid.")
 
         return experiment_name
-    
+
     def get_experiment_description(self, throw_exception: bool = True) -> str:
         experiment_description = self.json.get(IDProcessor.EXPERIMENT_DESCRIPTION_KEY, IDProcessor.DEFAULT_EXPERIMENT_DESCRIPTION)
 
@@ -100,11 +100,11 @@ class IDProcessor(RequestProcessor):
             raise ValueError("Num jobs is invalid.")
 
         return num_jobs
-    
+
     def get_num_devices(self, throw_exception: bool = True) -> int:
         num_devices = self.json.get(IDProcessor.NUM_DEVICES_KEY, 1)
 
         if not self._is_int_name_valid(num_devices) and throw_exception:
-            raise ValueError("Num devices is invalid.")
+            raise ValueError("Num devices invalid.")
 
-        return num_devices
+        return int(num_devices)

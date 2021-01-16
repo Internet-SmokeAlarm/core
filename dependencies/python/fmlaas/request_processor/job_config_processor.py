@@ -31,8 +31,10 @@ class JobConfigJSONProcessor(RequestProcessor):
         num_devices = self.json.get(
             JobConfigJSONProcessor.NUM_DEVICES_KEY, None)
 
+        print(num_devices)
         if not self._is_int_name_valid(num_devices):
             raise ValueError("Num devices invalid.")
+        print("WTF")
 
         return int(num_devices)
 
@@ -60,6 +62,11 @@ class JobConfigJSONProcessor(RequestProcessor):
         return converted_termination_criteria
 
     def generate_job_config(self) -> JobConfiguration:
+        print(self.get_num_devices())
+        print(self.get_num_backup_devices())
+        print(self.get_device_selection_strategy())
+        print(self.get_termination_criteria())
+
         return JobConfiguration(self.get_num_devices(),
                                 self.get_num_backup_devices(),
                                 self.get_device_selection_strategy(),
